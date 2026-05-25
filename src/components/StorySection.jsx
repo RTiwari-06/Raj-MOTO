@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { EASE, DUR, ST, STAGGER } from '../motion/system';
 
 const EVOLUTION_DATA = [
   {
@@ -39,8 +40,8 @@ export default function StorySection() {
       gsap.fromTo(headerRef.current,
         { y: 30, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.3, ease: 'power2.out',
-          scrollTrigger: { trigger: headerRef.current, start: 'top 85%', once: true },
+          y: 0, opacity: 1, duration: DUR.standard, ease: EASE.precision,
+          scrollTrigger: { trigger: headerRef.current, start: ST.start.section, once: true },
         }
       );
 
@@ -48,8 +49,8 @@ export default function StorySection() {
         gsap.fromTo(el,
           { y: 40, opacity: 0 },
           {
-            y: 0, opacity: 1, duration: 0.3, ease: 'power2.out', delay: i * 0.1,
-            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+            y: 0, opacity: 1, duration: DUR.standard, ease: EASE.precision, delay: i * STAGGER.elements,
+            scrollTrigger: { trigger: el, start: ST.start.section, once: true },
           }
         );
       });

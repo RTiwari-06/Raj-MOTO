@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { EASE, DUR, ST } from '../motion/system';
 
 const SOCIALS = [
   { label: 'GitHub',    href: '#' },
@@ -34,22 +35,22 @@ export default function ContactSection() {
       gsap.fromTo(headerRef.current,
         { y: 60, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.75, ease: 'power4.out',
-          scrollTrigger: { trigger: headerRef.current, start: 'top 80%', once: true },
+          y: 0, opacity: 1, duration: DUR.standard, ease: EASE.precision,
+          scrollTrigger: { trigger: headerRef.current, start: ST.start.section, once: true },
         }
       );
       gsap.fromTo(formRef.current,
         { y: 45, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.7, ease: 'power4.out', delay: 0.15,
-          scrollTrigger: { trigger: formRef.current, start: 'top 75%', once: true },
+          y: 0, opacity: 1, duration: DUR.standard, ease: EASE.precision, delay: 0.15,
+          scrollTrigger: { trigger: formRef.current, start: ST.start.section, once: true },
         }
       );
       gsap.fromTo(socialsRef.current,
         { y: 35, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.65, ease: 'power4.out', delay: 0.25,
-          scrollTrigger: { trigger: socialsRef.current, start: 'top 80%', once: true },
+          y: 0, opacity: 1, duration: DUR.standard, ease: EASE.precision, delay: 0.25,
+          scrollTrigger: { trigger: socialsRef.current, start: ST.start.section, once: true },
         }
       );
     }, sectionRef);

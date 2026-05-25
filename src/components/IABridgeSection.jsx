@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { EASE, DUR, ST } from '../motion/system';
 
 const BODY_COPY = `whether tuning a 250cc single-cylinder power plant or optimizing a react component tree, the philosophy remains identical: eliminate drag. maximize output. code is the engine. momentum is everything. always shipping.`;
 
@@ -16,10 +17,10 @@ export default function IABridgeSection() {
         { scaleX: 0 },
         {
           scaleX: 1,
-          duration: 0.9,
-          ease: 'power4.out',
+          duration: DUR.considered,
+          ease: EASE.precision,
           transformOrigin: 'left center',
-          scrollTrigger: { trigger: sectionRef.current, start: 'top 75%', once: true },
+          scrollTrigger: { trigger: sectionRef.current, start: ST.start.section, once: true },
         }
       );
 
@@ -28,10 +29,10 @@ export default function IABridgeSection() {
         {
           y: 0,
           opacity: 1,
-          duration: 1.0,
-          ease: 'power4.out',
+          duration: DUR.cinematic,
+          ease: EASE.precision,
           delay: 0.1,
-          scrollTrigger: { trigger: titleRef.current, start: 'top 80%', once: true },
+          scrollTrigger: { trigger: titleRef.current, start: ST.start.section, once: true },
         }
       );
 
@@ -40,10 +41,10 @@ export default function IABridgeSection() {
         {
           y: 0,
           opacity: 1,
-          duration: 0.8,
-          ease: 'power3.out',
+          duration: DUR.standard,
+          ease: EASE.momentum,
           delay: 0.3,
-          scrollTrigger: { trigger: bodyRef.current, start: 'top 80%', once: true },
+          scrollTrigger: { trigger: bodyRef.current, start: ST.start.section, once: true },
         }
       );
     }, sectionRef);

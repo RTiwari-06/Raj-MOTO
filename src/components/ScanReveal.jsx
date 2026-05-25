@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { EASE } from '../motion/system';
 
 export default function ScanReveal({
   children,
@@ -27,12 +28,12 @@ export default function ScanReveal({
       tl.fromTo(
         innerRef.current,
         { clipPath: 'inset(0% 0% 100% 0%)' },
-        { clipPath: 'inset(0% 0% 0% 0%)', duration, ease: 'power2.inOut' }
+        { clipPath: 'inset(0% 0% 0% 0%)', duration, ease: EASE.authority }
       )
       .fromTo(
         lineRef.current,
         { top: '0%', opacity: 1 },
-        { top: '95%', opacity: 0, duration, ease: 'power2.inOut' },
+        { top: '95%', opacity: 0, duration, ease: EASE.authority },
         '<'
       );
     }, outerRef);

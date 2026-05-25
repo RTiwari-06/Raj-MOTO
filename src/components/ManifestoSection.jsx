@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { EASE, DUR, ST, STAGGER } from '../motion/system';
 
 // Two stacked display lines + one subtitle — all animate via the same staggered lineRefs
 const LINES = [
@@ -23,30 +24,29 @@ export default function ManifestoSection() {
         {
           yPercent: 0,
           opacity: 1,
-          duration: 1.1,
-          ease: 'power4.out',
-          stagger: 0.12,
+          duration: DUR.cinematic,
+          ease: EASE.precision,
+          stagger: STAGGER.elements,
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 65%',
+            start: ST.start.late,
             once: true,
           },
         }
       );
 
-      // Right label fades in separately — unchanged
       gsap.fromTo(
         labelRef.current,
         { opacity: 0, x: 20 },
         {
           opacity: 1,
           x: 0,
-          duration: 1.2,
-          ease: 'power3.out',
+          duration: DUR.cinematic,
+          ease: EASE.momentum,
           delay: 0.5,
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 65%',
+            start: ST.start.late,
             once: true,
           },
         }

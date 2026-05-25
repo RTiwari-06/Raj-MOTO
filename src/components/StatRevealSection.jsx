@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Canvas } from '@react-three/fiber';
 import { FluidBackground } from './FluidBackground';
 import { MEDIA } from '../data/media';
+import { EASE, DUR, ST } from '../motion/system';
 
 const TECHNICAL = MEDIA.technical;
 
@@ -19,16 +20,15 @@ export default function StatRevealSection() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 60%',
+          start: ST.start.late,
           once: true,
         },
       });
 
-      // Counter 0 → 847 (commits pushed)
       tl.to(counterRef.current, {
         value: 847,
-        duration: 2.2,
-        ease: 'power2.out',
+        duration: DUR.breath,
+        ease: EASE.momentum,
         onUpdate: () => {
           if (statRef.current) {
             const v = Math.round(counterRef.current.value);
@@ -37,19 +37,17 @@ export default function StatRevealSection() {
         },
       }, 0);
 
-      // Label slides up
       tl.fromTo(
         labelRef.current,
         { yPercent: 60, opacity: 0 },
-        { yPercent: 0, opacity: 1, duration: 1, ease: 'power3.out' },
+        { yPercent: 0, opacity: 1, duration: DUR.considered, ease: EASE.momentum },
         0.2
       );
 
-      // Sub text
       tl.fromTo(
         subRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: 0.8, ease: 'power2.out' },
+        { opacity: 1, duration: DUR.standard, ease: EASE.momentum },
         0.9
       );
     }, sectionRef);
