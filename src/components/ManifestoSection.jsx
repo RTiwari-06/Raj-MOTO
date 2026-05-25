@@ -59,10 +59,10 @@ export default function ManifestoSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-screen bg-black flex items-center overflow-hidden border-t border-white/5 scan-lines"
+      className="relative w-full min-h-screen bg-black flex items-center overflow-hidden border-t border-white/5"
     >
       {/* Hairline grid overlay */}
-      <div className="absolute inset-0 pointer-events-none hairline-grid opacity-60" />
+      <div className="absolute inset-0 pointer-events-none hairline-grid opacity-20" />
 
       {/* Right-side vertical label — updated copy */}
       <div

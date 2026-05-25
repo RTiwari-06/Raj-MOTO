@@ -72,7 +72,7 @@ src/
 
 | Feature | Description |
 |---|---|
-| **WebGL Shader Reveal** | Mouse-reactive image transition with chromatic aberration driven by scroll velocity |
+| **WebGL Shader Reveal** | Mouse-reactive image transition with soft parallax and feathered reveal mask |
 | **3D Helmet Section** | Scroll-scrubbed 360° helmet rotation with phased text reveals and accent light wash |
 | **Tachometer Loader** | SVG gauge with live arc geometry, needle physics, and redline exit sequence |
 | **Horizontal Rides Archive** | Pinned horizontal scroll with containerAnimation-synced reveals |

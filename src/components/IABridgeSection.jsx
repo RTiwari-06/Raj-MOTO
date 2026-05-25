@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { EASE, DUR, ST } from '../motion/system';
 
-const BODY_COPY = `whether tuning a 250cc single-cylinder power plant or optimizing a react component tree, the philosophy remains identical: eliminate drag. maximize output. code is the engine. momentum is everything. always shipping.`;
+const BODY_COPY = `the philosophy remains identical — whether tuning a 250cc power plant or refining a component tree. eliminate drag. maximize output. the discipline transfers.`;
 
 export default function IABridgeSection() {
   const sectionRef = useRef(null);
@@ -55,7 +55,7 @@ export default function IABridgeSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-black border-t border-white/5 px-6 md:px-16 py-28 md:py-40 overflow-hidden"
+      className="relative w-full bg-black border-t border-white/5 px-6 md:px-16 py-36 md:py-48 overflow-hidden"
     >
       {/* Hairline grid */}
       <div className="absolute inset-0 pointer-events-none hairline-grid opacity-50" />
@@ -70,8 +70,8 @@ export default function IABridgeSection() {
         />
 
         {/* Section tag */}
-        <p className="font-mono text-[10px] font-black uppercase tracking-[0.45em] text-white/25 mb-8">
-          INFORMATION ARCHITECTURE &nbsp;//&nbsp; BRIDGE
+        <p className="font-mono text-[9px] font-black uppercase tracking-[0.45em] text-white/15 mb-10">
+          APPROACH &nbsp;//&nbsp; PHILOSOPHY
         </p>
 
         {/* Main title */}

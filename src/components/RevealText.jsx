@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { EASE, DUR, STAGGER, ST } from '../motion/system';
 
 export function RevealText({ text, className }) {
   const containerRef = useRef(null);
@@ -15,12 +16,12 @@ export function RevealText({ text, className }) {
         {
           y: '0%',
           opacity: 1,
-          duration: 0.9,
-          stagger: 0.07,
-          ease: 'power4.out',
+          duration: DUR.cinematic,
+          stagger: STAGGER.words,
+          ease: EASE.precision,
           scrollTrigger: {
             trigger: containerRef.current,
-            start: 'top 80%',
+            start: ST.start.section,
             once: true,
           },
         }

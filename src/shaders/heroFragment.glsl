@@ -10,7 +10,6 @@ uniform float     uHover;        // 0.0 = idle, 1.0 = hovering. Animated by JS.
 uniform float     uRevealRadius; // Outer edge of reveal. Default: 0.35
 uniform vec2      uResolution;   // Container width/height
 uniform vec2      uImageRes;     // Image natural width/height
-uniform float     uAberration;   // Scroll-velocity driven RGB split [0..~4]. Animated by JS.
 
 void main() {
   vec2 uv = vUv;
@@ -49,17 +48,8 @@ void main() {
   // Wide feathered mask for a premium soft gradient edge
   float mask = smoothstep(uRevealRadius, uRevealRadius * 0.1, d) * uHover;
 
-  // ─── COMPOSITE with RGB-split chromatic aberration ────────────────────────
-  // Two sources feed the split:
-  //   • uHover      — premium hover personality (small, intentional)
-  //   • uAberration — scroll-velocity reactive (cinematic anamorphic snap)
-  float hoverSplit    = uHover * 0.006;
-  float velocitySplit = uAberration * 0.004;
-  float split         = hoverSplit + velocitySplit;
-  float r = texture2D(uTexture, baseUv + vec2(split, 0.0)).r;
-  float g = texture2D(uTexture, baseUv).g;
-  float b = texture2D(uTexture, baseUv - vec2(split, 0.0)).b;
-  vec4 base   = vec4(r, g, b, 1.0);
+  // ─── COMPOSITE ─────────────────────────────────────────────────────────────
+  vec4 base   = texture2D(uTexture, baseUv);
   vec4 reveal = texture2D(uTexture2, revealUv);
 
   gl_FragColor = mix(base, reveal, mask);

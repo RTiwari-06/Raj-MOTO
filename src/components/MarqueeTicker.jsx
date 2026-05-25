@@ -4,11 +4,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useUIStore } from '../store/useUIStore';
 
 const ITEMS = [
-  'RT•MOTO', '•', 'DUKE 250', '•',
-  'ALWAYS SHIPPING', '•', 'MOTION FIRST', '•',
-  'BENGALURU · NANDI · NH44', '•', 'CODE IS THE ENGINE', '•',
-  'RT•MOTO', '•', 'DUKE 250', '•',
-  'ALWAYS SHIPPING', '•', 'MOTION FIRST', '•',
+  'RT•MOTO', '·', 'DUKE 250', '·',
+  'BENGALURU', '·', 'MOTION', '·',
+  'RT•MOTO', '·', 'DUKE 250', '·',
+  'BENGALURU', '·', 'MOTION', '·',
 ];
 
 export default function MarqueeTicker({ dark = true }) {
@@ -23,7 +22,7 @@ export default function MarqueeTicker({ dark = true }) {
 
     tweenRef.current = gsap.to(track, {
       x: -totalWidth,
-      duration: 38,
+      duration: 55,
       ease: 'none',
       repeat: -1,
     });
@@ -32,7 +31,7 @@ export default function MarqueeTicker({ dark = true }) {
     const velocityTrigger = ScrollTrigger.create({
       onUpdate: (self) => {
         const v = self.getVelocity();
-        const targetScale = 1 + Math.min(Math.abs(v) * 0.0025, 5);
+        const targetScale = 1 + Math.min(Math.abs(v) * 0.0012, 2.5);
         prevVelocity = gsap.utils.interpolate(prevVelocity, targetScale, 0.1);
         if (tweenRef.current) tweenRef.current.timeScale(prevVelocity);
       },
@@ -62,7 +61,7 @@ export default function MarqueeTicker({ dark = true }) {
   }, []);
 
   const bg   = dark ? '#111112' : '#f2f0e8';
-  const text = dark ? 'rgba(255,255,255,0.11)' : 'rgba(0,0,0,0.14)';
+  const text = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.09)';
 
   return (
     <div
@@ -76,8 +75,8 @@ export default function MarqueeTicker({ dark = true }) {
         {[...ITEMS, ...ITEMS].map((item, i) => (
           <span
             key={i}
-            className="text-[11px] font-black uppercase px-6 label-spaced"
-            style={{ color: item === '•' ? 'var(--accent)' : text }}
+            className="text-[10px] font-black uppercase px-8 label-spaced"
+            style={{ color: item === '·' ? 'var(--accent)' : text }}
           >
             {item}
           </span>

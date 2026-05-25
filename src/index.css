@@ -76,7 +76,7 @@
   /* — Layout — */
   --container-max:      1440px;
   --container-padding:  clamp(20px, 5vw, 80px);
-  --section-gap:        clamp(80px, 12vw, 160px);
+  --section-gap:        clamp(96px, 14vw, 200px);
   --border-radius-sm:   4px;
   --border-radius-md:   8px;
   --border-radius-lg:   16px;

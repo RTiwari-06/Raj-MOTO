@@ -60,7 +60,7 @@ export default function StorySection() {
   }, []);
 
   return (
-    <section id="story" ref={sectionRef} className="relative w-full bg-darker py-24 px-6 md:px-16 overflow-hidden border-t border-white/5">
+    <section id="story" ref={sectionRef} className="relative w-full bg-darker py-32 md:py-40 px-6 md:px-16 overflow-hidden border-t border-white/5">
       <div className="max-w-screen-xl mx-auto">
 
         <div ref={headerRef} className="mb-16 opacity-0 flex flex-col md:flex-row md:items-end justify-between gap-8">

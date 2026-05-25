@@ -44,19 +44,19 @@ export default function ActionGallery() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden py-28 md:py-36"
+      className="relative w-full overflow-hidden py-36 md:py-44"
       style={{ backgroundColor: '#f2f0e8' }}
     >
       {/* Header */}
-      <div className="text-center mb-16 px-8">
-        <p className="text-[10px] tracking-[0.45em] uppercase font-bold mb-5" style={{ color: '#999' }}>
-          RT•MOTO // Visual Archive
+      <div className="text-center mb-20 px-8">
+        <p className="text-[9px] tracking-[0.45em] uppercase font-bold mb-6" style={{ color: '#aaa' }}>
+          OFF TRACK
         </p>
         <h2
-          className="text-[10vw] md:text-[6.5vw] font-black uppercase tracking-tighter leading-none"
+          className="text-[9vw] md:text-[5vw] font-black uppercase tracking-tighter leading-none"
           style={{ color: '#111' }}
         >
-          Action Gallery
+          Moments
         </h2>
       </div>
 

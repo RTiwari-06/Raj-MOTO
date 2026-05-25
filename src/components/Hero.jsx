@@ -24,8 +24,19 @@ const Hero = ({ isLoaded = true }) => {
   const setImageHovering = useStore((state) => state.setImageHovering);
   const setFluidIntensity = useStore((state) => state.setFluidIntensity);
 
-  // Holographic DOM parallax — layers float on mouse move
   useParallax(containerRef, 14);
+
+  // ─── SCROLLTRIGGER REFRESH — forces recalculation after fonts/images settle ──
+  useEffect(() => {
+    if (!isLoaded) return;
+    let raf;
+    raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => {
+        ScrollTrigger.refresh(true);
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [isLoaded]);
 
   // ─── G-FORCE VELOCITY SKEW ───────────────────────────────────────────────────
   // Lenis velocity → canvas skewX via quickTo. Zero React re-renders.
@@ -257,7 +268,7 @@ const Hero = ({ isLoaded = true }) => {
             style={{
               fontSize:         'clamp(7rem, 24vw, 24rem)',
               letterSpacing:    '-0.045em',
-              WebkitTextStroke: '1.5px rgba(255,255,255,0.10)',
+              WebkitTextStroke: '1px rgba(255,255,255,0.04)',
               color:            'transparent',
               opacity:          0,
             }}
@@ -270,7 +281,7 @@ const Hero = ({ isLoaded = true }) => {
             style={{
               fontSize:         'clamp(7rem, 24vw, 24rem)',
               letterSpacing:    '-0.045em',
-              WebkitTextStroke: '1.5px rgba(210,255,0,0.16)',
+              WebkitTextStroke: '1px rgba(210,255,0,0.05)',
               color:            'transparent',
               opacity:          0,
             }}
@@ -284,7 +295,7 @@ const Hero = ({ isLoaded = true }) => {
       <div data-depth="0.7" className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
         <div
           ref={canvasWrapRef}
-          className="relative w-[94vw] max-w-[1400px] aspect-[16/9] rounded-sm shadow-2xl pointer-events-auto"
+          className="relative w-[94vw] max-w-[1400px] aspect-[16/9] flex-shrink-0 rounded-sm shadow-2xl pointer-events-auto"
           style={{ willChange: 'transform, opacity' }}
           onMouseEnter={() => { setHovering(true);  setImageHovering(true);  }}
           onMouseLeave={() => { setHovering(false); setImageHovering(false); }}
@@ -310,14 +321,14 @@ const Hero = ({ isLoaded = true }) => {
           </div>
 
           {/* Corner registration marks */}
-          <div className="absolute top-3 left-3 w-5 h-[1px] bg-white/20 pointer-events-none" />
-          <div className="absolute top-3 left-3 w-[1px] h-5 bg-white/20 pointer-events-none" />
-          <div className="absolute top-3 right-3 w-5 h-[1px] bg-white/20 pointer-events-none" />
-          <div className="absolute top-3 right-3 w-[1px] h-5 bg-white/20 pointer-events-none" />
-          <div className="absolute bottom-3 left-3 w-5 h-[1px] bg-white/20 pointer-events-none" />
-          <div className="absolute bottom-3 left-3 w-[1px] h-5 bg-white/20 pointer-events-none" />
-          <div className="absolute bottom-3 right-3 w-5 h-[1px] bg-white/20 pointer-events-none" />
-          <div className="absolute bottom-3 right-3 w-[1px] h-5 bg-white/20 pointer-events-none" />
+          <div className="absolute top-3 left-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute top-3 left-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
+          <div className="absolute top-3 right-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute top-3 right-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 left-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 left-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 right-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 right-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
 
           <div
             className="absolute -bottom-8 left-0 right-0 h-20 pointer-events-none z-20"
@@ -327,16 +338,16 @@ const Hero = ({ isLoaded = true }) => {
       </div>
 
       {/* ── LAYER 2: Foreground UI (z-30) — tagline, labels, metadata ──────── */}
-      <div data-depth="-0.2" className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between px-8 md:px-16 py-8 md:py-10">
+      <div data-depth="-0.2" className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between px-10 md:px-20 py-10 md:py-14">
 
-        {/* Top row — location label left / portfolio status right */}
-        <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-between">
-          <span className="font-mono text-[11px] tracking-widest text-[#D2FF00] opacity-80">
+        {/* Top row — whisper-quiet metadata, never competing with navbar */}
+        <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-between pt-12">
+          <span className="font-mono text-[9px] tracking-[0.3em] text-[#D2FF00]/30">
             Bengaluru, India · 2026
           </span>
           <span
             ref={hudRef}
-            className="text-[9px] md:text-[10px] uppercase font-black tracking-[0.3em] text-white/30"
+            className="text-[8px] uppercase font-black tracking-[0.3em] text-white/10"
             style={{ opacity: 0 }}
           >
             RT•MOTO // 2026
@@ -346,25 +357,23 @@ const Hero = ({ isLoaded = true }) => {
         {/* Bottom row — tagline + signature + CTA left / scroll cue right */}
         <div className="w-full max-w-screen-2xl mx-auto flex justify-between items-end">
 
-          {/* Left: tagline + technical labels + signature + CTA */}
-          <div className="flex flex-col items-start gap-5">
+          {/* Left: identity block with intentional breathing room */}
+          <div className="flex flex-col items-start gap-6 pb-2">
 
-            {/* Tagline + technical labels (foreground identity) */}
             <div ref={taglineRef} style={{ opacity: 0 }}>
               <p className="font-serif font-black uppercase text-white leading-none"
                  style={{ fontSize: '17px', letterSpacing: '-0.01em' }}>
                 Raj Tiwari.
               </p>
-              <p className="font-mono text-[10px] tracking-[0.4em] uppercase mt-2"
-                 style={{ color: '#D2FF00', opacity: 0.85 }}>
+              <p className="font-mono text-[10px] tracking-[0.4em] uppercase mt-2.5"
+                 style={{ color: '#D2FF00', opacity: 0.6 }}>
                 MOTION / ENGINEER
               </p>
-              <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/30 mt-1.5">
+              <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/20 mt-1.5">
                 React · GSAP · Three.js
               </p>
             </div>
 
-            {/* Handwritten signature — hidden on mobile */}
             <svg
               width="164" height="46"
               viewBox="0 0 164 46"
@@ -372,14 +381,15 @@ const Hero = ({ isLoaded = true }) => {
               xmlns="http://www.w3.org/2000/svg"
               className="hidden md:block"
               aria-hidden="true"
+              style={{ opacity: 0.4 }}
             >
               <path
                 d="M4 34 C14 18 24 44 38 28 C48 16 60 40 76 26 C86 16 96 36 112 22 C124 10 138 38 154 24 C160 18 163 28 164 26"
-                stroke="#D2FF00" strokeWidth="1.4" strokeLinecap="round" fill="none" opacity="0.65"
+                stroke="#D2FF00" strokeWidth="1.4" strokeLinecap="round" fill="none"
               />
               <path
                 d="M4 42 C22 38 46 44 70 40 C94 36 118 43 142 39"
-                stroke="#D2FF00" strokeWidth="0.8" strokeLinecap="round" fill="none" opacity="0.35"
+                stroke="#D2FF00" strokeWidth="0.8" strokeLinecap="round" fill="none" opacity="0.5"
               />
             </svg>
 
@@ -403,10 +413,10 @@ const Hero = ({ isLoaded = true }) => {
             </div>
           </div>
 
-          {/* Right: throttle cue — vertical text + arrow */}
+          {/* Right: scroll cue — peripheral, never dominant */}
           <div ref={scrollCueRef} className="flex flex-col items-center gap-3">
             <p
-              className="text-[7px] font-black tracking-[0.45em] uppercase text-white/25"
+              className="text-[7px] font-black tracking-[0.45em] uppercase text-white/12"
               style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.38em' }}
             >
               ENGAGE THROTTLE
@@ -420,7 +430,7 @@ const Hero = ({ isLoaded = true }) => {
             >
               <path
                 d="M5 0 L5 13 M1 8 L5 13 L9 8"
-                stroke="rgba(210,255,0,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                stroke="rgba(210,255,0,0.15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
               />
             </svg>
           </div>

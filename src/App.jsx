@@ -53,18 +53,17 @@ function App() {
 
         {/* ── DOCTRINE ── Single statement */}
         <ScanReveal>
-          <section className="min-h-screen w-full bg-darker px-10 py-40 border-t border-white/5 relative z-20 flex flex-col justify-center items-center text-center">
-            <InertialLag strength={6}>
+          <section className="min-h-screen w-full bg-darker px-10 py-52 md:py-64 border-t border-white/5 relative z-20 flex flex-col justify-center items-center text-center">
+            <InertialLag strength={4}>
               <RevealText
-                text="Built To Fight. Wired To Win."
-                className="text-[8vw] font-black max-w-6xl leading-[0.9] tracking-tighter"
+                text="Built To Move."
+                className="text-[9vw] md:text-[7vw] font-black max-w-5xl leading-[0.88] tracking-tighter"
               />
             </InertialLag>
-            <InertialLag strength={3}>
-              <p className="text-muted text-sm mt-10 max-w-sm leading-relaxed tracking-wide">
-                Code Is The Blueprint. Motion Is The Soul.
-                Whether It's A GSAP Timeline Or A Mountain Pass,
-                The Discipline Never Changes — Find The Apex. Ship The Work.
+            <InertialLag strength={2}>
+              <p className="text-white/25 text-sm mt-16 max-w-md leading-relaxed tracking-wide">
+                The discipline never changes.
+                Find the apex. Ship the work.
               </p>
             </InertialLag>
           </section>

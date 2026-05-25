@@ -103,8 +103,8 @@ export default function ContactSection() {
             BUILD.
           </h2>
 
-          <p className="font-sans text-gray-300 max-w-xl mt-8" style={{ fontSize: 'clamp(1rem, 1.5vw, 1.125rem)', lineHeight: '1.5' }}>
-            Frontend engineering, motion design, full-stack projects. For collaborations, opportunities, or just to talk shop — transmit your signal.
+          <p className="font-sans text-white/30 max-w-lg mt-10" style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.05rem)', lineHeight: '1.7' }}>
+            For collaborations, opportunities, or conversations worth having.
           </p>
         </div>
 

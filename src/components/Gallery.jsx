@@ -87,7 +87,7 @@ export default function GallerySection() {
   }, []);
 
   return (
-    <section id="gallery" ref={sectionRef} className="relative w-full bg-black py-32 px-6 md:px-16 border-t border-white/5">
+    <section id="gallery" ref={sectionRef} className="relative w-full bg-black py-36 md:py-44 px-6 md:px-16 border-t border-white/5">
 
       {/* Floating cursor label */}
       <div
@@ -111,19 +111,14 @@ export default function GallerySection() {
       </div>
 
       {/* Header */}
-      <div ref={headerRef} className="mb-16 opacity-0">
-        <div className="flex items-center gap-3 mb-5">
-          <span className="text-accent text-[9px] font-black label-spaced">[ + ]</span>
-          <p className="text-[9px] label-spaced uppercase font-black text-accent">
-            R T • M O T O &nbsp;// &nbsp; V I S U A L &nbsp; A R C H I V E
+      <div ref={headerRef} className="mb-20 opacity-0">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-8 h-[1.5px] bg-[#D2FF00]" />
+          <p className="text-[9px] label-spaced uppercase font-black text-white/20">
+            VISUAL ARCHIVE
           </p>
         </div>
-        <div className="flex items-end justify-between flex-wrap gap-4">
-          <h2 className="text-[12vw] md:text-[7vw] font-black uppercase tracking-tighter leading-none text-light">Gallery</h2>
-          <p className="text-muted text-sm max-w-xs text-right leading-relaxed">
-            Click any image to expand. Use ← → keys to navigate.
-          </p>
-        </div>
+        <h2 className="text-[10vw] md:text-[5vw] font-black uppercase tracking-tighter leading-none text-light">Gallery</h2>
       </div>
 
       {/* Masonry grid */}
