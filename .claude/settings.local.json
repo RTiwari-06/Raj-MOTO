@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "WebFetch(domain:landonorris.com)",
+      "PowerShell(\\(Get-Item \"C:\\\\Users\\\\compaq\\\\Desktop\\\\SCT_WD\\\\website designing\\\\public\\\\helmet.glb\"\\).Length / 1MB; \\(Get-Item \"C:\\\\Users\\\\compaq\\\\Desktop\\\\SCT_WD\\\\website designing\\\\dist\\\\helmet.glb\"\\).Length / 1MB)",
+      "WebFetch(domain:localhost)"
+    ],
+    "ask": [
+      "WebFetch"
+    ]
+  }
+}
