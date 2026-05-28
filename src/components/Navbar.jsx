@@ -35,8 +35,8 @@ const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className={`fixed top-0 left-0 w-full z-50 border-b border-white/5 transition-[background-color] duration-500 ${
-        scrolled ? 'bg-black/40 backdrop-blur-md' : 'bg-transparent'
+      className={`fixed top-0 left-0 w-full z-50 border-b border-white/10 transition-[background-color] duration-500 ${
+        scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
       }`}
       style={{ opacity: 0 }}
     >
