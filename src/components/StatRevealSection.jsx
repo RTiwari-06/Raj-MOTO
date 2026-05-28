@@ -87,14 +87,14 @@ export default function StatRevealSection() {
           <div className="mb-16">
             <div className="w-[50px] h-[2px] bg-[#D2FF00] mx-auto mb-8" />
             <p
-              className="font-serif font-black uppercase text-white leading-none"
-              style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}
+              className="font-serif font-black uppercase leading-none"
+              style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em', color: '#D2FF00' }}
             >
               DEV /
             </p>
             <p
-              className="font-serif font-black uppercase leading-none"
-              style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em', color: '#D2FF00' }}
+              className="font-serif font-black uppercase text-white leading-none"
+              style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}
             >
               STACK
             </p>
@@ -151,39 +151,49 @@ export default function StatRevealSection() {
       {/* ── CARDS ZONE — solid dark bg, no WebGL ────────────────────────────── */}
       <div className="relative z-10 bg-[#0d0d0d] border-t border-white/5 px-8 md:px-16 py-24 md:py-32">
 
+        {/* Section header — stacked editorial (lime-first per DNA) */}
+        <div className="mb-16 md:mb-24">
+          <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-8" />
+          <h2
+            className="font-serif font-black uppercase leading-none"
+            style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)', letterSpacing: '-0.03em', lineHeight: '0.9', color: '#D2FF00' }}
+          >
+            TECHNICAL
+          </h2>
+          <h2
+            className="font-serif font-black uppercase text-white leading-none"
+            style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}
+          >
+            ARSENAL
+          </h2>
+        </div>
+
         {TECHNICAL.map((group) => (
           <div key={group.category} className="mb-16 last:mb-0">
 
             {/* Category sub-header */}
-            <div className="flex items-center gap-5 mb-8">
-              <p className="text-[10px] font-black uppercase tracking-[0.45em] text-white/25">
+            <div className="border-b border-white/10 pb-4 mb-6">
+              <p className="font-mono text-[11px] font-black uppercase tracking-[0.2em] text-[#D2FF00]">
                 {group.category}
               </p>
-              <div className="h-px flex-1 bg-white/5" />
             </div>
 
-            {/* Skill cards — 3-col desktop / 2-col tablet / 1-col mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {/* Skill cards — auto-fill grid, border-bottom reacts to lime on hover */}
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
               {group.skills.map((skill) => (
                 <div
                   key={skill.name}
-                  className="group relative bg-[#1a1a1a] px-6 py-5 border-b border-[#D2FF00]/15 transition-all duration-300 hover:-translate-y-1 hover:border-[#D2FF00]/70 hover:shadow-[0_4px_28px_rgba(210,255,0,0.07)] cursor-default select-none"
+                  className="bg-[#1a1a1a] border border-white/8 border-b-2 border-b-transparent px-5 py-4 transition-all duration-200 ease-out hover:bg-[#1f1f1f] hover:border-b-[#D2FF00] hover:-translate-y-0.5 cursor-default select-none"
                 >
-                  {/* Tool name */}
-                  <p className="text-white font-bold text-[18px] leading-none mb-2 transition-colors duration-300">
+                  <p className="text-white font-semibold text-[13px] leading-none mb-2">
                     {skill.name}
                   </p>
-
-                  {/* Level badge */}
                   <p
-                    className="text-[10px] font-black uppercase tracking-[0.35em]"
-                    style={{ color: '#D2FF00', opacity: 0.7 }}
+                    className="text-[10px] font-black uppercase tracking-[0.2em]"
+                    style={{ color: '#D2FF00' }}
                   >
                     {skill.level}
                   </p>
-
-                  {/* Hover accent line — left edge */}
-                  <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#D2FF00] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 </div>
               ))}
             </div>
