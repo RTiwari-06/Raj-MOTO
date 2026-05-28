@@ -4,7 +4,17 @@
       "Bash(npm run *)",
       "WebFetch(domain:landonorris.com)",
       "PowerShell(\\(Get-Item \"C:\\\\Users\\\\compaq\\\\Desktop\\\\SCT_WD\\\\website designing\\\\public\\\\helmet.glb\"\\).Length / 1MB; \\(Get-Item \"C:\\\\Users\\\\compaq\\\\Desktop\\\\SCT_WD\\\\website designing\\\\dist\\\\helmet.glb\"\\).Length / 1MB)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(timeout 8 powershell -c \"Start-Sleep 4\")",
+      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -s -o nul -w \"main.jsx: %{http_code}\\\\n\" http://localhost:5173/src/main.jsx)",
+      "Bash(curl -s -o nul -w \"App.jsx: %{http_code}\\\\n\" http://localhost:5173/src/App.jsx)",
+      "Bash(curl -s -o nul -w \"Hero.jsx: %{http_code}\\\\n\" http://localhost:5173/src/components/Hero.jsx)",
+      "Bash(curl -s -o nul -w \"HelmetSection.jsx: %{http_code}\\\\n\" http://localhost:5173/src/components/HelmetSection.jsx)",
+      "Bash(curl -s -o nul -w \"helmet.glb: %{http_code}\\\\n\" http://localhost:5173/helmet.glb)",
+      "Bash(curl -s http://localhost:5173/src/main.jsx)",
+      "Bash(git *)"
     ],
     "ask": [
       "WebFetch"
