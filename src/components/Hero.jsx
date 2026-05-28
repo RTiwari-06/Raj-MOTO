@@ -6,7 +6,7 @@ import { HeroShaderMesh } from './HeroShaderMesh';
 import { FluidBackground } from './FluidBackground';
 import { useStore } from '../store/useStore';
 import { runScramble } from '../utils/scramble';
-import { EASE, DUR, VELOCITY, ST } from '../motion/system';
+import { EASE, DUR } from '../motion/system';
 import { useParallax } from '../hooks/useParallax';
 
 const Hero = ({ isLoaded = true }) => {
@@ -39,26 +39,6 @@ const Hero = ({ isLoaded = true }) => {
     });
     return () => cancelAnimationFrame(raf);
   }, [isLoaded]);
-
-  // ─── G-FORCE VELOCITY SKEW ───────────────────────────────────────────────────
-  // Lenis velocity → canvas skewX via quickTo. Zero React re-renders.
-  useEffect(() => {
-    if (!canvasWrapRef.current) return;
-
-    const quickSkew = gsap.quickTo(canvasWrapRef.current, 'skewX', {
-      duration: 0.6,
-      ease: EASE.hover,
-    });
-
-    const unsub = useStore.subscribe((state, prev) => {
-      if (state.velocity === prev.velocity) return;
-      quickSkew(
-        gsap.utils.clamp(-VELOCITY.maxSkew, VELOCITY.maxSkew, state.velocity * VELOCITY.velocityScale)
-      );
-    });
-
-    return () => unsub();
-  }, []);
 
   // ─── CINEMATIC ENTRY SEQUENCE ────────────────────────────────────────────────
   useEffect(() => {
@@ -219,58 +199,6 @@ const Hero = ({ isLoaded = true }) => {
     };
   }, [isLoaded, setFluidIntensity]);
 
-  // ─── SCROLL DEPTH PARALLAX ───────────────────────────────────────────────────
-  useEffect(() => {
-    if (!canvasWrapRef.current || !containerRef.current) return;
-
-    const ctx = gsap.context(() => {
-      // One pinned timeline drives every layer in lockstep, so the entire hero
-      // recedes as a single locked composition — nothing detaches on scroll.
-      const exit = gsap.timeline({
-        defaults: { ease: EASE.scrub },
-        scrollTrigger: {
-          trigger:             containerRef.current,
-          start:               ST.start.hero,
-          end:                 'bottom top',
-          scrub:               ST.scrub.standard,
-          pin:                 true,
-          pinSpacing:          true,
-          anticipatePin:       1,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      // Subject recedes into depth
-      exit.to(canvasWrapRef.current, { scale: 0.82, yPercent: -6, opacity: 0.5 }, 0);
-
-      // Background typography pulls back with it — locked, never drifting away
-      if (watermarkRef.current) {
-        exit.to(watermarkRef.current, { scale: 0.94, yPercent: -4, opacity: 0 }, 0);
-      }
-
-      // Foreground HUD lifts and clears as the frame powers down
-      if (uiLayerRef.current) {
-        exit.to(uiLayerRef.current, { yPercent: -10, opacity: 0 }, 0);
-      }
-
-      // Scroll cue is first to go — a quick acknowledgement of input
-      if (scrollCueRef.current) {
-        gsap.to(scrollCueRef.current, {
-          opacity: 0,
-          ease:    EASE.scrub,
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start:   'top top',
-            end:     '+=180',
-            scrub:   true,
-          },
-        });
-      }
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
     <section ref={containerRef} className="relative w-full h-screen bg-black overflow-hidden">
 
@@ -384,9 +312,8 @@ const Hero = ({ isLoaded = true }) => {
                  style={{ color: '#D2FF00', opacity: 0.65 }}>
                 MOTION / ENGINEER
               </p>
-              <p className="font-sans text-[12px] leading-relaxed text-white/45 mt-3 max-w-[34ch]">
-                I build high-performance web interfaces — fluid, fast, and
-                engineered down to the last frame.
+              <p className="font-sans text-[12px] leading-relaxed text-white/45 mt-3 max-w-[30ch]">
+                High-performance web interfaces, engineered in motion.
               </p>
               <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/25 mt-3">
                 React · GSAP · Three.js · WebGL
