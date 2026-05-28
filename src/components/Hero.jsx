@@ -12,6 +12,8 @@ import { useParallax } from '../hooks/useParallax';
 const Hero = ({ isLoaded = true }) => {
   const containerRef  = useRef(null);
   const canvasWrapRef = useRef(null);
+  const watermarkRef  = useRef(null);   // Layer 0 wrapper — outlined RAJ / TIWARI
+  const uiLayerRef    = useRef(null);   // Layer 2 wrapper — HUD + identity + cue
   const line1Ref      = useRef(null);   // Layer 0: outlined "RAJ"
   const line2Ref      = useRef(null);   // Layer 0: outlined "TIWARI"
   const ctaRef        = useRef(null);
@@ -222,23 +224,36 @@ const Hero = ({ isLoaded = true }) => {
     if (!canvasWrapRef.current || !containerRef.current) return;
 
     const ctx = gsap.context(() => {
-      gsap.to(canvasWrapRef.current, {
-        scale:    0.82,
-        yPercent: -6,
-        opacity:  0.5,
-        ease:     EASE.scrub,
+      // One pinned timeline drives every layer in lockstep, so the entire hero
+      // recedes as a single locked composition — nothing detaches on scroll.
+      const exit = gsap.timeline({
+        defaults: { ease: EASE.scrub },
         scrollTrigger: {
-          trigger:            containerRef.current,
-          start:              ST.start.hero,
-          end:                'bottom top',
-          scrub:              ST.scrub.standard,
-          pin:                true,
-          pinSpacing:         true,
-          anticipatePin:      1,
+          trigger:             containerRef.current,
+          start:               ST.start.hero,
+          end:                 'bottom top',
+          scrub:               ST.scrub.standard,
+          pin:                 true,
+          pinSpacing:          true,
+          anticipatePin:       1,
           invalidateOnRefresh: true,
         },
       });
 
+      // Subject recedes into depth
+      exit.to(canvasWrapRef.current, { scale: 0.82, yPercent: -6, opacity: 0.5 }, 0);
+
+      // Background typography pulls back with it — locked, never drifting away
+      if (watermarkRef.current) {
+        exit.to(watermarkRef.current, { scale: 0.94, yPercent: -4, opacity: 0 }, 0);
+      }
+
+      // Foreground HUD lifts and clears as the frame powers down
+      if (uiLayerRef.current) {
+        exit.to(uiLayerRef.current, { yPercent: -10, opacity: 0 }, 0);
+      }
+
+      // Scroll cue is first to go — a quick acknowledgement of input
       if (scrollCueRef.current) {
         gsap.to(scrollCueRef.current, {
           opacity: 0,
@@ -261,7 +276,7 @@ const Hero = ({ isLoaded = true }) => {
 
       {/* ── LAYER 0: Background outlined typography (z-0) — depth only ─────── */}
       <div data-depth="0.4" className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none">
-        <div className="text-center" style={{ lineHeight: '0.82' }}>
+        <div ref={watermarkRef} className="text-center" style={{ lineHeight: '0.82' }}>
           <p
             ref={line1Ref}
             className="font-serif font-black uppercase leading-none block"
@@ -338,7 +353,7 @@ const Hero = ({ isLoaded = true }) => {
       </div>
 
       {/* ── LAYER 2: Foreground UI (z-30) — tagline, labels, metadata ──────── */}
-      <div data-depth="-0.2" className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between px-10 md:px-20 py-10 md:py-14">
+      <div ref={uiLayerRef} data-depth="-0.2" className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between px-10 md:px-20 py-10 md:py-14">
 
         {/* Top row — whisper-quiet metadata, never competing with navbar */}
         <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-between pt-12">
@@ -362,15 +377,19 @@ const Hero = ({ isLoaded = true }) => {
 
             <div ref={taglineRef} style={{ opacity: 0 }}>
               <p className="font-serif font-black uppercase text-white leading-none"
-                 style={{ fontSize: '17px', letterSpacing: '-0.01em' }}>
+                 style={{ fontSize: '19px', letterSpacing: '-0.01em' }}>
                 Raj Tiwari.
               </p>
               <p className="font-mono text-[10px] tracking-[0.4em] uppercase mt-2.5"
-                 style={{ color: '#D2FF00', opacity: 0.6 }}>
+                 style={{ color: '#D2FF00', opacity: 0.65 }}>
                 MOTION / ENGINEER
               </p>
-              <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/20 mt-1.5">
-                React · GSAP · Three.js
+              <p className="font-sans text-[12px] leading-relaxed text-white/45 mt-3 max-w-[34ch]">
+                I build high-performance web interfaces — fluid, fast, and
+                engineered down to the last frame.
+              </p>
+              <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/25 mt-3">
+                React · GSAP · Three.js · WebGL
               </p>
             </div>
 
@@ -402,10 +421,8 @@ const Hero = ({ isLoaded = true }) => {
               <a
                 href="#rides"
                 data-magnetic="cta"
-                className="group relative inline-flex items-center gap-3 px-7 py-3 text-[10px] font-black tracking-[0.35em] uppercase text-white border transition-colors"
-                style={{ borderColor: '#D2FF00', borderRadius: '1px', transitionDuration: '80ms' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#D2FF00'; e.currentTarget.style.color = '#000'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#fff'; }}
+                className="group relative inline-flex items-center gap-3 px-7 py-3 text-[10px] font-black tracking-[0.35em] uppercase text-white border border-[#D2FF00] hover:bg-[#D2FF00] hover:text-black transition-colors duration-[80ms]"
+                style={{ borderRadius: '1px' }}
               >
                 ENGAGE
                 <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
