@@ -68,11 +68,12 @@ export default function StorySection() {
             <div className="flex items-center gap-3 mb-5">
               <span className="text-accent text-[9px] font-black label-spaced">[ + ]</span>
               <p className="text-[9px] label-spaced uppercase font-black text-accent">
-                R A J &nbsp;// &nbsp; T H E &nbsp; P A T H
+                R A J &nbsp;//&nbsp; 2 0 2 2 — 2 0 2 6
               </p>
             </div>
-            <h2 className="text-[10vw] md:text-[5vw] font-black uppercase tracking-tighter leading-none text-light">
-              The Path
+            <h2 className="font-serif font-black uppercase leading-none" style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}>
+              <span className="block" style={{ color: '#D2FF00' }}>THE</span>
+              <span className="block text-white">PATH.</span>
             </h2>
           </div>
           <div className="max-w-md">

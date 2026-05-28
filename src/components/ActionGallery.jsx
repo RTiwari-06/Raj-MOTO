@@ -49,12 +49,13 @@ export default function ActionGallery() {
     >
       {/* Header */}
       <div className="text-center mb-20 px-8">
-        <p className="text-[9px] tracking-[0.45em] uppercase font-bold mb-6" style={{ color: '#aaa' }}>
+        <div className="w-[60px] h-[2px] bg-[#111112] mx-auto mb-8" />
+        <p className="text-[9px] tracking-[0.45em] uppercase font-bold mb-5" style={{ color: '#888' }}>
           OFF TRACK
         </p>
         <h2
-          className="text-[9vw] md:text-[5vw] font-black uppercase tracking-tighter leading-none"
-          style={{ color: '#111' }}
+          className="font-serif font-black uppercase leading-none"
+          style={{ fontSize: 'clamp(3rem, 8vw, 7rem)', letterSpacing: '-0.03em', lineHeight: '0.9', color: '#111112' }}
         >
           Moments
         </h2>

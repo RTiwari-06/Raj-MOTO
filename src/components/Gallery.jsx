@@ -112,13 +112,11 @@ export default function GallerySection() {
 
       {/* Header */}
       <div ref={headerRef} className="mb-20 opacity-0">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-[1.5px] bg-[#D2FF00]" />
-          <p className="text-[9px] label-spaced uppercase font-black text-white/20">
-            VISUAL ARCHIVE
-          </p>
-        </div>
-        <h2 className="text-[10vw] md:text-[5vw] font-black uppercase tracking-tighter leading-none text-light">Gallery</h2>
+        <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-6" />
+        <h2 className="font-serif font-black uppercase leading-none" style={{ fontSize: 'clamp(2.5rem, 7vw, 7rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}>
+          <span className="block" style={{ color: '#D2FF00' }}>VISUAL</span>
+          <span className="block text-white">ARCHIVE</span>
+        </h2>
       </div>
 
       {/* Masonry grid */}
