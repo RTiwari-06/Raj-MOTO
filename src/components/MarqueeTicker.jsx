@@ -76,7 +76,7 @@ export default function MarqueeTicker({ dark = true }) {
           <span
             key={i}
             className="text-[10px] font-black uppercase px-8 label-spaced"
-            style={{ color: item === '·' ? 'var(--accent)' : text }}
+            style={{ color: item === '·' ? '#D2FF00' : text }}
           >
             {item}
           </span>
