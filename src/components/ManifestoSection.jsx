@@ -5,8 +5,8 @@ import { EASE, DUR, ST, STAGGER } from '../motion/system';
 
 // Two stacked display lines + one subtitle — all animate via the same staggered lineRefs
 const LINES = [
-  { text: 'REDEFINING',                                                                   style: 'display'        },
-  { text: 'LIMITS.',                                                                      style: 'display-accent' },
+  { text: 'REDEFINING',                                                                   style: 'display-accent' },
+  { text: 'LIMITS.',                                                                      style: 'display'        },
   { text: "The screen is the circuit. Code is the engine. Momentum is everything.",        style: 'subtitle'       },
 ];
 
@@ -59,7 +59,7 @@ export default function ManifestoSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-screen bg-black flex items-center overflow-hidden border-t border-white/5"
+      className="relative w-full min-h-screen bg-black flex flex-col justify-center overflow-hidden border-t border-white/5"
     >
       {/* Hairline grid overlay */}
       <div className="absolute inset-0 pointer-events-none hairline-grid opacity-20" />
@@ -83,7 +83,7 @@ export default function ManifestoSection() {
       <div className="max-w-screen-xl mx-auto px-8 md:px-16 w-full py-32">
 
         {/* Lime accent bar — RT•MOTO brand marker above the heading */}
-        <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-10" />
+        <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-8" />
 
         {/* Stacked lines — each wrapped in overflow-hidden so yPercent clip works */}
         <div className="space-y-0">
@@ -97,9 +97,9 @@ export default function ManifestoSection() {
                   <p
                     className="font-serif font-black uppercase text-white leading-none"
                     style={{
-                      fontSize:      'clamp(4rem, 12vw, 10rem)',
+                      fontSize:      'clamp(60px, 10vw, 140px)',
                       letterSpacing: '-0.03em',
-                      lineHeight:    '0.92',
+                      lineHeight:    '0.9',
                     }}
                   >
                     {line.text}
@@ -110,9 +110,9 @@ export default function ManifestoSection() {
                   <p
                     className="font-serif font-black uppercase leading-none"
                     style={{
-                      fontSize:      'clamp(4rem, 12vw, 10rem)',
+                      fontSize:      'clamp(60px, 10vw, 140px)',
                       letterSpacing: '-0.03em',
-                      lineHeight:    '0.92',
+                      lineHeight:    '0.9',
                       color:         '#D2FF00',
                     }}
                   >
@@ -122,7 +122,7 @@ export default function ManifestoSection() {
 
                 {line.style === 'subtitle' && (
                   <p
-                    className="font-sans font-normal text-gray-300 leading-relaxed max-w-xl"
+                    className="font-sans font-light text-white/50 leading-relaxed max-w-md"
                     style={{ fontSize: 'clamp(1rem, 1.5vw, 1.125rem)', marginTop: '2rem' }}
                   >
                     {line.text}
