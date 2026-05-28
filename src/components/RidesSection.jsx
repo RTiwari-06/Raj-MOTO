@@ -258,7 +258,7 @@ export default function RidesSection({ onViewDetail = null }) {
                 <button
                   onClick={() => onViewDetail(ride)}
                   data-magnetic="cta"
-                  className="group/btn mt-5 flex items-center gap-3 text-[9px] font-black tracking-[0.35em] uppercase border border-[#D2FF00]/50 text-[#D2FF00] hover:bg-[#D2FF00] hover:text-black hover:border-[#D2FF00] px-6 py-3 transition-colors duration-300"
+                  className="group/btn btn-rt mt-5 flex items-center gap-3 text-[9px] font-black tracking-[0.35em] uppercase border border-[#D2FF00]/50 text-[#D2FF00] px-6 py-3"
                   style={{ borderRadius: '1px' }}
                 >
                   View Ride

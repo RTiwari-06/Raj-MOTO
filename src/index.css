@@ -647,6 +647,45 @@ html.lenis { height: auto; }
   border-color: var(--color-accent);
 }
 
+/* ── RT signature CTA — animated throttle-wipe ─────────────────────────────────
+   Ghost button (transparent bg) whose lime fill sweeps in from the left on hover.
+   Text flips to black as the fill arrives; subtle lime glow. Works on <a>/<button>.
+   Use .btn-rt--ink on light backgrounds (dark fill + cream text). */
+.btn-rt {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 150ms ease 150ms, border-color 200ms ease, box-shadow 320ms ease;
+}
+.btn-rt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #D2FF00;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+}
+.btn-rt:hover::before,
+.btn-rt:focus-visible::before {
+  transform: scaleX(1);
+}
+.btn-rt:hover {
+  color: #000;
+  border-color: #D2FF00;
+  box-shadow: 0 0 30px rgba(210, 255, 0, 0.18);
+}
+
+.btn-rt--ink::before {
+  background: #111112;
+}
+.btn-rt--ink:hover {
+  color: #f2f0e8;
+  border-color: #111112;
+  box-shadow: 0 0 26px rgba(0, 0, 0, 0.14);
+}
+
 /* ── Contact Finale ─────────────────────────────────────────────────────────── */
 
 .contact-statement {

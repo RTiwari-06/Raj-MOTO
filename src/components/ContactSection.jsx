@@ -159,7 +159,7 @@ export default function ContactSection() {
               <button
                 type="submit"
                 data-magnetic="cta"
-                className="group inline-flex items-center gap-4 px-9 py-5 text-[11px] font-black uppercase tracking-[0.4em] bg-[#D2FF00] text-black hover:bg-white transition-colors duration-[80ms]"
+                className="group btn-rt inline-flex items-center gap-4 px-9 py-5 text-[11px] font-black uppercase tracking-[0.4em] border border-[#D2FF00] text-[#D2FF00]"
                 style={{ borderRadius: '0px' }}
               >
                 <span>TRANSMIT</span>

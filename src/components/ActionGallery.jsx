@@ -143,14 +143,14 @@ export default function ActionGallery() {
         <a
           href="#rides"
           data-magnetic
-          className="px-8 py-3.5 border border-black text-black text-[10px] tracking-[0.35em] uppercase font-bold transition-all duration-300 hover:bg-black hover:text-[#f2f0e8]"
+          className="btn-rt btn-rt--ink px-8 py-3.5 border border-black text-black text-[10px] tracking-[0.35em] uppercase font-bold"
         >
           View Rides
         </a>
         <a
           href="#gallery"
           data-magnetic="cta"
-          className="px-8 py-3.5 bg-black text-[#f2f0e8] text-[10px] tracking-[0.35em] uppercase font-bold transition-colors duration-300 hover:bg-[#D2FF00] hover:text-black"
+          className="btn-rt btn-rt--ink px-8 py-3.5 border border-black text-black text-[10px] tracking-[0.35em] uppercase font-bold"
         >
           Full Gallery
         </a>

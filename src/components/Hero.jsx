@@ -421,7 +421,7 @@ const Hero = ({ isLoaded = true }) => {
               <a
                 href="#rides"
                 data-magnetic="cta"
-                className="group relative inline-flex items-center gap-3 px-7 py-3 text-[10px] font-black tracking-[0.35em] uppercase text-white border border-[#D2FF00] hover:bg-[#D2FF00] hover:text-black transition-colors duration-[80ms]"
+                className="group btn-rt relative inline-flex items-center gap-3 px-7 py-3 text-[10px] font-black tracking-[0.35em] uppercase text-white border border-[#D2FF00]"
                 style={{ borderRadius: '1px' }}
               >
                 ENGAGE
