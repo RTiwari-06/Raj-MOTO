@@ -6,6 +6,10 @@ import { EASE, DUR, ST } from '../motion/system';
 
 const RIDES = MEDIA.rides;
 
+// Lando DNA: one accent only. Per-ride colors in media.js are intentionally
+// left in the data but overridden to lime here so nothing competes.
+const ACCENT = '#D2FF00';
+
 export default function RidesSection({ onViewDetail = null }) {
   const sectionRef = useRef(null);
   const trackRef   = useRef(null);
@@ -43,7 +47,7 @@ export default function RidesSection({ onViewDetail = null }) {
                 gsap.set(dot, {
                   opacity:         i === idx ? 1 : 0.25,
                   scaleX:          i === idx ? 1.8 : 1,
-                  backgroundColor: i === idx ? RIDES[i].accent : 'rgba(255,255,255,0.25)',
+                  backgroundColor: i === idx ? ACCENT : 'rgba(255,255,255,0.25)',
                 });
               });
             },
@@ -150,14 +154,14 @@ export default function RidesSection({ onViewDetail = null }) {
         <div>
           <div className="w-8 h-[1.5px] bg-[#D2FF00] mb-3" />
           <p
-            className="font-serif font-black uppercase text-white leading-none"
-            style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.6rem)', letterSpacing: '-0.02em' }}
+            className="font-serif font-black uppercase leading-none"
+            style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.6rem)', letterSpacing: '-0.02em', color: '#D2FF00' }}
           >
             RIDES /
           </p>
           <p
-            className="font-serif font-black uppercase leading-none"
-            style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.6rem)', letterSpacing: '-0.02em', color: '#D2FF00' }}
+            className="font-serif font-black uppercase text-white leading-none"
+            style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.6rem)', letterSpacing: '-0.02em' }}
           >
             ARCHIVE
           </p>
@@ -171,7 +175,7 @@ export default function RidesSection({ onViewDetail = null }) {
               ref={(el) => (dotRefs.current[i] = el)}
               className="h-[2px] w-6"
               style={{
-                backgroundColor: i === 0 ? ride.accent : 'rgba(255,255,255,0.25)',
+                backgroundColor: i === 0 ? ACCENT : 'rgba(255,255,255,0.25)',
                 transformOrigin: 'left center',
                 display: RIDES.length > 1 ? 'block' : 'none',
               }}
@@ -223,7 +227,7 @@ export default function RidesSection({ onViewDetail = null }) {
             {/* Slide index (hidden if only 1 ride) */}
             {RIDES.length > 1 && (
               <div className="absolute top-[76px] right-10 md:right-16 pointer-events-none z-10">
-                <p className="text-[8px] font-black uppercase tracking-[0.5em]" style={{ color: `${ride.accent}80` }}>
+                <p className="text-[8px] font-black uppercase tracking-[0.5em]" style={{ color: 'rgba(210,255,0,0.5)' }}>
                   0{i + 1}&nbsp;/&nbsp;0{RIDES.length}
                 </p>
               </div>
@@ -245,7 +249,7 @@ export default function RidesSection({ onViewDetail = null }) {
               </h3>
               <span
                 className="inline-block mt-5 text-[8px] font-black uppercase tracking-[0.35em] px-4 py-1.5"
-                style={{ backgroundColor: ride.accent, color: '#000' }}
+                style={{ backgroundColor: ACCENT, color: '#000' }}
               >
                 {ride.tag}
               </span>
@@ -254,18 +258,8 @@ export default function RidesSection({ onViewDetail = null }) {
                 <button
                   onClick={() => onViewDetail(ride)}
                   data-magnetic="cta"
-                  className="group/btn mt-5 flex items-center gap-3 text-[9px] font-black tracking-[0.35em] uppercase border px-6 py-3 transition-colors duration-300"
-                  style={{ borderColor: `${ride.accent}55`, color: ride.accent, borderRadius: '1px' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = ride.accent;
-                    e.currentTarget.style.color = '#000';
-                    e.currentTarget.style.borderColor = ride.accent;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = ride.accent;
-                    e.currentTarget.style.borderColor = `${ride.accent}55`;
-                  }}
+                  className="group/btn mt-5 flex items-center gap-3 text-[9px] font-black tracking-[0.35em] uppercase border border-[#D2FF00]/50 text-[#D2FF00] hover:bg-[#D2FF00] hover:text-black hover:border-[#D2FF00] px-6 py-3 transition-colors duration-300"
+                  style={{ borderRadius: '1px' }}
                 >
                   View Ride
                   <span className="transition-transform duration-200 group-hover/btn:translate-x-1">→</span>
