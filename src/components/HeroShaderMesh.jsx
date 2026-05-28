@@ -35,6 +35,7 @@ export function HeroShaderMesh() {
         uRevealRadius: { value: CONFIG.revealRadius },
         uResolution:   { value: new THREE.Vector2(1, 1) }, // Updated in frame
         uImageRes:     { value: new THREE.Vector2(baseTexture.image.width, baseTexture.image.height) },
+        uTime:         { value: 0 },
       },
     });
   }, [baseTexture, revealTexture]);
@@ -47,6 +48,7 @@ export function HeroShaderMesh() {
     // This fixes any letterboxing or squashing if the canvas resizes on scroll
     meshRef.current.scale.set(state.viewport.width, state.viewport.height, 1);
     u.uResolution.value.set(state.viewport.width, state.viewport.height);
+    u.uTime.value = state.clock.elapsedTime;
 
     smoothMouse.current.x += (imageMouse.x - smoothMouse.current.x) * CONFIG.mouseLerpSpeed;
     smoothMouse.current.y += (imageMouse.y - smoothMouse.current.y) * CONFIG.mouseLerpSpeed;
