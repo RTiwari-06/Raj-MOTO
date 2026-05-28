@@ -395,6 +395,32 @@ html.lenis { height: auto; }
   margin-top: calc(var(--leading-tight) * -0.2em);
 }
 
+/* ── Lando-DNA stacked section titles (canonical helpers) ───────────────────── */
+.section-title-lime {
+  font-family: var(--font-serif);
+  font-size: clamp(56px, 9vw, 140px);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: #D2FF00;
+}
+
+.section-title-white {
+  font-family: var(--font-serif);
+  font-size: clamp(56px, 9vw, 140px);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: #f0f0f0;
+}
+
+.accent-line {
+  width: 60px;
+  height: 2px;
+  background: #D2FF00;
+  margin-bottom: 32px;
+}
+
 /* ── Cards ──────────────────────────────────────────────────────────────────── */
 
 .card {
