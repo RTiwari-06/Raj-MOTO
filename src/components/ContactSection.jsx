@@ -84,26 +84,26 @@ export default function ContactSection() {
         {/* ── HEADER ─────────────────────────────────────────────────────────── */}
         <div ref={headerRef} className="opacity-0 mb-16 md:mb-20">
 
-          <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-10" />
+          <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-8" />
 
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.45em] text-white/30 mb-10">
             DROP COORDINATES &nbsp;//&nbsp; 2026
           </p>
 
           <h2
-            className="font-serif font-black uppercase text-white leading-none"
-            style={{ fontSize: 'clamp(3rem, 10vw, 8.5rem)', letterSpacing: '-0.03em', lineHeight: '0.92' }}
+            className="font-serif font-black uppercase leading-none"
+            style={{ fontSize: 'clamp(3rem, 10vw, 8.5rem)', letterSpacing: '-0.03em', lineHeight: '0.9', color: '#D2FF00' }}
           >
             LET'S
           </h2>
           <h2
-            className="font-serif font-black uppercase leading-none"
-            style={{ fontSize: 'clamp(3rem, 10vw, 8.5rem)', letterSpacing: '-0.03em', lineHeight: '0.92', color: '#D2FF00' }}
+            className="font-serif font-black uppercase text-white leading-none"
+            style={{ fontSize: 'clamp(3rem, 10vw, 8.5rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}
           >
             BUILD.
           </h2>
 
-          <p className="font-sans text-white/30 max-w-lg mt-10" style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.05rem)', lineHeight: '1.7' }}>
+          <p className="font-sans font-light text-white/40 max-w-lg mt-10" style={{ fontSize: 'clamp(0.95rem, 1.4vw, 1.05rem)', lineHeight: '1.7' }}>
             For collaborations, opportunities, or conversations worth having.
           </p>
         </div>
@@ -159,26 +159,11 @@ export default function ContactSection() {
               <button
                 type="submit"
                 data-magnetic="cta"
-                className="inline-flex items-center gap-4 px-9 py-5 text-[11px] font-black uppercase tracking-[0.4em] transition-colors"
-                style={{
-                  backgroundColor: '#D2FF00',
-                  color: '#000',
-                  borderRadius: '0px',
-                  transitionDuration: '80ms',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#000';
-                  e.currentTarget.style.color = '#D2FF00';
-                  e.currentTarget.style.boxShadow = 'inset 0 0 0 1px #D2FF00';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#D2FF00';
-                  e.currentTarget.style.color = '#000';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
+                className="group inline-flex items-center gap-4 px-9 py-5 text-[11px] font-black uppercase tracking-[0.4em] bg-[#D2FF00] text-black hover:bg-white transition-colors duration-[80ms]"
+                style={{ borderRadius: '0px' }}
               >
                 <span>TRANSMIT</span>
-                <span className="transition-transform duration-200">→</span>
+                <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
               </button>
 
               <a
