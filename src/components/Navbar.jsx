@@ -5,19 +5,23 @@ import { useUIStore } from '../store/useUIStore';
 import { EASE, DUR } from '../motion/system';
 
 const LINKS = [
-  { label: 'IGNITION',         subLabel: '[ ABOUT ]',      href: '#',        gear: '1ST' },
-  { label: 'MACHINE',          subLabel: '[ RIDES ]',      href: '#rides',   gear: '2ND' },
-  { label: 'PIT LANE',         subLabel: '[ EXPERIENCE ]', href: '#story',   gear: '3RD' },
-  { label: 'TARMAC',           subLabel: '[ WORK ]',       href: '#rides',   gear: '4TH' },
-  { label: 'DROP COORDINATES', subLabel: '[ CONTACT ]',    href: '#connect', gear: '5TH' },
+  { label: 'IGNITION',         href: '#'        },
+  { label: 'MACHINE',          href: '#rides'   },
+  { label: 'PIT LANE',         href: '#story'   },
+  { label: 'TARMAC',           href: '#rides'   },
+  { label: 'DROP COORDINATES', href: '#connect' },
 ];
 
 const Navbar = () => {
   const navRef        = useRef(null);
   const setHovering   = useStore((state) => state.setHovering);
+  // Boolean selector — Zustand only re-renders when the threshold is crossed,
+  // not on every scroll frame.
+  const scrolled      = useStore((state) => state.scroll > 24);
   const motionEnabled = useUIStore((state) => state.motionEnabled);
   const toggleMotion  = useUIStore((state) => state.toggleMotion);
 
+  // GSAP entrance — unchanged
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(navRef.current,
@@ -31,67 +35,56 @@ const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 left-0 w-full z-50 mix-blend-difference"
+      className={`fixed top-0 left-0 w-full z-50 border-b border-white/5 transition-[background-color] duration-500 ${
+        scrolled ? 'bg-black/40 backdrop-blur-md' : 'bg-transparent'
+      }`}
       style={{ opacity: 0 }}
     >
-      <div className="max-w-screen-2xl mx-auto px-10 md:px-20 py-6 flex items-center justify-between">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-10 md:px-20 py-5">
 
-        {/* Logo — single clean identity, no clutter */}
+        {/* LEFT — identity */}
         <a
           href="#"
           data-magnetic
-          className="flex items-end gap-[2px] leading-none"
+          className="justify-self-start font-serif leading-none text-[#D2FF00]"
+          style={{ fontSize: '18px', letterSpacing: '-0.01em' }}
           onMouseEnter={() => setHovering(true)}
           onMouseLeave={() => setHovering(false)}
         >
-          <span className="text-light text-xl font-black tracking-tight uppercase">RT</span>
-          <span className="text-lg font-black leading-none mb-[1px]" style={{ color: '#D2FF00' }}>•</span>
-          <span className="text-light text-xl font-black tracking-tight uppercase">MOTO</span>
+          RT•MOTO
         </a>
 
-        {/* Nav links — CSS-only hover states, no event listener leaks */}
-        <ul className="hidden md:flex items-center gap-10">
-          {LINKS.map(({ label, subLabel, href, gear }) => (
+        {/* CENTER — navigation (always in flow, never absolute) */}
+        <ul className="hidden md:flex items-center gap-8 justify-self-center">
+          {LINKS.map(({ label, href }) => (
             <li key={label}>
               <a
                 href={href}
                 data-magnetic
-                className="group relative flex flex-col items-start text-[10px] font-semibold uppercase tracking-[0.2em] text-light/60 hover:text-light transition-colors duration-[120ms]"
+                className="text-[11px] tracking-[0.2em] uppercase text-white/50 hover:text-[#D2FF00] transition-colors duration-200 whitespace-nowrap"
                 onMouseEnter={() => setHovering(true)}
                 onMouseLeave={() => setHovering(false)}
               >
-                {/* Gear indicator — appears above on hover */}
-                <span className="block text-[7px] font-black tracking-[0.4em] uppercase mb-[3px] text-[#D2FF00] opacity-0 translate-y-1.5 group-hover:opacity-70 group-hover:translate-y-0 transition-all duration-[80ms] ease-out">
-                  {gear}
-                </span>
-
-                <span>{label}</span>
-
-                {/* Sub-label — visible on hover */}
-                <span className="block text-[7px] font-mono font-normal tracking-[0.3em] mt-[3px] text-[#D2FF00]/45 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-[80ms] ease-out">
-                  {subLabel}
-                </span>
-
-                {/* Gear-shift underline */}
-                <span className="block h-[1px] mt-[3px] w-full bg-[#D2FF00] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-[80ms] ease-out" />
+                {label}
               </a>
             </li>
           ))}
         </ul>
 
-        {/* Right — motion toggle only, no redundant labels */}
-        <div className="hidden lg:flex items-center">
+        {/* RIGHT — system status (also the motion toggle — a11y preserved) */}
+        <div className="justify-self-end">
           <button
             onClick={toggleMotion}
             data-magnetic
-            className="flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.35em] transition-colors duration-[80ms]"
-            style={{ color: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.25)' }}
+            aria-pressed={motionEnabled}
+            aria-label={motionEnabled ? 'Motion on — click to reduce motion' : 'Motion paused — click to enable'}
+            className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/20 hover:text-[#D2FF00] transition-colors duration-200"
           >
             <span
-              className="w-[5px] h-[5px] rounded-full transition-colors duration-[80ms]"
+              className="w-[5px] h-[5px] rounded-full transition-colors duration-200"
               style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)' }}
             />
-            {motionEnabled ? '[MOTION: ON]' : '[MOTION: OFF]'}
+            {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
           </button>
         </div>
 
