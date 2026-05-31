@@ -10,7 +10,7 @@ uniform float     uHover;        // 0.0 = idle, 1.0 = hovering. Animated by JS.
 uniform float     uRevealRadius; // Outer edge of reveal. Default: 0.35
 uniform vec2      uResolution;   // Container width/height
 uniform vec2      uImageRes;     // Image natural width/height
-uniform float     uTime;         // Seconds — drives the fluid motion
+uniform float     uTime;         // Seconds — drives the gentle fluid motion
 
 // ─── Simplex noise (Ashima) — same generator as the fluid background ──────────
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -49,57 +49,51 @@ void main() {
   vec2 imgRes = uImageRes;
   float rs = s.x / s.y;
   float ri = imgRes.x / imgRes.y;
-
   vec2 newRes = rs < ri ? vec2(imgRes.x * s.y / imgRes.y, s.y) : vec2(s.x, imgRes.y * s.x / imgRes.x);
   vec2 offset = (rs < ri ? vec2((newRes.x - s.x) / 2.0, 0.0) : vec2(0.0, (newRes.y - s.y) / 2.0)) / newRes;
-
   vec2 coverUv = vUv * s / newRes + offset;
 
   // ─── MICRO PARALLAX & SCALE ────────────────────────────────────────────────
   float scale = mix(1.0, 1.05, uHover);
   vec2 scaledUv = (coverUv - 0.5) / scale + 0.5;
-
   vec2 mouseOffset = (uMouse - 0.5);
   vec2 baseUv   = scaledUv + mouseOffset * 0.02 * uHover;
   vec2 revealUv = scaledUv + mouseOffset * 0.04 * uHover;
 
-  // ─── FLUID / WAVE REVEAL ───────────────────────────────────────────────────
+  // ─── MINIMAL FLUID REVEAL ──────────────────────────────────────────────────
   // Distance from the cursor, gently ovalised.
   vec2 delta = uv - uMouse;
   delta.x *= 0.9;
   delta.y *= 1.1;
   float d = length(delta);
 
-  // Layered flowing noise + concentric wavefronts radiating from the cursor.
-  float flow1  = snoise(uv * 3.0 + uTime * 0.25);
-  float flow2  = snoise(uv * 6.5 - uTime * 0.20 + flow1);
-  float ripple = sin(d * 34.0 - uTime * 2.2) * 0.5 + 0.5;
-  float edge   = flow1 * 0.5 + flow2 * 0.3 + (ripple - 0.5) * 0.4;
+  // Two slow octaves of noise softly warp the boundary → a calm liquid edge.
+  float n1   = snoise(uv * 3.0 + uTime * 0.18);
+  float n2   = snoise(uv * 6.0 - uTime * 0.14 + n1);
+  float warp = n1 * 0.5 + n2 * 0.25;
 
-  // Perturb the distance so the boundary undulates like a liquid.
-  // The core stays crisp; only the rim ripples → precise yet fluid.
-  float dWave = d + edge * 0.05 * uHover;
+  float dWave = d + warp * 0.045 * uHover;
 
-  // Tighter feather than the old soft blob = a more defined reveal.
-  float mask = smoothstep(uRevealRadius, uRevealRadius * 0.55, dWave) * uHover;
+  // Soft, clean feathered edge — minimal, no rings, no rim.
+  float mask = smoothstep(uRevealRadius, uRevealRadius * 0.5, dWave) * uHover;
 
-  // ─── LIQUID REFRACTION ─────────────────────────────────────────────────────
-  // Displace the reveal sampling along a flowing noise field — watery distortion.
+  // Gentle liquid refraction on the revealed image only.
   vec2 flowVec = vec2(
-    snoise(uv * 5.0 + uTime * 0.35),
-    snoise(uv * 5.0 - uTime * 0.30 + 17.0)
+    snoise(uv * 4.0 + uTime * 0.25),
+    snoise(uv * 4.0 - uTime * 0.22 + 11.0)
   );
-  revealUv += flowVec * 0.016 * mask;
+  revealUv += flowVec * 0.012 * mask;
 
   // ─── COMPOSITE ─────────────────────────────────────────────────────────────
   vec4 base   = texture2D(uTexture, baseUv);
   vec4 reveal = texture2D(uTexture2, revealUv);
 
-  vec4 color = mix(base, reveal, mask);
+  vec3 rgb = mix(base.rgb, reveal.rgb, mask);
 
-  // Lime accent riding the rippling edge — a premium fluid highlight.
-  float rim = smoothstep(0.0, 0.30, mask) * (1.0 - smoothstep(0.30, 0.65, mask));
-  color.rgb += vec3(0.823, 1.0, 0.0) * rim * 0.12 * uHover;
+  // "Downed" over the starfield — dark regions of the photo turn translucent so
+  // the cosmos bleeds through, while the lit subject stays solid.
+  float lum   = dot(rgb, vec3(0.299, 0.587, 0.114));
+  float alpha = mix(0.55, 1.0, smoothstep(0.04, 0.5, lum));
 
-  gl_FragColor = color;
+  gl_FragColor = vec4(rgb, alpha);
 }

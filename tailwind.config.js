@@ -17,7 +17,8 @@ export default {
       },
       fontFamily: {
         sans:  ['Inter', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
+        // Display/headings — brutalist WIDE grotesque (was Playfair serif)
+        serif: ['Saira Expanded', 'Arial Narrow', 'sans-serif'],
         mono:  ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {

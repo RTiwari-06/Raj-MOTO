@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useStore } from '../store/useStore';
+import { useStore } from '@/store/useStore';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,6 +19,9 @@ export function SmoothScroll({ children }) {
       smoothTouch: false,
       touchMultiplier: 2,
     });
+
+    // Expose the instance so UI (Navbar smooth-scroll + menu scroll-lock) can drive it.
+    window.__lenis = lenis;
 
     lenis.on('scroll', (e) => {
       setScroll(e.scroll, e.velocity);
@@ -37,6 +40,7 @@ export function SmoothScroll({ children }) {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      if (window.__lenis === lenis) window.__lenis = null;
     };
   }, [setScroll]);
 

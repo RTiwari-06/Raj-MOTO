@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { useStore } from '../store/useStore';
-import { VELOCITY, EASE, DUR } from './system';
+import { useStore } from '@/store/useStore';
+import { VELOCITY, EASE, DUR } from '@/motion/system';
 
 /**
  * <InertialLag> — wraps children in a div whose Y-translate tracks Lenis

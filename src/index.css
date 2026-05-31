@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Saira+Expanded:wght@500;600;700;800;900&display=swap');
 
 @import "tailwindcss";
 @config "../tailwind.config.js";
@@ -9,7 +9,7 @@
 
 :root {
   /* — Colors — */
-  --color-bg-primary:    #0d0d0d;
+  --color-bg-primary:    #0a0a0a;
   --color-bg-secondary:  #141414;
   --color-bg-card:       #1a1a1a;
   --color-bg-surface:    #1f1f1f;
@@ -23,7 +23,8 @@
 
   /* — Typography Families — */
   --font-sans:  'Inter', sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  /* Display/headings — brutalist WIDE grotesque (was Playfair serif) */
+  --font-serif: 'Saira Expanded', 'Arial Narrow', sans-serif;
   --font-mono:  'JetBrains Mono', monospace;
 
   /* — Type Scale — */

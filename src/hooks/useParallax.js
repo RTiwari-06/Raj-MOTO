@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { useStore } from '../store/useStore';
+import { useStore } from '@/store/useStore';
 
 /**
  * Attaches holographic DOM parallax to a container ref.

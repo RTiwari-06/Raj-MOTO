@@ -81,3 +81,11 @@ export const HOVER = {
   scale:    1.03,   // scale pulse
   magnetic: 0.28,   // magnetic pull factor (0 = none, 1 = full follow)
 };
+
+// ── Cinematic Scroll (System 01) ─────────────────────────────────────────────
+// Scrub weights — how heavily a scroll-linked animation lags the scrollbar.
+export const SCROLL = {
+  FILM:  2.5,   // slow, weighted, cinematic
+  SCENE: 1.5,   // normal scene progression
+  CUT:   0.3,   // fast cut between states
+};

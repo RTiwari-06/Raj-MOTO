@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import App from './App.jsx';
+import App from '@/App.jsx';
 import './index.css';
 
 // Central plugin registration — components do not register individually.

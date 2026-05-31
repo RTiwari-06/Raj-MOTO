@@ -1,0 +1,379 @@
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { gsap } from 'gsap';
+import { useStore } from '@/store/useStore';
+import { useUIStore } from '@/store/useUIStore';
+import { EASE, DUR, STAGGER } from '@/motion/system';
+
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+
+// ── Nav model ─────────────────────────────────────────────────────────────────
+const LINKS = [
+  { idx: '00', label: 'IGNITION',    href: '/',        id: null,      type: 'route' },
+  { idx: '01', label: 'MACHINE',     href: '#machine', id: 'machine', type: 'anchor' },
+  { idx: '02', label: 'TARMAC',      href: '#rides',   id: 'rides',   type: 'anchor' },
+  { idx: '03', label: 'PIT LANE',    href: '#story',   id: 'story',   type: 'anchor' },
+  { idx: '04', label: 'ARCHIVE',     href: '/archive', id: 'archive', type: 'route' },
+  { idx: '05', label: 'COORDINATES', href: '#connect', id: 'connect', type: 'anchor' },
+];
+
+// Offset (px) the fixed nav steals from the top when smooth-scrolling to anchors.
+const NAV_OFFSET = -88;
+
+const Navbar = () => {
+  const navigate     = useNavigate();
+  const location     = useLocation();
+  const navRef       = useRef(null);
+  const indicatorRef = useRef(null);   // sliding lime bar under the active link
+  const progressRef  = useRef(null);   // hairline scroll-progress fill
+  const readoutRef   = useRef(null);   // mono "SCROLL nnn%" telemetry value
+  const linkRefs     = useRef([]);     // per-link <li> for measuring the indicator
+
+  const [active,   setActive]   = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const setHovering   = useStore((state) => state.setHovering);
+  // Boolean selector — Zustand only re-renders on threshold crossings, not per frame.
+  const scrolled      = useStore((state) => state.scroll > 24);
+  const motionEnabled = useUIStore((state) => state.motionEnabled);
+  const toggleMotion  = useUIStore((state) => state.toggleMotion);
+
+  // ── Smooth anchor navigation (drives Lenis when present) ────────────────────
+  const goTo = useCallback((e, item) => {
+    e.preventDefault();
+    setMenuOpen(false);
+
+    if (item.type === 'route') {
+      navigate(item.href);
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      navigate('/' + item.href);
+      return;
+    }
+
+    const lenis = window.__lenis;
+    const el = document.querySelector(item.href);
+    if (!el) return;
+    lenis
+      ? lenis.scrollTo(el, { offset: NAV_OFFSET })
+      : el.scrollIntoView({ behavior: 'smooth' });
+  }, [navigate, location.pathname]);
+
+  // ── Entrance — nav drops in, then the rail items stagger ────────────────────
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ delay: 0.4 });
+      tl.fromTo(navRef.current,
+        { y: -80, opacity: 0 },
+        { y: 0, opacity: 1, duration: DUR.considered, ease: EASE.precision },
+      );
+      tl.fromTo('[data-nav-item]',
+        { y: -14, opacity: 0 },
+        { y: 0, opacity: 1, duration: DUR.fast, ease: EASE.precision, stagger: STAGGER.elements },
+        '-=0.7',
+      );
+    }, navRef);
+    return () => ctx.revert();
+  }, []);
+
+  // ── Scroll-spy + progress + readout (all imperative — zero re-renders) ──────
+  useEffect(() => {
+    const targets = LINKS
+      .map((l, i) => ({ i, id: l.id }))
+      .filter((t) => t.id);
+
+    let offsets = [];
+    let max = 1;
+    const measure = () => {
+      max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      offsets = targets.map((t) => {
+        const el = document.getElementById(t.id);
+        return { i: t.i, top: el ? el.offsetTop : Infinity };
+      });
+    };
+    // Measure once layout/images have settled, and again on resize/load.
+    const raf = requestAnimationFrame(() => requestAnimationFrame(measure));
+    window.addEventListener('resize', measure);
+    window.addEventListener('load', measure);
+
+    let lastScroll = -1;
+    let lastPct    = -1;
+    let lastActive = 0;
+    const render = (scroll) => {
+      if (scroll === lastScroll) return;   // ignore non-scroll store updates (mouse, etc.)
+      lastScroll = scroll;
+
+      const pct = scroll / max;
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${Math.min(1, pct)})`;
+
+      const pctInt = Math.min(100, Math.round(pct * 100));
+      if (readoutRef.current && pctInt !== lastPct) {
+        readoutRef.current.textContent = String(pctInt).padStart(3, '0');
+        lastPct = pctInt;
+      }
+
+      // The "reading line" sits 32% down the viewport; the deepest section past it wins.
+      const line = scroll + window.innerHeight * 0.32;
+      let next = 0;
+      for (const o of offsets) if (o.top <= line) next = o.i;
+      if (next !== lastActive) { lastActive = next; setActive(next); }
+    };
+
+    render(useStore.getState().scroll);
+    const unsub = useStore.subscribe((s) => render(s.scroll));
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('load', measure);
+      unsub();
+    };
+  }, []);
+
+  // ── Slide the indicator to the active link (and keep it pinned on resize) ────
+  useEffect(() => {
+    const move = () => {
+      const el  = linkRefs.current[active];
+      const ind = indicatorRef.current;
+      if (!el || !ind) return;
+      gsap.to(ind, {
+        x: el.offsetLeft,
+        width: el.offsetWidth,
+        duration: DUR.fast,
+        ease: EASE.precision,
+      });
+    };
+    move();
+    window.addEventListener('resize', move);
+    return () => window.removeEventListener('resize', move);
+  }, [active]);
+
+  // ── Mobile menu — lock page scroll + stagger the overlay in ─────────────────
+  useEffect(() => {
+    const lenis = window.__lenis;
+    if (menuOpen) {
+      lenis?.stop();
+      const ctx = gsap.context(() => {
+        gsap.fromTo('[data-menu-item]',
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: DUR.standard, ease: EASE.precision, stagger: STAGGER.tight, delay: 0.08 },
+        );
+      });
+      return () => ctx.revert();
+    }
+    lenis?.start();
+  }, [menuOpen]);
+
+  return (
+    <>
+      <nav
+        ref={navRef}
+        className={`fixed top-0 left-0 w-full z-50 border-b transition-[background-color,border-color] duration-500 ${
+          scrolled
+            ? 'bg-black/80 backdrop-blur-md border-white/10'
+            : 'bg-transparent border-transparent'
+        }`}
+        style={{ opacity: 0 }}
+      >
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-12 lg:px-20 py-4 md:py-5">
+
+          {/* ── LEFT · race-plate identity ─────────────────────────────────── */}
+          <a
+            href="#"
+            onClick={(e) => goTo(e, '#')}
+            data-magnetic
+            data-nav-item
+            className="group flex items-center gap-3 justify-self-start"
+            onMouseEnter={() => setHovering(true)}
+            onMouseLeave={() => setHovering(false)}
+          >
+            {/* Ignition tick — grows on hover */}
+            <span className="block w-[3px] h-7 bg-[#D2FF00] origin-center transition-transform duration-300 group-hover:scale-y-125" />
+            <span className="flex flex-col leading-none">
+              <span
+                className="font-serif text-[16px] md:text-[17px] text-[#D2FF00]"
+                style={{ letterSpacing: '-0.01em' }}
+              >
+                RT•MOTO
+              </span>
+              <span className="font-mono text-[7px] tracking-[0.32em] uppercase text-white/30 mt-[3px]">
+                Pit Wall // 2026
+              </span>
+            </span>
+          </a>
+
+          {/* ── CENTER · indexed telemetry rail ────────────────────────────── */}
+          <ul className="relative hidden md:flex items-stretch gap-7 lg:gap-9 justify-self-center">
+            {LINKS.map((item, i) => {
+              const { idx, label, href } = item;
+              const isActive = i === active;
+              return (
+                <li
+                  key={label}
+                  ref={(el) => (linkRefs.current[i] = el)}
+                  data-nav-item
+                  className="py-1"
+                >
+                  <a
+                    href={href}
+                    onClick={(e) => goTo(e, item)}
+                    data-magnetic
+                    aria-current={isActive ? 'true' : undefined}
+                    className="group flex items-baseline gap-1.5"
+                    onMouseEnter={() => setHovering(true)}
+                    onMouseLeave={() => setHovering(false)}
+                  >
+                    <span className={`font-mono text-[8px] tracking-[0.15em] transition-colors duration-200 ${
+                      isActive ? 'text-[#D2FF00]' : 'text-white/25 group-hover:text-[#D2FF00]/70'
+                    }`}>
+                      {idx}
+                    </span>
+                    <span className={`font-serif text-[11px] tracking-[0.16em] uppercase whitespace-nowrap transition-colors duration-200 ${
+                      isActive ? 'text-white' : 'text-white/45 group-hover:text-white'
+                    }`}>
+                      {label}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+
+            {/* Scroll-spy indicator — slides between links */}
+            <span
+              ref={indicatorRef}
+              aria-hidden="true"
+              className="absolute -bottom-1 left-0 h-[2px] bg-[#D2FF00] pointer-events-none"
+              style={{ width: 0, boxShadow: '0 0 10px rgba(210,255,0,0.6)' }}
+            />
+          </ul>
+
+          {/* ── RIGHT · telemetry cluster + system toggle ──────────────────── */}
+          <div className="justify-self-end flex items-center gap-4 md:gap-5">
+
+            {/* Live scroll readout — value updated imperatively */}
+            <div
+              data-nav-item
+              className="hidden lg:flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] tabular-nums"
+            >
+              <span className="text-white/25">Scroll</span>
+              <span ref={readoutRef} className="text-[#D2FF00]">000</span>
+              <span className="text-white/25">%</span>
+            </div>
+
+            <span data-nav-item className="hidden lg:block w-px h-4 bg-white/10" />
+
+            {/* System status / motion toggle — a11y preserved */}
+            <button
+              onClick={toggleMotion}
+              data-magnetic
+              data-nav-item
+              aria-pressed={motionEnabled}
+              aria-label={motionEnabled ? 'Motion on — click to reduce motion' : 'Motion paused — click to enable'}
+              className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/25 hover:text-[#D2FF00] transition-colors duration-200"
+              onMouseEnter={() => setHovering(true)}
+              onMouseLeave={() => setHovering(false)}
+            >
+              <span
+                className="w-[5px] h-[5px] rounded-full transition-colors duration-200"
+                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)' }}
+              />
+              {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
+            </button>
+
+            {/* Hamburger — mobile only */}
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              data-magnetic
+              data-nav-item
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              className="md:hidden relative w-8 h-8 flex flex-col items-center justify-center gap-[5px]"
+            >
+              <span
+                className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
+                style={{ transform: menuOpen ? 'translateY(3.25px) rotate(45deg)' : 'none' }}
+              />
+              <span
+                className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
+                style={{ transform: menuOpen ? 'translateY(-3.25px) rotate(-45deg)' : 'none' }}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* ── Hairline scroll-progress fill ────────────────────────────────── */}
+        <div className="absolute bottom-0 left-0 w-full h-px bg-white/[0.06] overflow-hidden">
+          <div
+            ref={progressRef}
+            className="h-full bg-[#D2FF00] origin-left"
+            style={{ transform: 'scaleX(0)', boxShadow: '0 0 8px rgba(210,255,0,0.5)' }}
+          />
+        </div>
+      </nav>
+
+      {/* ── MOBILE OVERLAY MENU ────────────────────────────────────────────── */}
+      <div
+        className={`fixed inset-0 z-40 md:hidden bg-black/95 backdrop-blur-lg transition-opacity duration-500 ${
+          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        aria-hidden={!menuOpen}
+      >
+        {/* Faint technical grid for depth */}
+        <div className="absolute inset-0 hairline-grid opacity-60" />
+
+        <div className="relative h-full flex flex-col justify-center px-8 pt-24 pb-12">
+          <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-[#D2FF00]/40 mb-8">
+            // Navigation
+          </span>
+
+          <ul className="flex flex-col gap-1">
+            {LINKS.map((item, i) => {
+              const { idx, label, href } = item;
+              return (
+                <li key={label} data-menu-item={menuOpen ? '' : undefined}>
+                  <a
+                    href={href}
+                    onClick={(e) => goTo(e, item)}
+                    className="group flex items-baseline gap-4 py-2"
+                  >
+                  <span className={`font-mono text-[11px] tracking-[0.1em] ${
+                    i === active ? 'text-[#D2FF00]' : 'text-white/30'
+                  }`}>
+                    {idx}
+                  </span>
+                  <span className={`font-serif text-[12vw] leading-[0.95] uppercase transition-colors duration-200 ${
+                    i === active ? 'text-[#D2FF00]' : 'text-white group-active:text-[#D2FF00]'
+                  }`}>
+                    {label}
+                  </span>
+                </a>
+              </li>
+              );
+            })}
+          </ul>
+
+          {/* Telemetry footer */}
+          <div className="mt-auto pt-10 flex items-center justify-between border-t border-white/10">
+            <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/30">
+              Bengaluru · IND
+            </span>
+            <button
+              onClick={toggleMotion}
+              aria-pressed={motionEnabled}
+              className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30"
+            >
+              <span
+                className="w-[5px] h-[5px] rounded-full"
+                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)' }}
+              />
+              {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Navbar;

@@ -7,7 +7,7 @@ export const MEDIA = {
     label:    'CURRENTLY SHIPPING',
     project:  'RT•MOTO V2',
     subtitle: 'PORTFOLIO · 2026',
-    seal:     'FULL-STACK SINCE 2022',
+    seal:     'READY TO RACE',
   },
 
   driver: {
@@ -28,6 +28,14 @@ export const MEDIA = {
   hero: {
     primary: '/base.jpg',
     reveal:  '/reveal.jpg',
+  },
+
+  // Showcase clip — the GoPro wheelie loop running behind the Story timeline
+  showcase: {
+    mp4:    '/ride-loop.mp4',
+    webm:   '/ride-loop.webm',
+    poster: '/ride-loop-poster.webp',
+    label:  'FIELD FOOTAGE // GOPRO',
   },
 
   helmet: {
@@ -64,11 +72,11 @@ export const MEDIA = {
       accent:   '#D2FF00',
       tag:      'Daily Rider',
       tagline:  'Orange frame. Black tarmac. Every ride is a commit.',
-      odometer: '8.4k',
+      odometer: '20k kilometre',
       story: [
-        "The KTM Duke 250 BS6. Bengaluru's concrete jungle meets aggressive geometry.",
-        "Single-cylinder. 30 horses. Every traffic gap is an apex.",
-        "The bike that taught me: precision isn't optional.",
+        "A raw, single-cylinder heartbeat. Thirty horses pulling you forward. Out here, streetlights are just strobes,",
+        "And every gap in the traffic is a new apex waiting to be clipped. Vision locked. Motion blurred,",
+        "This machine taught me one absolute truth: in this city, precision isn't an option. It’s survival.",
       ],
       specs: [
         { label: 'Engine',  value: '248.8cc'  },
@@ -79,12 +87,12 @@ export const MEDIA = {
     },
     {
       id:       'ride-highway-north',
-      model:    'NH 44 RUN',
+      model:    'NH 44 Wheelie RUN',
       year:     '2024',
       category: 'Highway Stint // 480km',
       src:      '/bike-2.jpg',
       accent:   '#C0C0C0',
-      tag:      'First Long Haul',
+      tag:      'First Long POP',
       tagline:  'The first time the throttle stayed wide open for hours.',
       odometer: '480',
       story: [
@@ -122,69 +130,25 @@ export const MEDIA = {
       ],
     },
     {
-      id:       'ride-nandi',
-      model:    'NANDI HILLS',
+      id:       'ride-home',
+      model:    'HOME-CANDID',
       year:     '2023',
-      category: 'Hill Climb // Dawn Patrol',
+      category: 'HOME Climb // Dawn Patrol',
       src:      '/bike-4.jpg',
       accent:   '#FF6B35',
       tag:      'Altitude Run',
       tagline:  'Dawn. Fog. Hairpins. Best debugging session of the year.',
-      odometer: '62',
+      odometer: '2562',
       story: [
-        "Nandi Hills. 1,478 metres above sea level. 62km of switchbacks.",
+        "PATNA,BIHAR. 78 metres above sea level. 62km of switchbacks.",
         "Set out at 4AM. Reached the summit for sunrise.",
         "Some problems are better solved at altitude.",
       ],
       specs: [
-        { label: 'Distance', value: '62 km'      },
-        { label: 'Altitude', value: '1,478 m'    },
-        { label: 'Hairpins', value: '47'         },
-        { label: 'Depart',   value: '04:00 AM'   },
-      ],
-    },
-    {
-      id:       'ride-night',
-      model:    'NIGHT SHIFT',
-      year:     '2024',
-      category: 'City Loop // After Hours',
-      src:      '/reveal.jpg',
-      accent:   '#8E44AD',
-      tag:      'After Midnight',
-      tagline:  'When the city sleeps, the roads open up.',
-      odometer: '38',
-      story: [
-        "After a 14-hour sprint session. Midnight. The city emptied out.",
-        "38km of Bengaluru ring road at 120km/h.",
-        "Motion blur for real. GSAP for everything else.",
-      ],
-      specs: [
-        { label: 'Distance', value: '38 km'    },
-        { label: 'Time',     value: '00:30 AM' },
-        { label: 'Traffic',  value: 'Zero'     },
-        { label: 'Max Spd',  value: '122 km/h' },
-      ],
-    },
-    {
-      id:       'ride-first',
-      model:    'FIRST RIDE',
-      year:     '2023',
-      category: 'Delivery Day // KTM Showroom',
-      src:      '/base.jpg',
-      accent:   '#FF8700',
-      tag:      'Day One',
-      tagline:  'Bengaluru, 2023. First engine start. Everything starts here.',
-      odometer: '0001',
-      story: [
-        "Delivery day. KTM showroom, Bengaluru. Odometer: 0001.",
-        "Every developer-rider remembers the first cold start.",
-        "The orange matches the commit log highlight. Coincidence. Definitely.",
-      ],
-      specs: [
-        { label: 'Date',   value: 'Dec 2023' },
-        { label: 'Odo',    value: '0001 km'  },
-        { label: 'Mood',   value: 'Euphoric' },
-        { label: 'Status', value: 'Day One'  },
+        { label: 'Distance', value: '2562 km'   },
+        { label: 'Altitude', value: '78 m'      },
+        { label: 'Hairpins', value: '47'        },
+        { label: 'Depart',   value: '11:28 AM'  },
       ],
     },
   ],
@@ -194,8 +158,6 @@ export const MEDIA = {
     { id: 2, src: '/bike-2.jpg', label: 'Highway North', span: 'col-span-1 row-span-1', category: 'On Road'   },
     { id: 3, src: '/bike-3.jpg', label: 'Monsoon Loop',  span: 'col-span-1 row-span-1', category: 'Mood'      },
     { id: 4, src: '/bike-4.jpg', label: 'Nandi Hills',   span: 'col-span-2 row-span-1', category: 'Altitude'  },
-    { id: 5, src: '/reveal.jpg', label: 'Night Shift',   span: 'col-span-1 row-span-2', category: 'After Hrs' },
-    { id: 6, src: '/base.jpg',   label: 'Day One',       span: 'col-span-1 row-span-1', category: 'Origins'   },
   ],
 
   actionCards: [
@@ -221,48 +183,60 @@ export const MEDIA = {
     rides:      47,
   },
 
-  // Developer tech stack — feeds the StatRevealSection grid
+  // Developer tech stack — feeds the StatRevealSection grid.
+  // 'level' is reframed as a riding state: REDLINE (mastered) → FULL THROTTLE →
+  // HIGH GEAR → DAILY RIDER → ON THE GAS → WARMING UP → BREAK-IN (just started).
   technical: [
     {
-      category: 'FRONTEND',
+      category: 'THE CHASSIS (React, Vite)',
       skills: [
-        { name: 'React',         level: 'PRODUCTION'   },
-        { name: 'Three.js',      level: 'ADVANCED'     },
-        { name: 'GSAP',          level: 'ADVANCED'     },
-        { name: 'TypeScript',    level: 'STRONG'       },
-        { name: 'Tailwind CSS',  level: 'DAILY'        },
+        { name: 'React',         level: 'REDLINE'       },
+        { name: 'Three.js',      level: 'FULL THROTTLE' },
+        { name: 'GSAP',          level: 'FULL THROTTLE' },
+        { name: 'TypeScript',    level: 'HIGH GEAR'     },
+        { name: 'Tailwind CSS',  level: 'DAILY RIDER'   },
       ],
     },
     {
-      category: 'BACKEND',
+      category: 'THE ENGINE (Node.js)',
       skills: [
-        { name: 'Node.js',       level: 'PRODUCTION'   },
-        { name: 'Express',       level: 'STRONG'       },
-        { name: 'PostgreSQL',    level: 'INTERMEDIATE' },
-        { name: 'MongoDB',       level: 'INTERMEDIATE' },
-        { name: 'REST APIs',     level: 'DAILY'        },
+        { name: 'Node.js',       level: 'REDLINE'     },
+        { name: 'Express',       level: 'HIGH GEAR'   },
+        { name: 'PostgreSQL',    level: 'MID-CORNER'  },
+        { name: 'MongoDB',       level: 'MID-CORNER'  },
+        { name: 'REST APIs',     level: 'DAILY RIDER' },
       ],
     },
     {
-      category: 'MOTION',
+      category: 'THE EXHAUST (GSAP, Three.js)',
       skills: [
-        { name: 'GSAP',               level: 'ADVANCED'  },
-        { name: 'Lenis',              level: 'PRODUCTION'},
-        { name: 'React Three Fiber',  level: 'ACTIVE'    },
-        { name: 'WebGL Shaders',      level: 'GROWING'   },
-        { name: 'ScrollTrigger',      level: 'ADVANCED'  },
+        { name: 'GSAP',               level: 'FULL THROTTLE' },
+        { name: 'Lenis',              level: 'REDLINE'       },
+        { name: 'React Three Fiber',  level: 'ON THE GAS'    },
+        { name: 'WebGL Shaders',      level: 'WARMING UP'    },
+        { name: 'ScrollTrigger',      level: 'FULL THROTTLE' },
       ],
     },
     {
-      category: 'TOOLS & INFRA',
+      category: 'THE GARAGE (Git, Vercel)',
       skills: [
-        { name: 'Git',           level: 'DAILY'    },
-        { name: 'Vite',          level: 'DAILY'    },
-        { name: 'Figma',         level: 'STRONG'   },
-        { name: 'Docker',        level: 'LEARNING' },
-        { name: 'Vercel',        level: 'DAILY'    },
+        { name: 'Git',           level: 'DAILY RIDER' },
+        { name: 'Vite',          level: 'DAILY RIDER' },
+        { name: 'Figma',         level: 'HIGH GEAR'   },
+        { name: 'Docker',        level: 'BREAK-IN'    },
+        { name: 'Vercel',        level: 'DAILY RIDER' },
       ],
     },
+  ],
+
+  rawArchive: [
+    { id: 'raw-1', src: '/media/gallery/IMG_20230611_180844_045.webp', category: 'RAW FEED // 2023' },
+    { id: 'raw-2', src: '/media/gallery/IMG_20230903_150642.jpg', category: 'RAW FEED // 2023' },
+    { id: 'raw-3', src: '/media/gallery/IMG_20240831_195216304.jpg', category: 'RAW FEED // 2024' },
+    { id: 'raw-4', src: '/media/gallery/IMG_202408nenjwnj5098_HDR_AE.jpg', category: 'RAW FEED // 2024' },
+    { id: 'raw-5', src: '/media/gallery/IMG_20260110_001153088_HDR_AE.jpg', category: 'RAW FEED // 2026' },
+    { id: 'raw-6', src: '/media/gallery/IMG20230903161035.jpg', category: 'RAW FEED // 2023' },
+    { id: 'raw-7', src: '/media/gallery/Screenshot_2023-10-17-23-33-12-635_org.videolan.vlc.jpg', category: 'RAW FEED // 2023' },
   ],
 
 };

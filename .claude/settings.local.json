@@ -14,7 +14,24 @@
       "Bash(curl -s -o nul -w \"HelmetSection.jsx: %{http_code}\\\\n\" http://localhost:5173/src/components/HelmetSection.jsx)",
       "Bash(curl -s -o nul -w \"helmet.glb: %{http_code}\\\\n\" http://localhost:5173/helmet.glb)",
       "Bash(curl -s http://localhost:5173/src/main.jsx)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(ffprobe -v error -show_entries format=duration,size:stream=width,height,codec_name,r_frame_rate -of default=noprint_wrappers=1 \"public/new imagez/2023-05-07_1683403836745.mp4\")",
+      "Bash(ffprobe -v error -show_entries format=duration,size:stream=width,height,codec_name,r_frame_rate -of default=noprint_wrappers=1 \"public/new imagez/MXClip_GH011811_2023_07_16_21_01_37.mp4\")",
+      "PowerShell(Get-Command *)",
+      "PowerShell(winget install *)",
+      "PowerShell(New-Item *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell($bin = $env:FFMPEG_BIN; $env:Path = \"$bin;$env:Path\"; $d = \"public\\\\new imagez\"; $o = \"$d\\\\_frames\"; ffmpeg -y -i \"$d\\\\IMG_20240831_195216304.jpg\" -vf \"transpose=1,scale=400:-1\" \"$o\\\\wheelie_cw.jpg\" 2>$null; ffmpeg -y -i \"$d\\\\IMG_20240831_195216304.jpg\" -vf \"transpose=2,scale=400:-1\" \"$o\\\\wheelie_ccw.jpg\" 2>$null; ffmpeg -y -i \"$d\\\\IMG_20230903_150642.jpg\" -vf \"transpose=1,scale=400:-1\" \"$o\\\\fleet_cw.jpg\" 2>$null; ffmpeg -y -i \"$d\\\\IMG_20230903_150642.jpg\" -vf \"transpose=2,scale=400:-1\" \"$o\\\\fleet_ccw.jpg\" 2>$null; \"done\")",
+      "PowerShell($bin = $env:FFMPEG_BIN; $env:Path = \"$bin;$env:Path\"; $d = \"public\\\\new imagez\"; ffmpeg -y -i \"$d\\\\IMG_20240831_195216304.jpg\" -vf \"transpose=2,scale=700:-1\" \"$d\\\\_frames\\\\wheelie_full.jpg\" 2>$null; \"done\")",
+      "PowerShell(Test-Path *)",
+      "PowerShell(npm run *)",
+      "PowerShell(npx vite build 2>&1 | Select-Object -Last 30)",
+      "mcp__ide__getDiagnostics",
+      "PowerShell(node --check \\(Resolve-Path \"src\\\\data\\\\media.js\"\\); if \\($?\\) { \"node --check: PASS\" }; \"--- build ---\"; npx vite build 2>&1 | Select-String -Pattern \"error|Error|✓ built|transformed|media.js\" | Select-Object -First 8)",
+      "PowerShell(node --check \\(Resolve-Path \"src\\\\data\\\\media.js\"\\); if \\($?\\) { \"media.js: PASS\" }; npx vite build 2>&1 | Select-String -Pattern \"error|Error|✓ built|transformed\" | Select-Object -First 6)",
+      "Bash(timeout 60 npx vite build --logLevel error)",
+      "Bash(npx vite *)",
+      "Bash(gemini extensions *)"
     ],
     "ask": [
       "WebFetch"
