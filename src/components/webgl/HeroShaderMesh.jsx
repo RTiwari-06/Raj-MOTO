@@ -2,25 +2,20 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
-import { useStore } from '@/store/useStore';
 import { MEDIA } from '@/data/media';
 import vertexShader   from '@/shaders/heroVertex.glsl';
 import fragmentShader from '@/shaders/heroFragment.glsl';
 
-const CONFIG = {
-  revealRadius:   0.22,  // smaller, tighter reveal spot
-  mouseLerpSpeed: 0.30,  // higher = reveal tracks the cursor tightly (less lag)
-  hoverLerpSpeed: 0.12,
-};
-
+// ─── RETIRED MECHANIC (2026-06-02) ────────────────────────────────────────────
+// The cursor-driven base→reveal diagonal wipe has been REPLACED by a DOM
+// clip-path scroll reveal in Hero.jsx (Approach B / B1). This mesh is no longer
+// mounted by Hero.jsx — the file is kept for reference / potential reuse.
+// The mouse-reveal wiring is DISABLED: u_mouse / u_velocity / u_hover are frozen
+// and the cursor inertia (gsap.quickTo) + velocity + hover lerp were removed.
+// Only u_time and u_resolution remain live so the shader still grades correctly
+// if ever re-mounted. WebGL in the hero is now atmosphere-only (FluidBackground).
 export function HeroShaderMesh() {
-  const meshRef       = useRef();
-
-  const imageMouse    = useStore((s) => s.imageMouse);
-  const imageHovering = useStore((s) => s.imageHovering);
-
-  const smoothMouse = useRef({ x: 0.5, y: 0.5 });
-  const smoothHover = useRef(0);
+  const meshRef = useRef();
 
   const [baseTexture, revealTexture] = useTexture([MEDIA.hero.primary, MEDIA.hero.reveal]);
 
@@ -28,16 +23,17 @@ export function HeroShaderMesh() {
     return new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
-      transparent: true,   // lets the stargazing background bleed through dark regions
+      transparent: true,
       uniforms: {
-        uTexture:      { value: baseTexture },
-        uTexture2:     { value: revealTexture },
-        uMouse:        { value: new THREE.Vector2(0.5, 0.5) },
-        uHover:        { value: 0 },
-        uRevealRadius: { value: CONFIG.revealRadius },
-        uResolution:   { value: new THREE.Vector2(1, 1) }, // Updated in frame
-        uImageRes:     { value: new THREE.Vector2(baseTexture.image.width, baseTexture.image.height) },
-        uTime:         { value: 0 },
+        u_texBase:      { value: baseTexture },
+        u_texReveal:    { value: revealTexture },
+        u_mouse:        { value: new THREE.Vector2(0.5, 0.5) }, // frozen — reveal retired
+        u_revealRadius: { value: 0.35 },
+        u_time:         { value: 0 },
+        u_velocity:     { value: 0 },                            // frozen — reveal retired
+        u_resolution:   { value: new THREE.Vector2(1, 1) },
+        u_imageRes:     { value: new THREE.Vector2(baseTexture.image.width, baseTexture.image.height) },
+        u_hover:        { value: 0 },                            // frozen — reveal retired
       },
     });
   }, [baseTexture, revealTexture]);
@@ -46,25 +42,18 @@ export function HeroShaderMesh() {
     if (!meshRef.current) return;
     const u = meshRef.current.material.uniforms;
 
-    // Dynamically scale the mesh to exactly fit the viewport
-    // This fixes any letterboxing or squashing if the canvas resizes on scroll
     meshRef.current.scale.set(state.viewport.width, state.viewport.height, 1);
-    u.uResolution.value.set(state.viewport.width, state.viewport.height);
-    u.uTime.value = state.clock.elapsedTime;
+    u.u_resolution.value.set(state.viewport.width, state.viewport.height);
+    u.u_time.value = state.clock.elapsedTime;
 
-    smoothMouse.current.x += (imageMouse.x - smoothMouse.current.x) * CONFIG.mouseLerpSpeed;
-    smoothMouse.current.y += (imageMouse.y - smoothMouse.current.y) * CONFIG.mouseLerpSpeed;
-    u.uMouse.value.set(smoothMouse.current.x, smoothMouse.current.y);
-
-    const target = imageHovering ? 1.0 : 0.0;
-    smoothHover.current += (target - smoothHover.current) * CONFIG.hoverLerpSpeed;
-    u.uHover.value = smoothHover.current;
+    // DISABLED: cursor inertia (gsap.quickTo on u_mouse), per-frame velocity
+    // calculation (u_velocity) and the hover lerp (u_hover) that previously drove
+    // the diagonal base→reveal wipe. The reveal is now DOM clip-path (Hero.jsx).
   });
 
   return (
     <mesh ref={meshRef} material={shaderMaterial}>
-      {/* A 1x1 geometry scaled by useFrame matches viewport perfectly */}
-      <planeGeometry args={[1, 1, 1, 1]} />
+      <planeGeometry args={[1, 1]} />
     </mesh>
   );
 }
