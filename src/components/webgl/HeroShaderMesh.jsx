@@ -1,21 +1,27 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
+import { gsap } from 'gsap';
+import { useStore } from '@/store/useStore';
 import { MEDIA } from '@/data/media';
 import vertexShader   from '@/shaders/heroVertex.glsl';
 import fragmentShader from '@/shaders/heroFragment.glsl';
 
-// ─── RETIRED MECHANIC (2026-06-02) ────────────────────────────────────────────
-// The cursor-driven base→reveal diagonal wipe has been REPLACED by a DOM
-// clip-path scroll reveal in Hero.jsx (Approach B / B1). This mesh is no longer
-// mounted by Hero.jsx — the file is kept for reference / potential reuse.
-// The mouse-reveal wiring is DISABLED: u_mouse / u_velocity / u_hover are frozen
-// and the cursor inertia (gsap.quickTo) + velocity + hover lerp were removed.
-// Only u_time and u_resolution remain live so the shader still grades correctly
-// if ever re-mounted. WebGL in the hero is now atmosphere-only (FluidBackground).
 export function HeroShaderMesh() {
-  const meshRef = useRef();
+  const meshRef       = useRef();
+
+  const imageMouse    = useStore((s) => s.imageMouse);
+  const imageHovering = useStore((s) => s.imageHovering);
+
+  // GSAP quickTo handles the inertial lag — the scan line drags behind the cursor
+  const mouseUniform = useRef(new THREE.Vector2(0.5, 0.5));
+  const xTo = useRef(null);
+  const yTo = useRef(null);
+
+  const velocityRef = useRef(0);
+  const prevMouse = useRef({ x: 0.5, y: 0.5 });
+  const hoverVal = useRef(0);
 
   const [baseTexture, revealTexture] = useTexture([MEDIA.hero.primary, MEDIA.hero.reveal]);
 
@@ -27,16 +33,29 @@ export function HeroShaderMesh() {
       uniforms: {
         u_texBase:      { value: baseTexture },
         u_texReveal:    { value: revealTexture },
-        u_mouse:        { value: new THREE.Vector2(0.5, 0.5) }, // frozen — reveal retired
+        u_mouse:        { value: mouseUniform.current },
         u_revealRadius: { value: 0.35 },
         u_time:         { value: 0 },
-        u_velocity:     { value: 0 },                            // frozen — reveal retired
+        u_velocity:     { value: 0 },
         u_resolution:   { value: new THREE.Vector2(1, 1) },
         u_imageRes:     { value: new THREE.Vector2(baseTexture.image.width, baseTexture.image.height) },
-        u_hover:        { value: 0 },                            // frozen — reveal retired
+        u_hover:        { value: 0 },
       },
     });
   }, [baseTexture, revealTexture]);
+
+  useEffect(() => {
+    // Inertial cursor physics — heavy easing so the laser scan has physical weight.
+    xTo.current = gsap.quickTo(mouseUniform.current, 'x', { duration: 0.8, ease: 'power3.out' });
+    yTo.current = gsap.quickTo(mouseUniform.current, 'y', { duration: 0.8, ease: 'power3.out' });
+  }, []);
+
+  useEffect(() => {
+    if (xTo.current && yTo.current) {
+      xTo.current(imageMouse.x);
+      yTo.current(imageMouse.y);
+    }
+  }, [imageMouse]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -46,9 +65,22 @@ export function HeroShaderMesh() {
     u.u_resolution.value.set(state.viewport.width, state.viewport.height);
     u.u_time.value = state.clock.elapsedTime;
 
-    // DISABLED: cursor inertia (gsap.quickTo on u_mouse), per-frame velocity
-    // calculation (u_velocity) and the hover lerp (u_hover) that previously drove
-    // the diagonal base→reveal wipe. The reveal is now DOM clip-path (Hero.jsx).
+    // Smooth hover for overall mask opacity
+    hoverVal.current += ((imageHovering ? 1.0 : 0.0) - hoverVal.current) * 0.1;
+    u.u_hover.value = hoverVal.current;
+
+    // Velocity calculation for parallax + edge-brightness effect
+    const dx = u.u_mouse.value.x - prevMouse.current.x;
+    const dy = u.u_mouse.value.y - prevMouse.current.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Scale dist to a 0-1 range. dist is small per frame (e.g., 0.01)
+    const targetVelocity = Math.min(dist * 60.0, 1.0);
+    velocityRef.current += (targetVelocity - velocityRef.current) * 0.1;
+    u.u_velocity.value = velocityRef.current;
+
+    prevMouse.current.x = u.u_mouse.value.x;
+    prevMouse.current.y = u.u_mouse.value.y;
   });
 
   return (

@@ -2,28 +2,28 @@ import React, { useEffect, useRef, Suspense, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Canvas } from '@react-three/fiber';
+import { HeroShaderMesh } from '@/components/webgl/HeroShaderMesh';
 import { FluidBackground } from '@/components/webgl/FluidBackground';
 import { useStore } from '@/store/useStore';
 import { runScramble } from '@/utils/scramble';
-import { EASE, DUR } from '@/motion/system';
+import { EASE, DUR, SCROLL } from '@/motion/system';
 import { useParallax } from '@/hooks/useParallax';
 
 const Hero = ({ isLoaded = true }) => {
   const containerRef  = useRef(null);
-  const canvasWrapRef = useRef(null);   // Subject stage — base + reveal + wireframe
-  const watermarkRef  = useRef(null);   // Editorial outlined RAJ / TIWARI (over photo)
-  const uiLayerRef    = useRef(null);   // HUD + identity + scroll cue
-  const line1Ref      = useRef(null);   // Outlined "RAJ"
-  const line2Ref      = useRef(null);   // Outlined "TIWARI"
+  const canvasWrapRef = useRef(null);
+  const watermarkRef  = useRef(null);   // Layer 0 wrapper — outlined RAJ / TIWARI
+  const uiLayerRef    = useRef(null);   // Layer 2 wrapper — HUD + identity + cue
+  const line1Ref      = useRef(null);   // Layer 0: outlined "RAJ"
+  const line2Ref      = useRef(null);   // Layer 0: outlined "TIWARI"
   const ctaRef        = useRef(null);
   const hudRef        = useRef(null);
   const scrollCueRef  = useRef(null);
-  const taglineRef    = useRef(null);
-  const revealRef     = useRef(null);   // Approach B — clip-path reveal image
-  const wireframeRef  = useRef(null);   // Approach B — helmet wireframe ghost
+  const taglineRef    = useRef(null);   // HUD bottom-left tagline (Layer 2)
 
-  const setHovering       = useStore((state) => state.setHovering);
-  const setImageHovering  = useStore((state) => state.setImageHovering);
+  const setHovering      = useStore((state) => state.setHovering);
+  const setImageMouse    = useStore((state) => state.setImageMouse);
+  const setImageHovering = useStore((state) => state.setImageHovering);
   const setFluidIntensity = useStore((state) => state.setFluidIntensity);
 
   // ─── INTERSECTION OBSERVER FOR 60FPS LOCK ──────────────────────────────────
@@ -74,7 +74,7 @@ const Hero = ({ isLoaded = true }) => {
         0
       );
 
-      // 1a. Subject stage fades in with scale (cinematic entrance)
+      // 1a. Canvas wrapper fades in with scale (cinematic entrance)
       tl.fromTo(
         canvasWrapRef.current,
         { opacity: 0, scale: 0.92 },
@@ -101,7 +101,7 @@ const Hero = ({ isLoaded = true }) => {
         0.4
       );
 
-      // 2a. "RAJ" outlined scrambles in + scales down from larger
+      // 2a. Layer 0 — "RAJ" outlined scrambles in + scales down from larger
       tl.fromTo(
         line1Ref.current,
         { opacity: 0, scale: 1.08 },
@@ -129,7 +129,7 @@ const Hero = ({ isLoaded = true }) => {
         0.5
       );
 
-      // 3a. "TIWARI" outlined scrambles in, overlapping line 1
+      // 3a. Layer 0 — "TIWARI" outlined scrambles in, overlapping line 1
       tl.fromTo(
         line2Ref.current,
         { opacity: 0, scale: 1.08 },
@@ -157,7 +157,7 @@ const Hero = ({ isLoaded = true }) => {
         `-=${DUR.feedback * 0.4}`
       );
 
-      // 4a. HUD tagline fades + scales in
+      // 4a. HUD tagline fades + scales in (Layer 2 metadata)
       tl.fromTo(
         taglineRef.current,
         { opacity: 0, y: 12, scale: 0.98 },
@@ -211,7 +211,9 @@ const Hero = ({ isLoaded = true }) => {
     };
   }, [isLoaded, setFluidIntensity]);
 
-  // ─── INTERACTIVE DEPTH — dim the editorial type when inspecting the photo ─────
+  // ─── INTERACTIVE DEPTH REVEAL ────────────────────────────────────────────────
+  // Dims the background watermark when the central image is hovered to pull
+  // focus to the subject.
   const imageHovering = useStore((s) => s.imageHovering);
   useEffect(() => {
     if (!watermarkRef.current) return;
@@ -227,224 +229,43 @@ const Hero = ({ isLoaded = true }) => {
     runScramble(taglineRef.current.querySelector('.tagline-text'), 'MOTION / ENGINEER', 0.4);
   };
 
-  // ─── APPROACH B — PINNED CLIP-PATH REVEAL (single scrubbed timeline) ──────────
-  // ONE pinned ScrollTrigger over +=220%, scrub 2.5. Timeline TOTAL duration = 10
-  // so position maps directly to progress (progress = position / 10):
-  //   0.00 → 0.05  HOLD    — base image holds; the user settles in.
-  //   0.05 → 0.65  REVEAL  — reveal.jpg clip wipes top→bottom (ease none, cinematic).
-  //   0.00 → 0.08  wireframe ghost appears (0 → peak); holds to 0.45.
-  //   0.45 → 0.65  wireframe fades peak → 0.02.
-  //   0.55 → 0.75  UI text (ENGAGE / subtitle / tagline) fades + lifts away.
-  //   0.65 → 0.80  title lines (RAJ / TIWARI) split apart + fade.
-  //   0.80 → 1.00  subject scales 1 → 0.95 + fades; hero exits, pin releases.
+  // ─── SYSTEM 01 · MINIMAL CINEMATIC SCROLL ────────────────────────────────────
+  // The composition gently lifts away as the hero scrolls out — foreground text
+  // leaves first, background type trails slower (depth). The image itself stays
+  // FIXED: no pin, no scale, no skew. Tasteful, not a drift.
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Builds the full pinned timeline for one breakpoint. `wirePeak` caps the
-    // wireframe-ghost opacity (lower on mobile). Total timeline duration = 10.
-    const buildRevealTimeline = (scrubValue, wirePeak) => {
+    const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger:             containerRef.current,
           start:               'top top',
-          end:                 '+=220%',
-          scrub:               scrubValue,
-          pin:                 true,
-          anticipatePin:       1,
+          end:                 'bottom top',
+          scrub:               SCROLL.SCENE,
           invalidateOnRefresh: true,
         },
       });
 
-      // ── HOLD (0.0 → 0.5) ──────────────────────────────────────────────────
-      // No tween before position 0.5 → base image simply holds for the first 5%.
+      // Foreground HUD / identity — closest plane, clears first.
+      if (uiLayerRef.current) {
+        tl.to(uiLayerRef.current, { yPercent: -12, opacity: 0, ease: EASE.scrub }, 0);
+      }
+      // Background outlined typography — trails slower for parallax depth.
+      if (watermarkRef.current) {
+        tl.to(watermarkRef.current, { yPercent: -6, opacity: 0, ease: EASE.scrub }, 0);
+      }
+      // (The WebGL image is intentionally untouched — it stays fixed.)
+    }, containerRef);
 
-      // ── REVEAL (0.5 → 6.5 | progress 0.05 → 0.65) ─────────────────────────
-      // Reveal image descends: clip bottom 100% → 0% (top → bottom wipe). Slow.
-      tl.fromTo(
-        revealRef.current,
-        { clipPath: 'inset(0% 0% 100% 0%)' },
-        { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 6 },
-        0.5
-      );
-
-      // ── WIREFRAME GHOST ───────────────────────────────────────────────────
-      // Appears 0 → peak over the first 0.8 (progress 0 → 0.08), holds, then
-      // fades peak → 0.02 across 4.5 → 6.5 (progress 0.45 → 0.65).
-      tl.fromTo(
-        wireframeRef.current,
-        { opacity: 0 },
-        { opacity: wirePeak, ease: 'none', duration: 0.8 },
-        0
-      );
-      tl.to(
-        wireframeRef.current,
-        { opacity: 0.02, ease: 'none', duration: 2 },
-        4.5
-      );
-
-      // ── UI TEXT EXIT (5.5 → 7.5 | progress 0.55 → 0.75) ───────────────────
-      // Foreground text (ENGAGE / subtitle / tagline) stays fully visible until
-      // 55%, then fades + lifts. Eased so it doesn't pop.
-      tl.to(
-        uiLayerRef.current,
-        { opacity: 0, yPercent: -8, ease: 'power2.in', duration: 2 },
-        5.5
-      );
-
-      // ── TITLE SPLIT (6.5 → 8.0 | progress 0.65 → 0.80) ────────────────────
-      // RAJ rises, TIWARI drops, both fade — reveal image held fully visible.
-      tl.to(line1Ref.current, { yPercent: -55, opacity: 0, ease: 'none', duration: 1.5 }, 6.5);
-      tl.to(line2Ref.current, { yPercent:  55, opacity: 0, ease: 'none', duration: 1.5 }, 6.5);
-
-      // ── EXIT (8.0 → 10.0 | progress 0.80 → 1.00) ──────────────────────────
-      // Subject stage scales down + fades; hero clears for the next section.
-      tl.to(
-        canvasWrapRef.current,
-        { scale: 0.95, opacity: 0, ease: 'none', duration: 2 },
-        8.0
-      );
-
-      return tl;
-    };
-
-    // gsap.matchMedia() (NOT the removed ScrollTrigger.matchMedia) builds the
-    // trigger fresh per breakpoint and auto-reverts on breakpoint change.
-    const mm = gsap.matchMedia();
-
-    // Desktop — scrub 2.5, wireframe peak 0.10.
-    mm.add('(min-width: 769px)', () => {
-      const tl = buildRevealTimeline(2.5, 0.10);
-      return () => tl.scrollTrigger?.kill();
-    });
-
-    // Mobile — slightly snappier scrub (1.5), wireframe peak capped at 0.08.
-    mm.add('(max-width: 768px)', () => {
-      const tl = buildRevealTimeline(1.5, 0.08);
-      return () => tl.scrollTrigger?.kill();
-    });
-
-    return () => mm.revert();
+    return () => ctx.revert();
   }, []);
 
   return (
     <section ref={containerRef} className="relative w-full h-screen bg-black overflow-hidden">
 
-      {/* ── z-0: WebGL ATMOSPHERE (FluidBackground only — subject reveal is DOM) ── */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Canvas
-          camera={{ position: [0, 0, 3], fov: 45, near: 0.1, far: 100 }}
-          gl={{ antialias: true, alpha: true }}
-          dpr={[1, 2]}
-          frameloop={inView ? 'always' : 'demand'}
-        >
-          <Suspense fallback={null}>
-            <FluidBackground />
-          </Suspense>
-        </Canvas>
-      </div>
-
-      {/* ── SUBJECT STAGE — entry fades/scales in (z-10); Act 3 scales it out ───── */}
-      <div
-        ref={canvasWrapRef}
-        data-depth="0.7"
-        className="absolute inset-0 z-10"
-        style={{ willChange: 'transform, opacity' }}
-        onMouseEnter={() => { setHovering(true);  setImageHovering(true);  }}
-        onMouseLeave={() => { setHovering(false); setImageHovering(false); }}
-      >
-        {/* BASE IMAGE — bare-head rider, never moves, always visible */}
-        <img
-          src="/base.jpg"
-          className="absolute inset-0 w-full h-full object-cover object-top"
-          alt="Raj Tiwari — rider"
-          draggable="false"
-        />
-
-        {/* REVEAL IMAGE — geared/helmeted, hidden by clip-path until scroll. */}
-        {/* clip starts inset(0% 0% 100% 0%): bottom 100% = fully hidden. */}
-        {/* Act 1 animates → inset(0% 0% 0% 0%): wipes downward (helmet descends). */}
-        <div
-          ref={revealRef}
-          className="absolute inset-0 z-20"
-          style={{ clipPath: 'inset(0% 0% 100% 0%)', willChange: 'clip-path' }}
-        >
-          <img
-            src="/reveal.jpg"
-            className="absolute inset-0 w-full h-full object-cover object-top"
-            alt="Raj Tiwari — geared up"
-            draggable="false"
-          />
-        </div>
-
-        {/* WIREFRAME GHOST — helmet outline (Lando signature). Opacity driven by GSAP. */}
-        <div
-          ref={wireframeRef}
-          className="absolute inset-0 z-30 pointer-events-none select-none"
-          style={{ opacity: 0 }}
-        >
-          {/* Opacity is GSAP-driven via the wrapper (wireframeRef): 0 → peak → 0.02.
-              No opacity attr on the svg itself, else it would multiply with the
-              wrapper and the ghost would be ~0.01 (effectively invisible). */}
-          <svg
-            viewBox="0 0 200 220"
-            preserveAspectRatio="xMidYMid meet"
-            className="absolute w-[32%] left-1/2 -translate-x-1/2 top-[8%]"
-            fill="none"
-            stroke="#D2FF00"
-            strokeWidth="0.4"
-          >
-            {/* Main helmet dome */}
-            <path d="M100 20
-              C 140 20, 175 55, 175 100
-              C 175 135, 165 155, 150 165
-              L 50 165
-              C 35 155, 25 135, 25 100
-              C 25 55, 60 20, 100 20 Z"/>
-
-            {/* Visor slot */}
-            <path d="M42 110
-              C 42 102, 48 96, 58 94
-              L 142 94
-              C 152 96, 158 102, 158 110
-              C 158 118, 152 124, 142 126
-              L 58 126
-              C 48 124, 42 118, 42 110 Z"/>
-
-            {/* Center ridge */}
-            <line x1="100" y1="20" x2="100" y2="90" strokeWidth="0.3"/>
-
-            {/* Vent lines left */}
-            <line x1="38" y1="75" x2="30" y2="72" strokeWidth="0.3"/>
-            <line x1="36" y1="85" x2="28" y2="84" strokeWidth="0.3"/>
-
-            {/* Vent lines right */}
-            <line x1="162" y1="75" x2="170" y2="72" strokeWidth="0.3"/>
-            <line x1="164" y1="85" x2="172" y2="84" strokeWidth="0.3"/>
-          </svg>
-        </div>
-
-        {/* Legibility scrim over the photo — keeps HUD + identity readable */}
-        <div
-          className="absolute inset-0 z-[31] pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.15) 42%, rgba(0,0,0,0) 64%, rgba(0,0,0,0.42) 100%)',
-          }}
-        />
-
-        {/* Corner registration marks */}
-        <div className="absolute top-3 left-3 w-5 h-[1px] bg-white/10 pointer-events-none z-[32]" />
-        <div className="absolute top-3 left-3 w-[1px] h-5 bg-white/10 pointer-events-none z-[32]" />
-        <div className="absolute top-3 right-3 w-5 h-[1px] bg-white/10 pointer-events-none z-[32]" />
-        <div className="absolute top-3 right-3 w-[1px] h-5 bg-white/10 pointer-events-none z-[32]" />
-        <div className="absolute bottom-3 left-3 w-5 h-[1px] bg-white/10 pointer-events-none z-[32]" />
-        <div className="absolute bottom-3 left-3 w-[1px] h-5 bg-white/10 pointer-events-none z-[32]" />
-        <div className="absolute bottom-3 right-3 w-5 h-[1px] bg-white/10 pointer-events-none z-[32]" />
-        <div className="absolute bottom-3 right-3 w-[1px] h-5 bg-white/10 pointer-events-none z-[32]" />
-      </div>
-
-      {/* ── EDITORIAL OUTLINED NAME — sits OVER the portrait (z-35) ───────────── */}
-      <div data-depth="0.4" className="absolute inset-0 z-[35] flex items-center justify-center pointer-events-none select-none">
+      {/* ── LAYER 0: Background outlined typography (z-0) — depth only ─────── */}
+      <div data-depth="0.4" className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none">
         <div ref={watermarkRef} className="text-center" style={{ lineHeight: '0.82' }}>
           <p
             ref={line1Ref}
@@ -452,7 +273,7 @@ const Hero = ({ isLoaded = true }) => {
             style={{
               fontSize:         'clamp(7rem, 24vw, 24rem)',
               letterSpacing:    '-0.045em',
-              WebkitTextStroke: '1px rgba(255,255,255,0.12)',
+              WebkitTextStroke: '1px rgba(255,255,255,0.04)',
               color:            'transparent',
               opacity:          0,
             }}
@@ -465,7 +286,7 @@ const Hero = ({ isLoaded = true }) => {
             style={{
               fontSize:         'clamp(7rem, 24vw, 24rem)',
               letterSpacing:    '-0.045em',
-              WebkitTextStroke: '1px rgba(210,255,0,0.14)',
+              WebkitTextStroke: '1px rgba(210,255,0,0.05)',
               color:            'transparent',
               opacity:          0,
             }}
@@ -475,8 +296,55 @@ const Hero = ({ isLoaded = true }) => {
         </div>
       </div>
 
-      {/* ── FOREGROUND UI (z-40) — tagline, labels, metadata, CTA, scroll cue ──── */}
-      <div ref={uiLayerRef} data-depth="-0.2" className="absolute inset-0 z-40 pointer-events-none flex flex-col justify-between px-10 md:px-20 py-10 md:py-14">
+      {/* ── LAYER 1: WebGL canvas (z-10) — the dominant subject ────────────── */}
+      <div data-depth="0.7" className="absolute inset-0 z-10 flex items-center justify-center pt-[12vh] pointer-events-none">
+        <div
+          ref={canvasWrapRef}
+          className="relative w-[94vw] max-w-[1400px] aspect-[16/9] flex-shrink-0 rounded-sm shadow-2xl pointer-events-auto"
+          style={{ willChange: 'transform, opacity' }}
+          onMouseEnter={() => { setHovering(true);  setImageHovering(true);  }}
+          onMouseLeave={() => { setHovering(false); setImageHovering(false); }}
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setImageMouse(
+              (e.clientX - rect.left) / rect.width,
+              1 - (e.clientY - rect.top) / rect.height
+            );
+          }}
+        >
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-sm">
+            <Canvas
+              camera={{ position: [0, 0, 3], fov: 45, near: 0.1, far: 100 }}
+              gl={{ antialias: true, alpha: true }}
+              dpr={[1, 2]}
+              frameloop={inView ? 'always' : 'demand'}
+            >
+              <Suspense fallback={null}>
+                <FluidBackground />
+                <HeroShaderMesh />
+              </Suspense>
+            </Canvas>
+          </div>
+
+          {/* Corner registration marks */}
+          <div className="absolute top-3 left-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute top-3 left-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
+          <div className="absolute top-3 right-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute top-3 right-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 left-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 left-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 right-3 w-5 h-[1px] bg-white/10 pointer-events-none" />
+          <div className="absolute bottom-3 right-3 w-[1px] h-5 bg-white/10 pointer-events-none" />
+
+          <div
+            className="absolute -bottom-8 left-0 right-0 h-20 pointer-events-none z-20"
+            style={{ background: 'linear-gradient(to bottom, transparent 0%, #000 80%)' }}
+          />
+        </div>
+      </div>
+
+      {/* ── LAYER 2: Foreground UI (z-30) — tagline, labels, metadata ──────── */}
+      <div ref={uiLayerRef} data-depth="-0.2" className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between px-10 md:px-20 py-10 md:py-14">
 
         {/* Top row — whisper-quiet metadata, never competing with navbar */}
         <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-between pt-12">
