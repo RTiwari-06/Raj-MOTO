@@ -227,26 +227,27 @@ const Hero = ({ isLoaded = true }) => {
     runScramble(taglineRef.current.querySelector('.tagline-text'), 'MOTION / ENGINEER', 0.4);
   };
 
-  // ─── APPROACH B — PINNED CLIP-PATH REVEAL (single timeline, 3 acts) ───────────
-  // ONE pinned ScrollTrigger over +=180%. The legacy unpinned SYSTEM-01 scroll-out
-  // is folded in as Act 2 (no two triggers fighting the same element).
-  //
-  //   ACT 1 (progress 0.00 → 0.40) — reveal.jpg clip-path wipes top→bottom
-  //                                  (helmet descends); wireframe ghost appears
-  //                                  then fades as the real image arrives.
-  //   ACT 2 (progress 0.40 → 0.70) — title lines split apart + UI lifts away.
-  //   ACT 3 (progress 0.70 → 1.00) — subject scales 1 → 0.96 and fades; hero exits.
+  // ─── APPROACH B — PINNED CLIP-PATH REVEAL (single scrubbed timeline) ──────────
+  // ONE pinned ScrollTrigger over +=220%, scrub 2.5. Timeline TOTAL duration = 10
+  // so position maps directly to progress (progress = position / 10):
+  //   0.00 → 0.05  HOLD    — base image holds; the user settles in.
+  //   0.05 → 0.65  REVEAL  — reveal.jpg clip wipes top→bottom (ease none, cinematic).
+  //   0.00 → 0.08  wireframe ghost appears (0 → peak); holds to 0.45.
+  //   0.45 → 0.65  wireframe fades peak → 0.02.
+  //   0.55 → 0.75  UI text (ENGAGE / subtitle / tagline) fades + lifts away.
+  //   0.65 → 0.80  title lines (RAJ / TIWARI) split apart + fade.
+  //   0.80 → 1.00  subject scales 1 → 0.95 + fades; hero exits, pin releases.
   useEffect(() => {
     if (!containerRef.current) return;
 
     // Builds the full pinned timeline for one breakpoint. `wirePeak` caps the
-    // wireframe-ghost opacity (lower on mobile per spec).
+    // wireframe-ghost opacity (lower on mobile). Total timeline duration = 10.
     const buildRevealTimeline = (scrubValue, wirePeak) => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger:             containerRef.current,
           start:               'top top',
-          end:                 '+=180%',
+          end:                 '+=220%',
           scrub:               scrubValue,
           pin:                 true,
           anticipatePin:       1,
@@ -254,40 +255,53 @@ const Hero = ({ isLoaded = true }) => {
         },
       });
 
-      // ── ACT 1 (0.00 → 0.40) ───────────────────────────────────────────────
-      // Reveal image descends: clip bottom 100% → 0% (top → bottom wipe).
+      // ── HOLD (0.0 → 0.5) ──────────────────────────────────────────────────
+      // No tween before position 0.5 → base image simply holds for the first 5%.
+
+      // ── REVEAL (0.5 → 6.5 | progress 0.05 → 0.65) ─────────────────────────
+      // Reveal image descends: clip bottom 100% → 0% (top → bottom wipe). Slow.
       tl.fromTo(
         revealRef.current,
         { clipPath: 'inset(0% 0% 100% 0%)' },
-        { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 0.4 },
-        0
+        { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', duration: 6 },
+        0.5
       );
-      // Wireframe ghost flashes in...
+
+      // ── WIREFRAME GHOST ───────────────────────────────────────────────────
+      // Appears 0 → peak over the first 0.8 (progress 0 → 0.08), holds, then
+      // fades peak → 0.02 across 4.5 → 6.5 (progress 0.45 → 0.65).
       tl.fromTo(
         wireframeRef.current,
         { opacity: 0 },
-        { opacity: wirePeak, ease: 'none', duration: 0.12 },
+        { opacity: wirePeak, ease: 'none', duration: 0.8 },
         0
       );
-      // ...then fades down as the real (revealed) image takes over.
       tl.to(
         wireframeRef.current,
-        { opacity: 0.04, ease: 'none', duration: 0.28 },
-        0.12
+        { opacity: 0.02, ease: 'none', duration: 2 },
+        4.5
       );
 
-      // ── ACT 2 (0.40 → 0.70) ───────────────────────────────────────────────
-      // Folded SYSTEM-01: title lines separate vertically + fade, UI lifts away.
-      tl.to(line1Ref.current,  { yPercent: -55, opacity: 0, ease: 'none', duration: 0.3 }, 0.4);
-      tl.to(line2Ref.current,  { yPercent:  55, opacity: 0, ease: 'none', duration: 0.3 }, 0.4);
-      tl.to(uiLayerRef.current, { yPercent: -12, opacity: 0, ease: 'none', duration: 0.3 }, 0.4);
+      // ── UI TEXT EXIT (5.5 → 7.5 | progress 0.55 → 0.75) ───────────────────
+      // Foreground text (ENGAGE / subtitle / tagline) stays fully visible until
+      // 55%, then fades + lifts. Eased so it doesn't pop.
+      tl.to(
+        uiLayerRef.current,
+        { opacity: 0, yPercent: -8, ease: 'power2.in', duration: 2 },
+        5.5
+      );
 
-      // ── ACT 3 (0.70 → 1.00) ───────────────────────────────────────────────
+      // ── TITLE SPLIT (6.5 → 8.0 | progress 0.65 → 0.80) ────────────────────
+      // RAJ rises, TIWARI drops, both fade — reveal image held fully visible.
+      tl.to(line1Ref.current, { yPercent: -55, opacity: 0, ease: 'none', duration: 1.5 }, 6.5);
+      tl.to(line2Ref.current, { yPercent:  55, opacity: 0, ease: 'none', duration: 1.5 }, 6.5);
+
+      // ── EXIT (8.0 → 10.0 | progress 0.80 → 1.00) ──────────────────────────
       // Subject stage scales down + fades; hero clears for the next section.
       tl.to(
         canvasWrapRef.current,
-        { scale: 0.96, opacity: 0, ease: 'none', duration: 0.3 },
-        0.7
+        { scale: 0.95, opacity: 0, ease: 'none', duration: 2 },
+        8.0
       );
 
       return tl;
@@ -297,15 +311,15 @@ const Hero = ({ isLoaded = true }) => {
     // trigger fresh per breakpoint and auto-reverts on breakpoint change.
     const mm = gsap.matchMedia();
 
-    // Desktop — full scrub, full-strength wireframe ghost.
+    // Desktop — scrub 2.5, wireframe peak 0.10.
     mm.add('(min-width: 769px)', () => {
-      const tl = buildRevealTimeline(2.0, 0.18);
+      const tl = buildRevealTimeline(2.5, 0.10);
       return () => tl.scrollTrigger?.kill();
     });
 
-    // Mobile — faster scrub (1.2), wireframe capped at 0.10. Same clip direction.
+    // Mobile — slightly snappier scrub (1.5), wireframe peak capped at 0.08.
     mm.add('(max-width: 768px)', () => {
-      const tl = buildRevealTimeline(1.2, 0.10);
+      const tl = buildRevealTimeline(1.5, 0.08);
       return () => tl.scrollTrigger?.kill();
     });
 
@@ -368,26 +382,44 @@ const Hero = ({ isLoaded = true }) => {
           className="absolute inset-0 z-30 pointer-events-none select-none"
           style={{ opacity: 0 }}
         >
+          {/* Opacity is GSAP-driven via the wrapper (wireframeRef): 0 → peak → 0.02.
+              No opacity attr on the svg itself, else it would multiply with the
+              wrapper and the ghost would be ~0.01 (effectively invisible). */}
           <svg
-            viewBox="0 0 100 100"
+            viewBox="0 0 200 220"
             preserveAspectRatio="xMidYMid meet"
-            className="absolute w-[35%] left-1/2 -translate-x-1/2 top-[5%]"
+            className="absolute w-[32%] left-1/2 -translate-x-1/2 top-[8%]"
             fill="none"
             stroke="#D2FF00"
-            strokeWidth="0.25"
+            strokeWidth="0.4"
           >
-            {/* Helmet dome */}
-            <ellipse cx="50" cy="38" rx="24" ry="28" />
-            {/* Visor opening */}
-            <rect x="26" y="44" width="48" height="10" rx="2" />
-            {/* Chin guard */}
-            <path d="M30 54 Q50 62 70 54" />
-            {/* Vents — left */}
-            <line x1="28" y1="36" x2="24" y2="36" />
-            <line x1="28" y1="40" x2="24" y2="40" />
-            {/* Vents — right */}
-            <line x1="72" y1="36" x2="76" y2="36" />
-            <line x1="72" y1="40" x2="76" y2="40" />
+            {/* Main helmet dome */}
+            <path d="M100 20
+              C 140 20, 175 55, 175 100
+              C 175 135, 165 155, 150 165
+              L 50 165
+              C 35 155, 25 135, 25 100
+              C 25 55, 60 20, 100 20 Z"/>
+
+            {/* Visor slot */}
+            <path d="M42 110
+              C 42 102, 48 96, 58 94
+              L 142 94
+              C 152 96, 158 102, 158 110
+              C 158 118, 152 124, 142 126
+              L 58 126
+              C 48 124, 42 118, 42 110 Z"/>
+
+            {/* Center ridge */}
+            <line x1="100" y1="20" x2="100" y2="90" strokeWidth="0.3"/>
+
+            {/* Vent lines left */}
+            <line x1="38" y1="75" x2="30" y2="72" strokeWidth="0.3"/>
+            <line x1="36" y1="85" x2="28" y2="84" strokeWidth="0.3"/>
+
+            {/* Vent lines right */}
+            <line x1="162" y1="75" x2="170" y2="72" strokeWidth="0.3"/>
+            <line x1="164" y1="85" x2="172" y2="84" strokeWidth="0.3"/>
           </svg>
         </div>
 
