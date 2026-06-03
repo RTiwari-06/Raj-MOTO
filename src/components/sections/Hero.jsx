@@ -113,8 +113,9 @@ const Hero = ({ isLoaded = true }) => {
             </span>
           </div>
           <div className="overflow-hidden">
-            <span ref={line2Ref} className="block font-serif font-black uppercase text-white"
-                  style={{ fontSize: 'clamp(3.5rem, 12vw, 13rem)', lineHeight: 0.84, letterSpacing: '-0.04em' }}>
+            <span ref={line2Ref} className="block font-serif font-black uppercase"
+                  style={{ fontSize: 'clamp(3.5rem, 12vw, 13rem)', lineHeight: 0.84, letterSpacing: '-0.04em',
+                           color: 'transparent', WebkitTextStroke: '1.5px rgba(255,255,255,0.85)' }}>
               TIWARI
             </span>
           </div>
@@ -128,7 +129,7 @@ const Hero = ({ isLoaded = true }) => {
                 Motion / Engineer
               </p>
               <p className="font-sans text-[12px] leading-relaxed text-white/45 mt-3 max-w-[26ch]">
-                High-performance web interfaces, engineered in motion.
+                Same rider, two machines — the web and the road.
               </p>
             </div>
             <div ref={ctaRef} className="pointer-events-auto">
