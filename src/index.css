@@ -1374,6 +1374,11 @@ html.lenis { height: auto; }
 }
 
 @media (max-width: 768px) {
+  :root {
+    --container-padding: 24px;
+    --section-gap: 80px;
+  }
+
   .grid-2,
   .grid-3,
   .grid-4 {
@@ -1395,12 +1400,14 @@ html.lenis { height: auto; }
   .footer {
     flex-direction: column;
     gap: var(--space-5);
+    text-align: center;
   }
 }
 
 @media (max-width: 480px) {
   :root {
-    --container-padding: 16px;
+    --container-padding: 20px;
+    --section-gap: 64px;
   }
 
   .arsenal-grid {
@@ -1412,4 +1419,32 @@ html.lenis { height: auto; }
     width: 100%;
     justify-content: center;
   }
+
+  .section-title-lime,
+  .section-title-white {
+    font-size: 42px;
+  }
+}
+
+/* ── HERO — Direction 3 atmosphere (darkness-envelope) ─────────────────────── */
+/* Vignette: a soft light pool sits on the subject (centre-right, slightly high);
+   darkness deepens to the viewport edges → focus without any added effect. */
+.hero-vignette {
+  background: radial-gradient(ellipse 78% 72% at 60% 45%,
+    transparent 0%, transparent 36%,
+    rgba(0, 0, 0, 0.45) 72%, rgba(0, 0, 0, 0.92) 100%);
+}
+/* Bottom scrim — seats the kicker/CTA AND buries the reveal.jpg watermark. */
+.hero-scrim-bottom {
+  background: linear-gradient(to top,
+    #000 0%, rgba(0, 0, 0, 0.85) 18%, rgba(0, 0, 0, 0) 100%);
+}
+/* Left scrim — anchors the name monument over dark negative space. */
+.hero-scrim-left {
+  background: linear-gradient(to right,
+    rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.30) 45%, transparent 70%);
+}
+/* Top scrim — blends into the navbar, calms top metadata. */
+.hero-scrim-top {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
 }
