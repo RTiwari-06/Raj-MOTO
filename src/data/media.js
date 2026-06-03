@@ -153,19 +153,28 @@ export const MEDIA = {
     },
   ],
 
+  // Editorial spread — a mix of machine shots + off-track lifestyle moments.
+  // `location` feeds the floating "VIEW // …" cursor. Missing imgs fall back to
+  // a styled placeholder tile (e.g. the 3 AM Biryani run, to be shot).
   gallery: [
-    { id: 1, src: '/bike-1.jpg', label: 'Duke Street',   span: 'col-span-1 row-span-2', category: 'Machine'   },
-    { id: 2, src: '/bike-2.jpg', label: 'Highway North', span: 'col-span-1 row-span-1', category: 'On Road'   },
-    { id: 3, src: '/bike-3.jpg', label: 'Monsoon Loop',  span: 'col-span-1 row-span-1', category: 'Mood'      },
-    { id: 4, src: '/bike-4.jpg', label: 'Nandi Hills',   span: 'col-span-2 row-span-1', category: 'Altitude'  },
+    { id: 1,  src: '/moto-fleet.webp',         label: 'The Fleet',     span: 'col-span-2 row-span-2', category: 'Machines',  location: 'Bengaluru' },
+    { id: 2,  src: '/moto-group.webp',         label: 'The Crew',      span: 'col-span-1 row-span-2', category: 'Off Track', location: 'Post-Sprint' },
+    { id: 3,  src: '/bike-1.jpg',              label: 'Duke Street',   span: 'col-span-1 row-span-1', category: 'Machine',   location: 'MG Road' },
+    { id: 4,  src: '/moto-night-duo.webp',     label: 'Night Run',     span: 'col-span-1 row-span-1', category: 'Night',     location: '02:10 AM' },
+    { id: 5,  src: '/media/gallery/biryani.jpg', label: '3 AM Biryani', span: 'col-span-1 row-span-1', category: 'Off Track', location: 'Shivaji Nagar' },
+    { id: 6,  src: '/moto-night-helmet.webp',  label: 'Night Visor',   span: 'col-span-1 row-span-2', category: 'Mood',      location: 'Flyover' },
+    { id: 7,  src: '/bike-2.jpg',              label: 'Highway North', span: 'col-span-2 row-span-1', category: 'On Road',   location: 'NH-44' },
+    { id: 8,  src: '/moto-rider.webp',         label: 'Saddle Up',     span: 'col-span-1 row-span-1', category: 'Portrait',  location: 'RC 390' },
+    { id: 9,  src: '/bike-3.jpg',              label: 'Monsoon Loop',  span: 'col-span-1 row-span-1', category: 'Mood',      location: 'Bengaluru' },
+    { id: 10, src: '/bike-4.jpg',              label: 'Nandi Hills',   span: 'col-span-1 row-span-1', category: 'Altitude',  location: '1478 m' },
   ],
 
   actionCards: [
-    { id: 1, src: '/bike-2.jpg', label: 'Highway Run', x: -190, y: 22, rotate: -14 },
-    { id: 2, src: '/bike-3.jpg', label: 'Monsoon',     x:  -95, y:  8, rotate:  -6 },
-    { id: 3, src: '/bike-4.jpg', label: 'Nandi Hills', x:    0, y:  0, rotate:   0 },
-    { id: 4, src: '/bike-1.jpg', label: 'Duke 250',    x:   95, y:  8, rotate:   6 },
-    { id: 5, src: '/reveal.jpg', label: 'Night Shift', x:  190, y: 22, rotate:  14 },
+    { id: 1, src: '/moto-fleet.webp',        label: 'The Fleet', x: -190, y: 22, rotate: -14 },
+    { id: 2, src: '/moto-group.webp',        label: 'The Crew',  x:  -95, y:  8, rotate:  -6 },
+    { id: 3, src: '/moto-rider.webp',        label: 'Saddle Up', x:    0, y:  0, rotate:   0 },
+    { id: 4, src: '/moto-night-duo.webp',    label: 'Night Run', x:   95, y:  8, rotate:   6 },
+    { id: 5, src: '/moto-night-helmet.webp', label: 'Gear Up',   x:  190, y: 22, rotate:  14 },
   ],
 
   story: {

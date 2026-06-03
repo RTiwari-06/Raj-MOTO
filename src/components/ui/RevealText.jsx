@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { EASE, DUR, STAGGER, ST } from '@/motion/system';
 
-export function RevealText({ text, className }) {
+export function RevealText({ text, className, style }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function RevealText({ text, className }) {
   ));
 
   return (
-    <div ref={containerRef} className={className}>
+    <div ref={containerRef} className={className} style={style}>
       {wordElements}
     </div>
   );

@@ -51,7 +51,7 @@ export default function ProjectDetail() {
     if (!el) return;
     const ctx = gsap.context(() => {
       gsap.timeline()
-        .to(el,   { opacity: 0, y: -12, duration: 0.18, ease: EASE.exit })
+        .to(el,   { opacity: 0, y: -12, duration: DUR.instant, ease: EASE.exit })
         .fromTo(el,
           { opacity: 0, y: 24 },
           { opacity: 1, y: 0,  duration: DUR.standard, ease: EASE.momentum }
@@ -104,10 +104,7 @@ export default function ProjectDetail() {
         <button
           onClick={handleClose}
           data-magnetic
-          className="flex items-center gap-3 text-[9px] font-black tracking-[0.3em] uppercase text-white/40 hover:text-accent transition-colors duration-200"
-          style={{ color: 'rgba(255,255,255,0.4)' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#D2FF00')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
+          className="flex items-center gap-3 text-[9px] font-black tracking-[0.3em] uppercase transition-colors duration-200 text-white/40 hover:text-white"
         >
           ← &nbsp;Fleet
         </button>
@@ -337,10 +334,7 @@ export default function ProjectDetail() {
             <button
               data-magnetic
               onClick={() => navigateRide(-1)}
-              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200"
-              style={{ color: 'rgba(255,255,255,0.35)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#F4F4ED')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200 text-white/35 hover:text-white"
             >
               <span className="transition-transform duration-200 group-hover:-translate-x-1">←</span>
               Prev Ride
@@ -352,22 +346,11 @@ export default function ProjectDetail() {
           <button
             onClick={handleClose}
             data-magnetic="cta"
-            className="text-[10px] font-black tracking-[0.35em] uppercase px-8 py-3 border transition-all duration-300"
+            className="btn-accent text-[10px] font-black tracking-[0.35em] uppercase px-8 py-3"
             style={{
-              borderColor:     `${ride.accent}45`,
-              color:           ride.accent,
-              borderRadius:    '1px',
-              backgroundColor: 'transparent',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = ride.accent;
-              e.currentTarget.style.color = '#000';
-              e.currentTarget.style.borderColor = ride.accent;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = ride.accent;
-              e.currentTarget.style.borderColor = `${ride.accent}45`;
+              '--btn-accent': ride.accent,
+              '--btn-accent-dim': `${ride.accent}45`,
+              borderRadius: '1px',
             }}
           >
             Back to Fleet
@@ -377,10 +360,7 @@ export default function ProjectDetail() {
             <button
               data-magnetic
               onClick={() => navigateRide(1)}
-              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200"
-              style={{ color: 'rgba(255,255,255,0.35)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#F4F4ED')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200 text-white/35 hover:text-white"
             >
               Next Ride
               <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>

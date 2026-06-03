@@ -3,22 +3,22 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MEDIA } from '@/data/media';
 import { EASE, DUR, STAGGER, ST } from '@/motion/system';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 const PHOTOS = MEDIA.gallery;
 
 export default function GallerySection() {
-  const sectionRef    = useRef(null);
-  const headerRef     = useRef(null);
-  const gridRef       = useRef(null);
-  const lightboxRef   = useRef(null);
-  const cursorRef     = useRef(null);
+  const sectionRef = useRef(null);
+  const headerRef  = useRef(null);
+  const gridRef    = useRef(null);
+  const cursorRef  = useRef(null);
 
-  const [hovered,    setHovered]    = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [lightbox,   setLightbox]   = useState(null);
+  const [hovered,  setHovered]  = useState(null);
+  const [lightbox, setLightbox] = useState(null);
+  const hoveredPhoto = PHOTOS.find((p) => p.id === hovered);
   const lightboxIndex = lightbox ? PHOTOS.findIndex((p) => p.id === lightbox.id) : -1;
 
-  // Scroll entry
+  // Entrance + scroll parallax
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(headerRef.current,
@@ -31,38 +31,35 @@ export default function GallerySection() {
 
       const cells = gridRef.current.querySelectorAll('.grid-cell');
       gsap.fromTo(cells,
-        { y: 50, opacity: 0, scale: 0.97 },
+        { y: 60, opacity: 0, scale: 0.97 },
         {
           y: 0, opacity: 1, scale: 1,
-          duration: DUR.standard, ease: EASE.momentum, stagger: STAGGER.cards,
+          duration: DUR.standard, ease: EASE.precision, stagger: STAGGER.cards,
           scrollTrigger: { trigger: gridRef.current, start: ST.start.late, once: true },
         },
       );
 
-      // Parallax per-image as they scroll (pronounced)
+      // Parallax momentum — over-scaled image wrapper drifts on scroll.
       gsap.utils.toArray(cells).forEach((cell, i) => {
-        const img = cell.querySelector('img');
-        if (!img) return;
-        gsap.to(img, {
-          y: i % 2 === 0 ? -50 : 50,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: cell,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
+        const wrap = cell.querySelector('.gallery-parallax');
+        if (!wrap) return;
+        gsap.fromTo(wrap,
+          { yPercent: i % 2 === 0 ? -8 : 8 },
+          {
+            yPercent: i % 2 === 0 ? 8 : -8,
+            ease: EASE.scrub,
+            scrollTrigger: { trigger: cell, start: 'top bottom', end: 'bottom top', scrub: ST.scrub.standard },
           },
-        });
+        );
       });
-
     }, sectionRef);
     return () => ctx.revert();
   }, []);
 
   // Lightbox entrance
   useEffect(() => {
-    if (lightbox && lightboxRef.current) {
-      gsap.fromTo(lightboxRef.current,
+    if (lightbox && document.querySelector('.gallery-lightbox-inner')) {
+      gsap.fromTo('.gallery-lightbox-inner',
         { opacity: 0, scale: 0.96 },
         { opacity: 1, scale: 1, duration: DUR.fast, ease: EASE.precision },
       );
@@ -72,9 +69,8 @@ export default function GallerySection() {
   const navigate = useCallback((dir) => {
     setLightbox((prev) => {
       if (!prev) return null;
-      const idx  = PHOTOS.findIndex((p) => p.id === prev.id);
-      const next = (idx + dir + PHOTOS.length) % PHOTOS.length;
-      return PHOTOS[next];
+      const idx = PHOTOS.findIndex((p) => p.id === prev.id);
+      return PHOTOS[(idx + dir + PHOTOS.length) % PHOTOS.length];
     });
   }, []);
 
@@ -88,117 +84,121 @@ export default function GallerySection() {
     return () => window.removeEventListener('keydown', onKey);
   }, [navigate]);
 
-  // Floating VIEW/DRAG cursor
+  // Floating VIEW // location cursor
   const xTo = useRef(null);
   const yTo = useRef(null);
-
   useEffect(() => {
     const el = cursorRef.current;
     if (!el) return;
-    xTo.current = gsap.quickTo(el, 'x', { duration: 0.3, ease: 'power3.out' });
-    yTo.current = gsap.quickTo(el, 'y', { duration: 0.3, ease: 'power3.out' });
-
+    xTo.current = gsap.quickTo(el, 'x', { duration: DUR.fast, ease: EASE.momentum });
+    yTo.current = gsap.quickTo(el, 'y', { duration: DUR.fast, ease: EASE.momentum });
     const onMove = (e) => { xTo.current(e.clientX); yTo.current(e.clientY); };
     window.addEventListener('mousemove', onMove);
     return () => window.removeEventListener('mousemove', onMove);
   }, []);
 
   return (
-    <section id="gallery" ref={sectionRef} className="relative w-full bg-black py-36 md:py-44 px-6 md:px-16 border-t border-white/5">
+    <section
+      id="gallery"
+      ref={sectionRef}
+      className="relative w-full bg-[#0a0a0a] py-28 md:py-36 px-6 md:px-16 border-t border-white/5 overflow-hidden"
+    >
+      <div className="grain-layer" />
 
-      {/* Floating cursor label */}
+      {/* Floating VIEW cursor */}
       <div
         ref={cursorRef}
         className="fixed top-0 left-0 z-[9997] pointer-events-none transition-opacity duration-200"
         style={{ opacity: hovered ? 1 : 0, transform: 'translate(-50%, -50%)' }}
       >
         <div
-          className="px-3 py-1.5 text-[9px] font-black label-spaced uppercase"
-          style={{
-            border:         '1px solid rgba(210,255,0,0.8)',
-            color:          '#D2FF00',
-            background:     'rgba(0,0,0,0.75)',
-            backdropFilter: 'blur(6px)',
-            transform:      isDragging ? 'scale(0.88)' : 'scale(1)',
-            transition:     'transform 0.15s ease',
-          }}
+          className="px-3.5 py-2 text-[9px] font-black tracking-[0.3em] uppercase whitespace-nowrap"
+          style={{ background: '#D2FF00', color: '#0a0a0a' }}
         >
-          {isDragging ? '[ DRAG ]' : '[ VIEW ]'}
+          VIEW {hoveredPhoto ? `// ${hoveredPhoto.location}` : ''}
         </div>
       </div>
 
-      {/* Header */}
-      <div ref={headerRef} className="mb-20 opacity-0">
-        <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-6" />
-        <h2 className="font-serif font-black uppercase leading-none" style={{ fontSize: 'clamp(2.5rem, 7vw, 7rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}>
-          <span className="block" style={{ color: '#D2FF00' }}>VISUAL</span>
-          <span className="block text-white">ARCHIVE</span>
-        </h2>
-      </div>
+      <div className="relative max-w-screen-2xl mx-auto">
 
-      {/* Masonry grid */}
-      <div
-        ref={gridRef}
-        className="grid gap-3"
-        style={{ gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: '280px' }}
-      >
-        {PHOTOS.map((photo) => {
-          const isHov = hovered === photo.id;
-          return (
+        {/* Header */}
+        <div ref={headerRef} className="mb-12 md:mb-16 opacity-0">
+          <SectionHeader index="12" kicker="VISUAL ARCHIVE" readout="THE FULL LIFESTYLE" className="mb-8 max-w-3xl" />
+          <h2
+            className="font-serif font-black uppercase leading-none"
+            style={{ fontSize: 'clamp(2.6rem, 8vw, 8rem)', letterSpacing: '-0.04em', lineHeight: '0.86' }}
+          >
+            <span className="block" style={{ color: '#D2FF00' }}>VISUAL</span>
+            <span className="block text-white">ARCHIVE</span>
+          </h2>
+        </div>
+
+        {/* Editorial masonry */}
+        <div
+          ref={gridRef}
+          className="grid gap-3 md:gap-4"
+          style={{
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridAutoRows: 'clamp(160px, 21vw, 300px)',
+            gridAutoFlow: 'dense',
+          }}
+        >
+          {PHOTOS.map((photo) => (
             <div
               key={photo.id}
               data-magnetic="image"
-              className={`grid-cell relative overflow-hidden opacity-0 ${photo.span}`}
-              style={{ borderRadius: '2px' }}
+              className={`grid-cell group relative overflow-hidden cursor-none opacity-0 bg-[#0d0d0d] ${photo.span}`}
               onMouseEnter={() => setHovered(photo.id)}
-              onMouseLeave={() => { setHovered(null); setIsDragging(false); }}
-              onMouseDown={() => setIsDragging(true)}
-              onMouseUp={() => setIsDragging(false)}
+              onMouseLeave={() => setHovered(null)}
               onClick={() => setLightbox(photo)}
             >
-              <img
-                src={photo.src}
-                alt={photo.label}
-                className="w-full h-full object-cover transition-transform duration-700 ease-out"
-                style={{ transform: isHov ? 'scale(1.07)' : 'scale(1)' }}
-                loading="lazy"
-              />
+              {/* Placeholder behind (shows for unshot tiles) */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
+                <span className="font-mono text-[8px] tracking-[0.35em] text-white/20">NO FEED</span>
+                <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#D2FF00]/50">{photo.label}</span>
+              </div>
 
+              {/* Parallax wrapper + image (hover scale 1.05 over 0.6s) */}
+              <div className="gallery-parallax absolute inset-[-10%] will-change-transform">
+                <img
+                  src={photo.src}
+                  alt={photo.label}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="w-full h-full object-cover transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </div>
+
+              {/* Editorial gradient + label — clean by default, richer on hover */}
               <div
-                className="absolute inset-0 transition-opacity duration-400"
+                className="absolute inset-0 pointer-events-none transition-opacity duration-500"
                 style={{
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)',
-                  opacity:    isHov ? 1 : 0.4,
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.05) 55%, transparent 100%)',
+                  opacity: hovered === photo.id ? 1 : 0.55,
                 }}
               />
-
-              {isHov && ['top-3 left-3', 'top-3 right-3', 'bottom-3 left-3', 'bottom-3 right-3'].map((pos) => (
-                <span key={pos} className={`absolute ${pos} text-[8px] font-black text-accent/60 pointer-events-none select-none`}>
-                  [ + ]
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 pointer-events-none">
+                <span
+                  className="font-mono text-[8px] tracking-[0.35em] uppercase text-[#D2FF00]/80 block mb-1.5 transition-opacity duration-300"
+                  style={{ opacity: hovered === photo.id ? 1 : 0.6 }}
+                >
+                  {photo.category}
                 </span>
-              ))}
-
-              <span
-                className="absolute top-4 left-4 text-[8px] font-black label-spaced uppercase px-2.5 py-1 transition-opacity duration-300"
-                style={{
-                  background: 'rgba(210,255,0,0.15)',
-                  border:     '1px solid rgba(210,255,0,0.3)',
-                  color:      '#D2FF00',
-                  opacity:    isHov ? 1 : 0,
-                }}
-              >
-                {photo.category}
-              </span>
-
-              <div
-                className="absolute bottom-0 left-0 right-0 p-5 transition-transform duration-400"
-                style={{ transform: isHov ? 'translateY(0)' : 'translateY(8px)' }}
-              >
-                <p className="text-white text-xs font-black label-spaced uppercase">{photo.label}</p>
+                <p
+                  className="font-serif font-black uppercase text-white leading-none transition-transform duration-400"
+                  style={{
+                    fontSize: 'clamp(1rem, 1.8vw, 1.7rem)',
+                    letterSpacing: '-0.02em',
+                    transform: hovered === photo.id ? 'translateY(0)' : 'translateY(6px)',
+                  }}
+                >
+                  {photo.label}
+                </p>
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
       {/* Lightbox */}
@@ -208,38 +208,43 @@ export default function GallerySection() {
           onClick={() => setLightbox(null)}
         >
           <div
-            ref={lightboxRef}
-            className="relative max-w-5xl max-h-[90vh] w-full mx-6"
+            className="gallery-lightbox-inner relative max-w-5xl max-h-[90vh] w-full mx-6"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={lightbox.src}
               alt={lightbox.label}
-              className="w-full max-h-[85vh] object-contain"
+              className="w-full max-h-[82vh] object-contain"
               style={{ borderRadius: '2px' }}
             />
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-5 border-t border-white/10 pt-4">
               <div>
-                <p className="text-[9px] label-spaced uppercase font-bold text-accent">{lightbox.category}</p>
-                <p className="text-light font-black text-lg tracking-tight">{lightbox.label}</p>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[#D2FF00] mb-1">
+                  {lightbox.category} · {lightbox.location}
+                </p>
+                <p className="font-serif font-black uppercase text-white text-2xl leading-none tracking-tight">
+                  {lightbox.label}
+                </p>
               </div>
               <div className="flex items-center gap-4">
                 <button
                   data-magnetic
-                  className="w-9 h-9 border border-white/20 hover:border-accent hover:text-accent flex items-center justify-center text-white/60 transition-all duration-200 text-sm font-bold"
+                  className="w-9 h-9 border border-white/20 hover:border-[#D2FF00] hover:text-[#D2FF00] flex items-center justify-center text-white/60 transition-all duration-200 text-sm font-bold"
                   onClick={() => navigate(-1)}
+                  aria-label="Previous"
                 >←</button>
-                <span className="text-[9px] label-spaced uppercase font-bold text-muted">
-                  {lightboxIndex + 1} / {PHOTOS.length}
+                <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-white/40 tabular-nums">
+                  {String(lightboxIndex + 1).padStart(2, '0')} / {String(PHOTOS.length).padStart(2, '0')}
                 </span>
                 <button
                   data-magnetic
-                  className="w-9 h-9 border border-white/20 hover:border-accent hover:text-accent flex items-center justify-center text-white/60 transition-all duration-200 text-sm font-bold"
+                  className="w-9 h-9 border border-white/20 hover:border-[#D2FF00] hover:text-[#D2FF00] flex items-center justify-center text-white/60 transition-all duration-200 text-sm font-bold"
                   onClick={() => navigate(1)}
+                  aria-label="Next"
                 >→</button>
                 <button
                   data-magnetic
-                  className="text-[10px] label-spaced uppercase font-bold text-muted hover:text-light transition-colors ml-4"
+                  className="font-mono text-[10px] tracking-[0.2em] uppercase font-bold text-white/40 hover:text-white transition-colors ml-3"
                   onClick={() => setLightbox(null)}
                 >Close ✕</button>
               </div>

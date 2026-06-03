@@ -18,6 +18,8 @@ export default function RidesSection() {
   const specRefs   = useRef([]);
   const nameRefs   = useRef([]);
   const dotRefs    = useRef([]);
+  const imgWrapRefs = useRef([]);   // parallax wrapper per slide
+  const dimRefs    = useRef([]);    // active-slide emphasis overlay per slide
   const labelRef   = useRef(null);
 
   const setDetailRide = useRideStore((state) => state.setDetailRide);
@@ -41,10 +43,9 @@ export default function RidesSection() {
             pin:           true,
             scrub:         ST.scrub.tight,
             onUpdate: (self) => {
-              const idx = Math.min(
-                Math.floor(self.progress * RIDES.length),
-                RIDES.length - 1,
-              );
+              // Continuous slide position (0 → RIDES.length-1) for centred emphasis.
+              const pos = self.progress * (RIDES.length - 1);
+              const idx = Math.min(Math.round(pos), RIDES.length - 1);
               dotRefs.current.forEach((dot, i) => {
                 if (!dot) return;
                 gsap.set(dot, {
@@ -52,6 +53,12 @@ export default function RidesSection() {
                   scaleX:          i === idx ? 1.8 : 1,
                   backgroundColor: i === idx ? ACCENT : 'rgba(255,255,255,0.25)',
                 });
+              });
+              // Active-slide pop: the centred slide is clear; neighbours darken.
+              dimRefs.current.forEach((dim, i) => {
+                if (!dim) return;
+                const d = Math.min(1, Math.abs(pos - i));
+                dim.style.opacity = (d * 0.55).toFixed(3);
               });
             },
           },
@@ -85,6 +92,25 @@ export default function RidesSection() {
                 trigger:            slideRefs.current[i],
                 start:              'left 80%',
                 once:               true,
+              },
+            },
+          );
+        });
+
+        // Image parallax — the over-scaled image drifts as its slide crosses the
+        // viewport, giving each slide depth as you scroll to it.
+        imgWrapRefs.current.forEach((wrap, i) => {
+          if (!wrap || !slideRefs.current[i]) return;
+          gsap.fromTo(wrap,
+            { xPercent: -6 },
+            {
+              xPercent: 6, ease: 'none',
+              scrollTrigger: {
+                containerAnimation: hTween,
+                trigger:            slideRefs.current[i],
+                start:              'left right',
+                end:                'right left',
+                scrub:              true,
               },
             },
           );
@@ -208,17 +234,31 @@ export default function RidesSection() {
             ref={(el) => (slideRefs.current[i] = el)}
             className="group relative flex-shrink-0 w-full md:w-screen h-[80vh] md:h-screen overflow-hidden"
           >
-            {/* Full-bleed image — CSS zoom on hover */}
-            <img
-              src={ride.src}
-              alt={ride.model}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-              loading={i === 0 ? 'eager' : 'lazy'}
-            />
+            {/* Full-bleed image in an over-scaled parallax wrapper (negative inset
+                gives drift headroom so edges never show). CSS zoom on hover. */}
+            <div
+              ref={(el) => (imgWrapRefs.current[i] = el)}
+              className="absolute -inset-[8%] will-change-transform"
+            >
+              <img
+                src={ride.src}
+                alt={ride.model}
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                style={{ filter: 'contrast(1.1) saturate(1.2) sepia(0.2) hue-rotate(-15deg)' }}
+                loading={i === 0 ? 'eager' : 'lazy'}
+              />
+            </div>
 
-            {/* Gradient overlays */}
+            {/* Gradient overlays — dark pockets for legible typography */}
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 55%, transparent 100%)' }} />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #0a0a0a 0%, transparent 50%, #0a0a0a 100%)', opacity: 0.85 }} />
+
+            {/* Active-slide emphasis — darkens when this slide is off-centre */}
+            <div
+              ref={(el) => (dimRefs.current[i] = el)}
+              className="absolute inset-0 bg-black pointer-events-none"
+              style={{ opacity: 0 }}
+            />
 
             {/* ── TOP-LEFT: category label in mono ─────────────────────────── */}
             <div className="absolute top-[76px] left-10 md:left-16 z-10 pointer-events-none">
@@ -252,7 +292,7 @@ export default function RidesSection() {
               </h3>
               <span
                 className="inline-block mt-5 text-[8px] font-black uppercase tracking-[0.35em] px-4 py-1.5"
-                style={{ backgroundColor: ACCENT, color: '#000' }}
+                style={{ backgroundColor: ride.accent || ACCENT, color: '#000' }}
               >
                 {ride.tag}
               </span>
@@ -260,22 +300,26 @@ export default function RidesSection() {
               <button
                 onClick={() => setDetailRide(ride)}
                 data-magnetic="cta"
-                className="group/btn btn-rt mt-5 flex items-center gap-3 text-[9px] font-black tracking-[0.35em] uppercase border border-[#D2FF00]/50 text-[#D2FF00] px-6 py-3"
-                style={{ borderRadius: '1px' }}
+                className="btn-accent mt-5 flex items-center gap-3 text-[9px] font-black tracking-[0.35em] uppercase px-6 py-3"
+                style={{
+                  borderRadius: '1px',
+                  '--btn-accent': ride.accent || ACCENT,
+                  '--btn-accent-dim': `${ride.accent || ACCENT}45`
+                }}
               >
                 View Ride
-                <span className="transition-transform duration-200 group-hover/btn:translate-x-1">→</span>
+                <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
               </button>
             </div>
 
-            {/* ── BOTTOM-RIGHT: specRef — lime arrow, revealed by GSAP ──────── */}
+            {/* ── BOTTOM-RIGHT: specRef — accent arrow, revealed by GSAP ──────── */}
             <div
               ref={(el) => (specRefs.current[i] = el)}
               className="absolute bottom-14 right-10 md:right-16 z-10 opacity-0 flex flex-col items-end gap-3"
             >
               <span
-                className="text-[#D2FF00] text-3xl leading-none transition-transform duration-300 group-hover:translate-x-1"
-                style={{ fontWeight: 900 }}
+                className="text-3xl leading-none transition-transform duration-300 group-hover:translate-x-1"
+                style={{ fontWeight: 900, color: ride.accent || ACCENT }}
               >
                 →
               </span>
@@ -283,6 +327,49 @@ export default function RidesSection() {
                 {ride.odometer} GP raced
               </p>
               <div className="h-px w-12 bg-white/10" />
+            </div>
+
+            {/* ── HOVER CURTAIN: diagonal corner-wipe revealing tagline + specs ─ */}
+            <div className="absolute bottom-0 right-0 z-20 pointer-events-none w-[min(420px,72vw)]">
+              <div className="ride-reveal relative bg-black/85 backdrop-blur-md pl-8 pr-10 md:pr-16 py-10 overflow-hidden border-l border-white/5">
+                {/* Cinematic textures */}
+                <div className="grain-layer opacity-10" />
+                <div className="absolute inset-0 scan-lines opacity-20" />
+
+                {/* Registration brackets */}
+                <span className="brk tl !w-3 !h-3" style={{ top: '12px', left: '12px', opacity: 0.4 }} />
+                <span className="brk br !w-3 !h-3" style={{ bottom: '12px', right: '12px', opacity: 0.4 }} />
+
+                <div className="relative z-10">
+                  <p
+                    className="font-mono text-[8px] tracking-[0.4em] uppercase mb-5 transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-60 group-hover:translate-y-0 delay-100"
+                    style={{ color: ride.accent || ACCENT }}
+                  >
+                    Telemetry // 0{i + 1}
+                  </p>
+                  <p className="font-serif italic text-white/90 text-base leading-snug mb-8 max-w-[32ch] transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-200">
+                    {ride.tagline}
+                  </p>
+                  <div className="flex flex-col gap-1 transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-300">
+                    {ride.specs?.map((s) => (
+                      <div key={s.label} className="flex items-baseline group/spec">
+                        <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/35 whitespace-nowrap transition-colors duration-300 group-hover/spec:text-white/60">
+                          {s.label}
+                        </span>
+                        <span className="lead-dots opacity-20" />
+                        <span className="font-mono text-[11px] tracking-[0.1em] text-white/80 whitespace-nowrap transition-colors duration-300 group-hover/spec:text-white">
+                          {s.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* The moving leading edge */}
+              <div 
+                className="ride-reveal-edge z-30" 
+                style={{ backgroundColor: ride.accent || ACCENT, boxShadow: `0 0 15px ${ride.accent || ACCENT}80` }}
+              />
             </div>
           </div>
         ))}

@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { gsap } from 'gsap';
+import { DUR, EASE } from '@/motion/system';
 
 // THE GRID // TURF — interactive route cards. GSAP cursor-tilt + glowing border;
 // route detail reveals on hover.
@@ -24,8 +25,8 @@ export default function TheGrid() {
     gsap.to(el, {
       rotateY: px * 10,
       rotateX: -py * 10,
-      duration: 0.4,
-      ease: 'power2.out',
+      duration: DUR.fast,
+      ease: EASE.hover,
       transformPerspective: 900,
       transformOrigin: 'center',
     });
@@ -36,8 +37,8 @@ export default function TheGrid() {
       scale: 1.03,
       borderColor: 'rgba(210,255,0,0.8)',
       boxShadow: '0 30px 70px rgba(0,0,0,0.6), 0 0 34px rgba(210,255,0,0.35)',
-      duration: 0.4,
-      ease: 'power2.out',
+      duration: DUR.fast,
+      ease: EASE.hover,
     });
   };
 
@@ -48,8 +49,8 @@ export default function TheGrid() {
       scale: 1,
       borderColor: 'rgba(255,255,255,0.08)',
       boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-      duration: 0.6,
-      ease: 'power3.out',
+      duration: DUR.standard,
+      ease: EASE.momentum,
     });
   };
 

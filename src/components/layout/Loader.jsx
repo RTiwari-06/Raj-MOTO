@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
 import { gsap } from 'gsap';
+import { DUR, EASE } from '@/motion/system';
 
 function statusLabel(p) {
   if (p < 20) return 'SYSTEM INIT...';
@@ -23,8 +24,8 @@ export default function Loader({ onComplete }) {
     const ctx = gsap.context(() => {
       gsap.to(animated.current, {
         value: Math.round(progress),
-        duration: 1.1,
-        ease: 'power2.out',
+        duration: DUR.considered,
+        ease: EASE.momentum,
         onUpdate: () => setDisplay(Math.round(animated.current.value)),
       });
     });
@@ -39,7 +40,7 @@ export default function Loader({ onComplete }) {
         // Fill bar redline flash
         .to('#rt-fill', {
           boxShadow: '0 0 30px #ff4444, 0 0 60px #ff4444',
-          duration: 0.12,
+          duration: DUR.instant,
           repeat: 5,
           yoyo: true,
           ease: 'none',
@@ -49,14 +50,14 @@ export default function Loader({ onComplete }) {
           scale: 1.08,
           skewX: -8,
           opacity: 0,
-          duration: 0.38,
-          ease: 'power4.in',
+          duration: DUR.feedback,
+          ease: EASE.exit,
         }, 0.35)
         // Curtain lifts
         .to(loaderRef.current, {
           yPercent: -100,
-          duration: 0.72,
-          ease: 'power4.inOut',
+          duration: DUR.standard,
+          ease: EASE.precision,
         }, 0.5);
     }, loaderRef);
     return () => ctx.revert();

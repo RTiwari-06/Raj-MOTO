@@ -45,9 +45,9 @@ export function HeroShaderMesh() {
   }, [baseTexture, revealTexture]);
 
   useEffect(() => {
-    // Inertial cursor physics — heavy easing so the laser scan has physical weight.
-    xTo.current = gsap.quickTo(mouseUniform.current, 'x', { duration: 0.8, ease: 'power3.out' });
-    yTo.current = gsap.quickTo(mouseUniform.current, 'y', { duration: 0.8, ease: 'power3.out' });
+    // Phase 1: Refined inertia for a premium, weighty, and delayed cursor follow.
+    xTo.current = gsap.quickTo(mouseUniform.current, 'x', { duration: 1.6, ease: 'power3.out' });
+    yTo.current = gsap.quickTo(mouseUniform.current, 'y', { duration: 1.6, ease: 'power3.out' });
   }, []);
 
   useEffect(() => {
@@ -65,18 +65,18 @@ export function HeroShaderMesh() {
     u.u_resolution.value.set(state.viewport.width, state.viewport.height);
     u.u_time.value = state.clock.elapsedTime;
 
-    // Smooth hover for overall mask opacity
-    hoverVal.current += ((imageHovering ? 1.0 : 0.0) - hoverVal.current) * 0.1;
+    // Phase 1: Premium, gradual hover transition for an atmospheric fade-in/out.
+    const targetHover = imageHovering ? 1.0 : 0.0;
+    hoverVal.current += (targetHover - hoverVal.current) * 0.04; // Slower, more cinematic interpolation
     u.u_hover.value = hoverVal.current;
 
-    // Velocity calculation for parallax + edge-brightness effect
+    // Velocity tracking for parallax (influence reduced for a more subtle effect).
     const dx = u.u_mouse.value.x - prevMouse.current.x;
     const dy = u.u_mouse.value.y - prevMouse.current.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // Scale dist to a 0-1 range. dist is small per frame (e.g., 0.01)
-    const targetVelocity = Math.min(dist * 60.0, 1.0);
-    velocityRef.current += (targetVelocity - velocityRef.current) * 0.1;
+    const targetVelocity = Math.min(dist * 20.0, 1.0);
+    velocityRef.current += (targetVelocity - velocityRef.current) * 0.05;
     u.u_velocity.value = velocityRef.current;
 
     prevMouse.current.x = u.u_mouse.value.x;

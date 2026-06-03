@@ -2,12 +2,15 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useUIStore } from '@/store/useUIStore';
+import { EASE } from '@/motion/system';
 
-const ITEMS = [
-  'DUKE 250 BS6', '•', 'PATNA/BENGALURU', '•', 'APEX HUNTER', '•',
-  'RT-MOTO', '•', 'TAKE ME OFF THE MARKET', '•',
-  'DUKE 250 BS6', '•', 'PATNA/BENGALURU', '•', 'APEX HUNTER', '•',
-  'RT-MOTO', '•', 'TAKE ME OFF THE MARKET', '•',
+const ITEMS =[
+  'VISION LOCKED', '—', 
+  'TAKE ME OFF THE MARKET', '—', 
+  'APEX HUNTER', '—', 
+  'VISION LOCKED', '—', 
+  'TAKE ME OFF THE MARKET', '—', 
+  'APEX HUNTER', '—', 
 ];
 
 export default function MarqueeTicker({ dark = true }) {
@@ -23,7 +26,7 @@ export default function MarqueeTicker({ dark = true }) {
     tweenRef.current = gsap.to(track, {
       x: -totalWidth,
       duration: 55,
-      ease: 'none',
+      ease: EASE.scrub,
       repeat: -1,
     });
 
@@ -61,7 +64,7 @@ export default function MarqueeTicker({ dark = true }) {
   }, []);
 
   const bg   = dark ? '#111112' : '#f2f0e8';
-  const text = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.09)';
+  const text = dark ? 'rgba(180, 203, 65, 0.54)' : 'rgba(0,0,0,0.09)';
 
   return (
     <div

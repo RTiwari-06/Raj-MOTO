@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { useStore } from '@/store/useStore';
+import { EASE, DUR } from '@/motion/system';
 
 // Magnetic radius in px — elements with [data-magnetic] pull the cursor within this distance
 const MAGNETIC_RADIUS = 100;
@@ -18,8 +19,8 @@ export function Cursor() {
     // quickTo for zero-overhead position updates — no React re-renders, ever
     const dotX  = gsap.quickTo(dot,  'x', { duration: 0.06 });
     const dotY  = gsap.quickTo(dot,  'y', { duration: 0.06 });
-    const ringX = gsap.quickTo(ring, 'x', { duration: 0.50, ease: 'power3.out' });
-    const ringY = gsap.quickTo(ring, 'y', { duration: 0.50, ease: 'power3.out' });
+    const ringX = gsap.quickTo(ring, 'x', { duration: DUR.fast, ease: EASE.momentum });
+    const ringY = gsap.quickTo(ring, 'y', { duration: DUR.fast, ease: EASE.momentum });
 
     let mx = 0;
     let my = 0;
@@ -67,35 +68,35 @@ export function Cursor() {
 
         if (type === 'cta') {
           gsap.to(ring, {
-            width: 60, height: 60,
+            width: 44, height: 44,
             backgroundColor: 'rgba(210,255,0,0.12)',
             borderColor: 'rgba(210,255,0,0.9)',
-            duration: 0.35, ease: 'power3.out',
+            duration: DUR.feedback, ease: EASE.momentum,
           });
         } else if (type === 'image') {
           gsap.to(ring, {
-            width: 80, height: 80,
+            width: 52, height: 52,
             borderColor: 'rgba(210,255,0,0.5)',
-            duration: 0.35, ease: 'power3.out',
+            duration: DUR.feedback, ease: EASE.momentum,
           });
         } else {
           // default — link hover
           gsap.to(ring, {
-            width: 48, height: 48,
+            width: 40, height: 40,
             borderColor: 'rgba(210,255,0,0.7)',
-            duration: 0.3, ease: 'power3.out',
+            duration: DUR.feedback, ease: EASE.momentum,
           });
         }
-        gsap.to(dot, { scale: 0, duration: 0.2, ease: 'power2.out' });
+        gsap.to(dot, { scale: 0, duration: DUR.instant, ease: EASE.hover });
         return;
       }
 
       // Non-magnetic interactive elements still get a subtle ring scale
       if (e.target.closest('a, button')) {
         gsap.to(ring, {
-          width: 44, height: 44,
+          width: 38, height: 38,
           borderColor: 'rgba(210,255,0,0.6)',
-          duration: 0.25, ease: 'power3.out',
+          duration: DUR.feedback, ease: EASE.momentum,
         });
       }
     };
@@ -112,17 +113,17 @@ export function Cursor() {
         width: 36, height: 36,
         backgroundColor: 'rgba(0,0,0,0)',
         borderColor: 'rgba(210,255,0,0.35)',
-        duration: 0.4, ease: 'power3.out',
+        duration: DUR.fast, ease: EASE.momentum,
       });
-      gsap.to(dot, { scale: 1, duration: 0.25, ease: 'back.out(2)' });
+      gsap.to(dot, { scale: 1, duration: DUR.feedback, ease: EASE.spring });
     };
 
     // Hide cursor when it leaves the window
     const onWindowLeave = () => {
-      gsap.to([dot, ring], { opacity: 0, duration: 0.2 });
+      gsap.to([dot, ring], { opacity: 0, duration: DUR.instant });
     };
     const onWindowEnter = () => {
-      gsap.to([dot, ring], { opacity: 1, duration: 0.2 });
+      gsap.to([dot, ring], { opacity: 1, duration: DUR.instant });
     };
 
     window.addEventListener('mousemove',  onMove);

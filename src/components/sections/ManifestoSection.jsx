@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { EASE, DUR, ST, STAGGER } from '@/motion/system';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 // Two stacked display lines + one subtitle — all animate via the same staggered lineRefs
 const LINES = [
@@ -63,11 +64,21 @@ export default function ManifestoSection() {
     >
       {/* Hairline grid overlay */}
       <div className="absolute inset-0 pointer-events-none hairline-grid opacity-20" />
+      <div className="grain-layer" />
+
+      {/* Ghost background mark — oversized outlined word for depth */}
+      <span
+        className="ghost-mark absolute -right-[4vw] bottom-[6vh] pointer-events-none select-none hidden md:block"
+        style={{ fontSize: 'clamp(180px, 30vw, 460px)' }}
+        aria-hidden="true"
+      >
+        RT
+      </span>
 
       {/* Right-side vertical label — updated copy */}
       <div
         ref={labelRef}
-        className="absolute right-10 md:right-16 top-1/2 -translate-y-1/2 flex flex-col items-end gap-4 opacity-0 pointer-events-none"
+        className="absolute right-10 md:right-16 top-1/2 -translate-y-1/2 flex flex-col items-end gap-4 opacity-0 pointer-events-none z-10"
       >
         <div
           className="text-[8px] label-extreme uppercase font-black text-white/20 tracking-widest"
@@ -80,10 +91,15 @@ export default function ManifestoSection() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-screen-xl mx-auto px-8 md:px-16 w-full py-32">
+      <div className="relative z-10 max-w-screen-xl mx-auto px-8 md:px-16 w-full py-32">
 
-        {/* Lime accent bar — RT•MOTO brand marker above the heading */}
-        <div className="w-[60px] h-[2px] bg-[#D2FF00] mb-8" />
+        {/* Instrument header — replaces the legacy lime eyebrow bar */}
+        <SectionHeader
+          index="03"
+          kicker="IDENTITY"
+          readout="PORTFOLIO // PHILOSOPHY"
+          className="mb-12 md:mb-16 max-w-3xl"
+        />
 
         {/* Stacked lines — each wrapped in overflow-hidden so yPercent clip works */}
         <div className="space-y-0">

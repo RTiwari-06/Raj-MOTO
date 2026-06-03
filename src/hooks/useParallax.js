@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { useStore } from '@/store/useStore';
+import { DUR, EASE } from '@/motion/system';
 
 /**
  * Attaches holographic DOM parallax to a container ref.
@@ -23,8 +24,8 @@ export function useParallax(containerRef, maxShift = 18) {
 
     layers.forEach((el) => {
       const depth = parseFloat(el.dataset.depth) || 1;
-      quickXMap.current.set(el, gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3.out' }));
-      quickYMap.current.set(el, gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3.out' }));
+      quickXMap.current.set(el, gsap.quickTo(el, 'x', { duration: DUR.fast, ease: EASE.momentum }));
+      quickYMap.current.set(el, gsap.quickTo(el, 'y', { duration: DUR.fast, ease: EASE.momentum }));
     });
 
     const unsub = useStore.subscribe((state) => {

@@ -3,31 +3,30 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { EASE, DUR, ST, STAGGER } from '@/motion/system';
 import { MEDIA } from '@/data/media';
-
 const EVOLUTION_DATA = [
   {
-    year: '2022',
-    title: 'First Line',
-    machine: 'HTML / CSS / JS',
-    detail: 'Late nights. Stack Overflow. The first working page. Signal received.',
+    year: '2015',
+    title: 'The Ignition',
+    machine: 'BALANCE · GRAVITY · MOMENTUM',
+    detail: 'Early mornings. Scraped asphalt. Absence of fear. Learning that speed is the only way to stay upright.',
   },
   {
-    year: '2023',
-    title: 'React Era',
-    machine: 'React · Node.js · Git',
-    detail: 'First full-stack project. First deployment. First time a stranger used something I built.',
+    year: '2018',
+    title: 'Honda Dio Era',
+    machine: 'GEARLESS · 109cc · NIMBLE',
+    detail: 'First taste of raw throttle. First solo night runs. Learning to read the city traffic before it even moves.',
   },
   {
     year: '2024',
     title: 'Motion Obsessed',
-    machine: 'GSAP · Three.js · WebGL',
-    detail: 'Discovered GSAP. Then Three.js. Then shaders. The screen became a racetrack.',
+    machine: 'MANUAL · REV MATCHING · TRACTION',
+    detail: 'Dropping the clutch. Understanding the exact physics of an apex. The commute disappeared; the street became a circuit.',
   },
   {
     year: '2026',
-    title: 'RT•MOTO',
-    machine: 'React · Vite · GSAP · R3F',
-    detail: 'The platform. Every technique mastered to date. Every ride that shaped the discipline.',
+    title: 'RT•MOTO // The Balance Point',
+    machine: 'DUKE 250 BS6 · 30 HORSES · HIGH-RPM',
+    detail: 'Vision locked. Chasing the power wheelie. Bengaluru concrete meets aggressive geometry. Precision is no longer optional.',
   },
 ];
 

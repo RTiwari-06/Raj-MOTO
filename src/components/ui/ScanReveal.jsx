@@ -7,7 +7,7 @@ export default function ScanReveal({
   children,
   className = '',
   delay    = 0,
-  duration = 1.1,
+  duration = 0.6,
   start    = 'top 78%',
 }) {
   const outerRef = useRef(null);

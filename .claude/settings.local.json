@@ -31,10 +31,22 @@
       "PowerShell(node --check \\(Resolve-Path \"src\\\\data\\\\media.js\"\\); if \\($?\\) { \"media.js: PASS\" }; npx vite build 2>&1 | Select-String -Pattern \"error|Error|✓ built|transformed\" | Select-Object -First 6)",
       "Bash(timeout 60 npx vite build --logLevel error)",
       "Bash(npx vite *)",
-      "Bash(gemini extensions *)"
+      "Bash(gemini extensions *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(npx --yes qrcode-terminal \"http://192.168.68.118:5174/\")",
+      "PowerShell(npx --yes qrcode \"http://192.168.68.118:5174/\" -o \"$env:TEMP\\\\site-qr.png\"; Write-Output \"SAVED: $env:TEMP\\\\site-qr.png\")",
+      "PowerShell(if \\(Test-Path \"$env:TEMP\\\\site-qr.png\"\\) { Write-Output \"EXISTS\"; \\(Get-Item \"$env:TEMP\\\\site-qr.png\"\\).Length } else { Write-Output \"NOT YET\" }; Write-Output $env:TEMP)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; foreach \\($f in 'base.jpg','reveal.jpg'\\) { $p = Join-Path \"C:\\\\Users\\\\compaq\\\\Desktop\\\\SCT_WD\\\\website designing\\\\public\" $f; $img = [System.Drawing.Image]::FromFile\\($p\\); \"{0}: {1} x {2}  \\(aspect {3:N3}\\)\" -f $f, $img.Width, $img.Height, \\($img.Width / $img.Height\\); $img.Dispose\\(\\) })",
+      "Read(//c/Users/compaq/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/**)",
+      "Bash(/c/Users/compaq/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1.1-full_build/bin/ffprobe.exe -v error -show_entries format=duration -show_entries stream=width,height,nb_frames,avg_frame_rate -of default=noprint_wrappers=1 '/c/Users/compaq/Downloads/Screen Recording 2026-05-15 181138.gif')",
+      "Bash(rm -f '/c/Users/compaq/Desktop/SCT_WD/website designing/.tmp_ref/*.png')",
+      "Bash(/c/Users/compaq/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1.1-full_build/bin/ffmpeg.exe -y -i '/c/Users/compaq/Downloads/Screen Recording 2026-05-15 181138.gif' -vf fps=2,scale=860:-1 '/c/Users/compaq/Desktop/SCT_WD/website designing/.tmp_ref/f%02d.png')"
     ],
     "ask": [
       "WebFetch"
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
   }
 }

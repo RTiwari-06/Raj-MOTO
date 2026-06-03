@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useStore } from '@/store/useStore';
 import { useUIStore } from '@/store/useUIStore';
 import { EASE, DUR, STAGGER } from '@/motion/system';
@@ -12,7 +13,9 @@ const LINKS = [
   { idx: '01', label: 'MACHINE',     href: '#machine', id: 'machine', type: 'anchor' },
   { idx: '02', label: 'TARMAC',      href: '#rides',   id: 'rides',   type: 'anchor' },
   { idx: '03', label: 'PIT LANE',    href: '#story',   id: 'story',   type: 'anchor' },
-  { idx: '04', label: 'ARCHIVE',     href: '/archive', id: 'archive', type: 'route' },
+  // Clicks through to the full /archive route, but scroll-spy tracks the on-page
+  // VISUAL ARCHIVE section (#gallery) so the active highlight advances there.
+  { idx: '04', label: 'ARCHIVE',     href: '/archive', id: 'gallery', type: 'route' },
   { idx: '05', label: 'COORDINATES', href: '#connect', id: 'connect', type: 'anchor' },
 ];
 
@@ -60,6 +63,18 @@ const Navbar = () => {
       : el.scrollIntoView({ behavior: 'smooth' });
   }, [navigate, location.pathname]);
 
+  // ── Logo / IGNITION — home, scrolling to top when already on the homepage ────
+  const goHome = useCallback((e) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    if (location.pathname !== '/') {
+      navigate('/');
+      return;
+    }
+    const lenis = window.__lenis;
+    lenis ? lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [navigate, location.pathname]);
+
   // ── Entrance — nav drops in, then the rail items stagger ────────────────────
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -87,15 +102,23 @@ const Navbar = () => {
     let max = 1;
     const measure = () => {
       max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      // Use document-relative position. offsetTop is relative to the nearest
+      // positioned ancestor — and several sections sit inside <ScanReveal>
+      // (position:relative) wrappers, so offsetTop would read ≈0 for them and
+      // pin the active link. getBoundingClientRect + scrollY is wrapper-proof.
+      const scrollY = window.scrollY || window.pageYOffset || 0;
       offsets = targets.map((t) => {
         const el = document.getElementById(t.id);
-        return { i: t.i, top: el ? el.offsetTop : Infinity };
+        return { i: t.i, top: el ? el.getBoundingClientRect().top + scrollY : Infinity };
       });
     };
     // Measure once layout/images have settled, and again on resize/load.
     const raf = requestAnimationFrame(() => requestAnimationFrame(measure));
     window.addEventListener('resize', measure);
     window.addEventListener('load', measure);
+    // Pinned sections (Helmet/Rides) change section offsets when ScrollTrigger
+    // recalculates — re-measure so the spy never works off stale positions.
+    ScrollTrigger.addEventListener('refresh', measure);
 
     let lastScroll = -1;
     let lastPct    = -1;
@@ -127,16 +150,26 @@ const Navbar = () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', measure);
       window.removeEventListener('load', measure);
+      ScrollTrigger.removeEventListener('refresh', measure);
       unsub();
     };
   }, []);
 
   // ── Slide the indicator to the active link (and keep it pinned on resize) ────
   useEffect(() => {
+    let raf;
     const move = () => {
       const el  = linkRefs.current[active];
       const ind = indicatorRef.current;
       if (!el || !ind) return;
+      // Rail is hidden (mobile / < md breakpoint) — don't busy-loop rAF.
+      if (el.offsetParent === null) return;
+      // Not laid out yet (e.g. web fonts still loading) — retry next frame so the
+      // bar never gets stuck at a stale, fallback-font width.
+      if (el.offsetWidth === 0) {
+        raf = requestAnimationFrame(move);
+        return;
+      }
       gsap.to(ind, {
         x: el.offsetLeft,
         width: el.offsetWidth,
@@ -146,7 +179,14 @@ const Navbar = () => {
     };
     move();
     window.addEventListener('resize', move);
-    return () => window.removeEventListener('resize', move);
+    window.addEventListener('load', move);
+    // Re-measure once the custom display/mono fonts swap in.
+    if (document.fonts?.ready) document.fonts.ready.then(move).catch(() => {});
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', move);
+      window.removeEventListener('load', move);
+    };
   }, [active]);
 
   // ── Mobile menu — lock page scroll + stagger the overlay in ─────────────────
@@ -180,8 +220,8 @@ const Navbar = () => {
 
           {/* ── LEFT · race-plate identity ─────────────────────────────────── */}
           <a
-            href="#"
-            onClick={(e) => goTo(e, '#')}
+            href="/"
+            onClick={goHome}
             data-magnetic
             data-nav-item
             className="group flex items-center gap-3 justify-self-start"
@@ -244,7 +284,7 @@ const Navbar = () => {
               ref={indicatorRef}
               aria-hidden="true"
               className="absolute -bottom-1 left-0 h-[2px] bg-[#D2FF00] pointer-events-none"
-              style={{ width: 0, boxShadow: '0 0 10px rgba(210,255,0,0.6)' }}
+              style={{ width: 0, boxShadow: '0 0 12px rgba(210,255,0,0.95), 0 0 4px rgba(210,255,0,1)' }}
             />
           </ul>
 
@@ -276,7 +316,7 @@ const Navbar = () => {
             >
               <span
                 className="w-[5px] h-[5px] rounded-full transition-colors duration-200"
-                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)' }}
+                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px rgba(210,255,0,0.95), 0 0 2px rgba(210,255,0,1)' : 'none' }}
               />
               {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
             </button>
@@ -365,7 +405,7 @@ const Navbar = () => {
             >
               <span
                 className="w-[5px] h-[5px] rounded-full"
-                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)' }}
+                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px rgba(210,255,0,0.95), 0 0 2px rgba(210,255,0,1)' : 'none' }}
               />
               {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
             </button>

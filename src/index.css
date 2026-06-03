@@ -839,6 +839,527 @@ html.lenis { height: auto; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
+   LAYER 5.5 — TELEMETRY DECK (overhaul · instrument-grade editorial brutalism)
+   Connective tissue shared across sections: numbered instrument headers, lime
+   tick-rulers, registration brackets, film grain, ghost numerals, data tables.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* — Lime measurement ruler: 8px ticks every 26px riding a 1px baseline — */
+.tick-rule {
+  height: 14px;
+  width: 100%;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0 1px, transparent 1px 26px),
+    linear-gradient(rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10));
+  background-repeat: no-repeat;
+  background-size: 100% 8px, 100% 1px;
+  background-position: left bottom, left bottom;
+}
+.tick-rule--accent {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(210, 255, 0, 0.6) 0 1px, transparent 1px 26px),
+    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
+}
+
+/* — Film grain overlay element: drop inside any relative container — */
+.grain-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+.motion-off .grain-layer { display: none; }
+
+/* — Helmet cinematic post-FX: disable the moving/flashing layers when motion is
+   reduced (scanline sweep, ignition bloom, scan reticle). The 3D + HUD remain. */
+.motion-off .hfx { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .hfx { display: none !important; }
+}
+
+/* ── THE MACHINE — scoped "arsenal" palette (orange/red/grey, #machine only) ── */
+/* Headline cycles through the machine palette like a breathing mechanical pulse. */
+@keyframes arsenalPulse {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+/* Rev-limiter: fast, violent colour pulse through the arsenal palette. */
+.arsenal-text {
+  background: linear-gradient(90deg, #FF6600, #FF0000, #808080, #FF6600);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: arsenalPulse 0.8s linear infinite;
+}
+.motion-off .arsenal-text { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .arsenal-text { animation: none; }
+}
+
+/* KTM-orange registration brackets (variant of .brk) */
+.brk--mch::before,
+.brk--mch::after { background: #FF6600; }
+
+/* Engine idle — tiny high-frequency jitter on the portrait wrapper */
+@keyframes engine-vibrate {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(0.5px, -0.5px); }
+  50%      { transform: translate(-0.5px, 0.5px); }
+  75%      { transform: translate(0.5px, 0.5px); }
+}
+.tm-vibrate {
+  animation: engine-vibrate 0.12s infinite linear;
+  will-change: transform;
+}
+
+/* RGB-split digital glitch — fires once on portrait hover, then settles to grade */
+@keyframes rgbGlitch {
+  0%   { filter: grayscale(0) drop-shadow(3px 0 0 #FF0000) drop-shadow(-3px 0 0 #00FFFF); transform: translate(2px, -1px); }
+  20%  { filter: grayscale(0) drop-shadow(-5px 0 0 #FF0000) drop-shadow(5px 0 0 #00FFFF);  transform: translate(-3px, 1px); }
+  40%  { filter: grayscale(0) drop-shadow(4px 0 0 #FF0000) drop-shadow(-4px 0 0 #00FFFF);  transform: translate(2px, 1px); }
+  60%  { filter: grayscale(0) drop-shadow(-2px 0 0 #FF0000) drop-shadow(2px 0 0 #00FFFF);  transform: translate(-1px, -1px); }
+  100% { filter: grayscale(0) contrast(1.08) saturate(1.3) brightness(1.02);               transform: translate(0, 0); }
+}
+
+/* Cinematic grade: B&W at rest → teal+orange on portrait hover */
+.tm-img {
+  filter: grayscale(1) contrast(1.35) brightness(0.9);
+  transition: filter 0.7s ease;
+}
+.tm-portrait:hover .tm-img {
+  filter: grayscale(0) contrast(1.08) saturate(1.3) brightness(1.02);
+  animation: rgbGlitch 0.45s linear;
+}
+
+/* ── DOCTRINE section behaviours ──────────────────────────────────────────── */
+/* Panning telemetry ruler — tick tile repeats and scrolls right→left seamlessly */
+.tick-rule--scroll {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(210, 255, 0, 0.6) 0 1px, transparent 1px 26px),
+    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
+  background-repeat: repeat-x, no-repeat;
+  background-size: 26px 8px, 100% 1px;
+  background-position: 0 bottom, 0 bottom;
+  animation: tickPan 6s linear infinite;
+}
+@keyframes tickPan {
+  to { background-position: -26px bottom, 0 bottom; }
+}
+
+/* Ambient light sweep across hero text (applied to .word children) */
+@keyframes lightSweep {
+  from { background-position: 200% center; }
+  to   { background-position: 0% center; }
+}
+.light-sweep .word {
+  background: linear-gradient(120deg, #FFFFFF 0%, #888888 50%, #FFFFFF 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: lightSweep 7s linear infinite;
+}
+
+/* Asphalt digital grain — high-frequency jitter overlay */
+@keyframes asphaltShift {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-1px, 1px); }
+  40%  { transform: translate(1px, -1px); }
+  60%  { transform: translate(-1px, -1px); }
+  80%  { transform: translate(1px, 1px); }
+  100% { transform: translate(0, 0); }
+}
+.asphalt-grain {
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  animation: asphaltShift 0.4s steps(1) infinite;
+}
+
+.motion-off .tick-rule--scroll,
+.motion-off .light-sweep .word,
+.motion-off .asphalt-grain { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tick-rule--scroll, .asphalt-grain { animation: none; }
+  .light-sweep .word { animation: none; -webkit-text-fill-color: #f0f0f0; color: #f0f0f0; }
+}
+
+/* Part-preview "video feed locking onto target" — opacity flicker on appear */
+@keyframes feedLock {
+  0%   { opacity: 0.2; }
+  30%  { opacity: 0.8; }
+  45%  { opacity: 0.35; }
+  70%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+.feed-lock { animation: feedLock 0.42s linear; }
+.motion-off .feed-lock { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .feed-lock { animation: none; }
+}
+
+/* Blinking terminal cursor block */
+@keyframes termBlink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.term-cursor {
+  animation: termBlink 1s steps(1) infinite;
+}
+
+.motion-off .tm-vibrate,
+.motion-off .term-cursor { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tm-vibrate, .term-cursor { animation: none; }
+  .tm-portrait:hover .tm-img { animation: none; }
+}
+
+/* — Registration bracket: a single L-corner; compose four with corner positioning — */
+.brk {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+.brk::before,
+.brk::after {
+  content: "";
+  position: absolute;
+  background: rgba(210, 255, 0, 0.5);
+}
+.brk::before { width: 100%; height: 1px; top: 0; left: 0; }
+.brk::after  { width: 1px; height: 100%; top: 0; left: 0; }
+.brk.tr { top: 0; right: 0; transform: scaleX(-1); }
+.brk.bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.brk.br { bottom: 0; right: 0; transform: scale(-1, -1); }
+.brk.tl { top: 0; left: 0; }
+
+/* — Ghost numeral / word: oversized outlined background type for depth — */
+.ghost-mark {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.05);
+  color: transparent;
+  font-family: var(--font-serif);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  user-select: none;
+}
+
+/* — Leader-dot row for instrument data tables (key ....... value) — */
+.lead-dots {
+  flex: 1 1 auto;
+  margin: 0 12px 4px;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.18);
+}
+
+/* — Spec line with hanging mono index, brutalist scale — */
+.spec-line {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  font-size: clamp(2rem, 5vw, 3.75rem);
+}
+
+/* — Data table row hover (maintenance log) — */
+.log-row {
+  transition: background var(--duration-base) var(--ease-out),
+              border-color var(--duration-base) var(--ease-out);
+  border-left: 2px solid transparent;
+}
+.log-row:hover {
+  background: rgba(210, 255, 0, 0.03);
+  border-left-color: var(--color-accent);
+}
+
+/* — Curtain-wipe spec reveal on ride slides (diagonal bottom-right corner) — */
+.ride-reveal {
+  clip-path: inset(100% 0 0 100%);
+  transition: clip-path 700ms var(--ease-out), opacity 500ms var(--ease-out);
+}
+.group:hover .ride-reveal {
+  clip-path: inset(0 0 0 0);
+}
+
+/* The moving lime scan edge */
+.ride-reveal-edge {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--color-accent);
+  left: 100%;
+  top: 100%;
+  opacity: 0;
+  transition: left 700ms var(--ease-out), top 700ms var(--ease-out), opacity 500ms var(--ease-out);
+  pointer-events: none;
+}
+.group:hover .ride-reveal-edge {
+  left: 0;
+  top: 0;
+  opacity: 1;
+}
+
+/* Reduced motion guards */
+.motion-off .ride-reveal,
+.motion-off .ride-reveal-edge {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ride-reveal, .ride-reveal-edge { transition: none; }
+}
+
+/* — Dynamic Accent Button — Outline → Fill — */
+.btn-accent {
+  --btn-accent: var(--color-accent);
+  --btn-accent-dim: rgba(210, 255, 0, 0.45);
+  border: 1px solid var(--btn-accent-dim);
+  color: var(--btn-accent);
+  background: transparent;
+  transition: all var(--duration-base) var(--ease-out);
+}
+.btn-accent:hover {
+  background: var(--btn-accent);
+  color: #000;
+  border-color: var(--btn-accent);
+  box-shadow: 0 0 20px var(--btn-accent-dim);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LAYER 5.7 — SCOPE REVEAL (cursor-driven thermal/x-ray reveal lens)
+   A "scanning scope": cold desaturated STANDBY feed at rest; the cursor carves a
+   circular live-colour window through it via a radial mask, framed by a lime
+   reticle (crosshair + spinning dashed ring) and a coordinate-lock readout chip.
+   Self-contained — no GSAP, no shared refs. Driven by --mx/--my/--r CSS vars.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Registered so the scope radius can transition smoothly on enter/leave while
+   the live --mx/--my cursor coordinates stay instant (kept as plain vars). */
+@property --r {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+.scope {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  --mx: 50%;
+  --my: 50%;
+  --r: 0px;
+  cursor: none;
+  user-select: none;
+  transition: --r 300ms var(--ease-out);
+}
+
+.scope__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* STANDBY feed — cold, dark, desaturated */
+.scope__base {
+  z-index: 0;
+  filter: grayscale(1) brightness(0.4) contrast(1.2);
+}
+
+/* LIVE feed — full colour, revealed only inside the scope circle */
+.scope__reveal {
+  z-index: 1;
+  filter: contrast(1.06) saturate(1.2);
+  -webkit-mask-image: radial-gradient(circle var(--r) at var(--mx) var(--my),
+              #000 60%, rgba(0, 0, 0, 0.4) 82%, transparent 100%);
+          mask-image: radial-gradient(circle var(--r) at var(--mx) var(--my),
+              #000 60%, rgba(0, 0, 0, 0.4) 82%, transparent 100%);
+}
+
+/* CRT scan-lines + a slow travelling lime sweep bar over the whole feed */
+.scope__scan {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.5;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
+  mix-blend-mode: multiply;
+  overflow: hidden;
+}
+.scope__scan::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14%;
+  top: -15%;
+  background: linear-gradient(transparent, rgba(210, 255, 0, 0.07), transparent);
+  mix-blend-mode: screen;
+  animation: scopeSweep 4.5s linear infinite;
+}
+@keyframes scopeSweep {
+  0%   { top: -15%; }
+  100% { top: 115%; }
+}
+
+/* Edge vignette */
+.scope__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: inset 0 0 130px rgba(0, 0, 0, 0.65);
+}
+
+/* Oversized outlined backdrop word */
+.scope__ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  font-size: clamp(4rem, 22vw, 16rem);
+  white-space: nowrap;
+}
+
+/* HUD chrome — top tag + signal status, bottom coordinate + hint */
+.scope__hud-top,
+.scope__hud-bot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+.scope__hud-top { top: 0; }
+.scope__hud-bot { bottom: 0; }
+.scope__tag { color: var(--color-accent); }
+
+/* STANDBY ↔ LIVE status flip */
+.scope__status-live { display: none; color: var(--color-accent); }
+.scope.is-scanning .scope__status-standby { display: none; }
+.scope.is-scanning .scope__status-live { display: inline; }
+.scope__hint {
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+.scope.is-scanning .scope__hint { opacity: 0; }
+
+/* Reticle — sizes with --r, follows the cursor via --mx/--my */
+.scope__reticle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  transform: translate(var(--mx), var(--my)) translate(-50%, -50%);
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+.scope.is-scanning .scope__reticle { opacity: 1; }
+
+.scope__ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(210, 255, 0, 0.75);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 26px rgba(210, 255, 0, 0.16);
+}
+.scope__ring--spin {
+  inset: 7px;
+  border: 1px dashed rgba(210, 255, 0, 0.4);
+  box-shadow: none;
+  animation: scopeSpin 9s linear infinite;
+}
+@keyframes scopeSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Crosshair with a gap at the centre target */
+.scope__cross::before,
+.scope__cross::after {
+  content: "";
+  position: absolute;
+  background: rgba(210, 255, 0, 0.6);
+}
+.scope__cross::before { left: 50%; top: 12%; bottom: 12%; width: 1px; transform: translateX(-50%); }
+.scope__cross::after  { top: 50%; left: 12%; right: 12%; height: 1px; transform: translateY(-50%); }
+
+/* Coordinate-lock readout chip — fixed offset from the cursor */
+.scope__readout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(var(--mx), var(--my)) translate(22px, 18px);
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 8px;
+  background: rgba(10, 10, 10, 0.82);
+  border: 1px solid var(--color-border-accent);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+.scope.is-scanning .scope__readout { opacity: 1; }
+.scope__readout-live {
+  color: #0a0a0a;
+  background: var(--color-accent);
+  padding: 1px 5px;
+  font-weight: 700;
+}
+.scope__readout-xy b { color: var(--color-accent); font-weight: 500; }
+
+/* Fallbacks — touch devices reveal the live feed fully, no scope */
+@media (hover: none) {
+  .scope__reveal { -webkit-mask-image: none; mask-image: none; }
+  .scope__reticle,
+  .scope__readout,
+  .scope__hint { display: none; }
+}
+.motion-off .scope { transition: none; }
+.motion-off .scope__scan::after,
+.motion-off .scope__ring--spin { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .scope { transition: none; }
+  .scope__scan::after,
+  .scope__ring--spin { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    LAYER 6 — RESPONSIVE BREAKPOINTS (mobile-first pass)
    ═══════════════════════════════════════════════════════════════════════════════ */
 

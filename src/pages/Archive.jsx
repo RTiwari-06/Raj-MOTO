@@ -1,19 +1,38 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MEDIA } from '@/data/media';
 import { ArrowLeft } from 'lucide-react';
 import { RevealText } from '@/components/ui/RevealText';
+import { DUR, EASE, STAGGER, ST } from '@/motion/system';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Archive = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Entrance animation
-    gsap.fromTo('.archive-item', 
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.05, ease: 'power3.out', delay: 0.2 }
-    );
+    const ctx = gsap.context(() => {
+      // Cards pop in dynamically as they scroll into view (row-batched stagger).
+      gsap.set('.archive-item', { opacity: 0, y: 48, scale: 0.92 });
+      ScrollTrigger.batch('.archive-item', {
+        start: ST.start.early,
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: DUR.standard,
+            stagger: STAGGER.cards,
+            ease: EASE.precision,
+            overwrite: true,
+          }),
+      });
+      // Recalculate trigger positions after images reserve their space.
+      ScrollTrigger.refresh();
+    });
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -63,7 +82,7 @@ const Archive = () => {
             <img 
               src={ride.src} 
               alt={ride.model} 
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-expo"
+              className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-[transform,filter] duration-700 ease-out will-change-transform"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="absolute bottom-0 left-0 p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -85,7 +104,7 @@ const Archive = () => {
             <img 
               src={item.src} 
               alt="Raw archive" 
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-expo"
+              className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-[transform,filter] duration-700 ease-out will-change-transform"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="absolute bottom-0 left-0 p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">

@@ -211,16 +211,18 @@ const Hero = ({ isLoaded = true }) => {
     };
   }, [isLoaded, setFluidIntensity]);
 
-  // ─── INTERACTIVE DEPTH REVEAL ────────────────────────────────────────────────
-  // Dims the background watermark when the central image is hovered to pull
-  // focus to the subject.
+  // ─── INTERACTIVE DEPTH REVEAL & COMPOSITION-WIDE REACTION ────────────────────
+  // On portrait hover, the background watermark dims and blurs (a "focus pull"), 
+  // making the entire scene feel interconnected.
   const imageHovering = useStore((s) => s.imageHovering);
   useEffect(() => {
     if (!watermarkRef.current) return;
+    // Phase 1: Compositional Focus Pull
     gsap.to(watermarkRef.current, {
-      opacity: imageHovering ? 0.4 : 1,
-      scale: imageHovering ? 0.98 : 1,
-      duration: DUR.standard,
+      opacity: imageHovering ? 0.25 : 1,
+      filter: imageHovering ? 'blur(2px)' : 'blur(0px)',
+      scale: imageHovering ? 0.99 : 1,
+      duration: DUR.slow,
       ease: EASE.momentum,
     });
   }, [imageHovering]);
