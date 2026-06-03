@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { SmoothScroll } from '@/utils/Lenis';
 import { Cursor } from '@/components/layout/Cursor';
 import ViewportFrame from '@/components/layout/ViewportFrame';
@@ -27,6 +28,7 @@ function App() {
 
         <ProjectDetail />
         
+        <SpeedInsights />
       </SmoothScroll>
     </Router>
   );
