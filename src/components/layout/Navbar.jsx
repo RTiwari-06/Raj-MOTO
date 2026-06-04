@@ -40,6 +40,39 @@ const Navbar = () => {
   const motionEnabled = useUIStore((state) => state.motionEnabled);
   const toggleMotion  = useUIStore((state) => state.toggleMotion);
 
+  // Ensure a global CSS variable for nav height so sibling components (Hero) can
+  // offset themselves reliably. Clean up on unmount to avoid leaking.
+  // Compact/expanded nav toggle: default to showing the full navbar in-flow.
+  // A small fixed CompactNav control (separate component) sits above the hero
+  // and dispatches a 'nav-toggle' event to open the mobile overlay when tapped.
+  const [showFullNav, setShowFullNav] = useState(true);
+
+  // Listen for the fixed compact button's toggle event so it can open the menu
+  // even though the full navbar lives later in the document flow.
+  useEffect(() => {
+    const handler = () => setMenuOpen((v) => !v);
+    window.addEventListener('nav-toggle', handler);
+    return () => window.removeEventListener('nav-toggle', handler);
+  }, []);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const target = document.getElementById('machine');
+    if (!target) {
+      // If the machine section isn't present yet, default to full nav.
+      setShowFullNav(true);
+      return;
+    }
+    const obs = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        // When the machine section is at least 10% visible, show the full nav.
+        if (e.isIntersecting && e.intersectionRatio > 0.1) setShowFullNav(true);
+        else setShowFullNav(false);
+      }
+    }, { threshold: [0, 0.1] });
+    obs.observe(target);
+    return () => obs.disconnect();
+  }, []);
+
   // ── Smooth anchor navigation (drives Lenis when present) ────────────────────
   const goTo = useCallback((e, item) => {
     e.preventDefault();
@@ -127,13 +160,15 @@ const Navbar = () => {
       if (scroll === lastScroll) return;   // ignore non-scroll store updates (mouse, etc.)
       lastScroll = scroll;
 
-      const pct = scroll / max;
-      if (progressRef.current) progressRef.current.style.transform = `scaleX(${Math.min(1, pct)})`;
+      const pct = Math.max(0, Math.min(1, scroll / max));
+      // Show remaining progress (100 → 0) visually and numerically.
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${Math.max(0, 1 - pct)})`;
 
       const pctInt = Math.min(100, Math.round(pct * 100));
-      if (readoutRef.current && pctInt !== lastPct) {
-        readoutRef.current.textContent = String(pctInt).padStart(3, '0');
-        lastPct = pctInt;
+      const remaining = 100 - pctInt;
+      if (readoutRef.current && remaining !== lastPct) {
+        readoutRef.current.textContent = String(remaining).padStart(3, '0');
+        lastPct = remaining;
       }
 
       // The "reading line" sits 32% down the viewport; the deepest section past it wins.
@@ -191,9 +226,9 @@ const Navbar = () => {
 
   // ── Mobile menu — lock page scroll + stagger the overlay in ─────────────────
   useEffect(() => {
-    const lenis = window.__lenis;
+    // Animate the menu items when opening; do NOT stop page scrolling so the
+    // compact button doesn't lock the page. Avoid calling lenis.stop()/start().
     if (menuOpen) {
-      lenis?.stop();
       const ctx = gsap.context(() => {
         gsap.fromTo('[data-menu-item]',
           { y: 40, opacity: 0 },
@@ -202,143 +237,173 @@ const Navbar = () => {
       });
       return () => ctx.revert();
     }
-    lenis?.start();
+    return undefined;
   }, [menuOpen]);
 
   return (
     <>
       <nav
         ref={navRef}
-        className={`fixed top-0 left-0 w-full z-50 border-b transition-[background-color,border-color] duration-500 ${
+        className={`w-full z-10 border-b transition-[background-color,border-color] duration-500 ${
           scrolled
             ? 'bg-black/80 backdrop-blur-md border-white/10'
             : 'bg-transparent border-transparent'
         }`}
-        style={{ opacity: 0 }}
       >
         <div className="grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-12 lg:px-20 py-4 md:py-5">
 
-          {/* ── LEFT · race-plate identity ─────────────────────────────────── */}
-          <a
-            href="/"
-            onClick={goHome}
-            data-magnetic
-            data-nav-item
-            className="group flex items-center gap-3 justify-self-start"
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
-          >
-            {/* Ignition tick — grows on hover */}
-            <span className="block w-[3px] h-7 bg-[#D2FF00] origin-center transition-transform duration-300 group-hover:scale-y-125" />
-            <span className="flex flex-col leading-none">
-              <span
-                className="font-serif text-[16px] md:text-[17px] text-[#D2FF00]"
-                style={{ letterSpacing: '-0.01em' }}
-              >
-                RT•MOTO
-              </span>
-              <span className="font-mono text-[7px] tracking-[0.32em] uppercase text-white/30 mt-[3px]">
-                Pit Wall // 2026
-              </span>
-            </span>
-          </a>
-
-          {/* ── CENTER · indexed telemetry rail ────────────────────────────── */}
-          <ul className="relative hidden md:flex items-stretch gap-7 lg:gap-9 justify-self-center">
-            {LINKS.map((item, i) => {
-              const { idx, label, href } = item;
-              const isActive = i === active;
-              return (
-                <li
-                  key={label}
-                  ref={(el) => (linkRefs.current[i] = el)}
-                  data-nav-item
-                  className="py-1"
-                >
-                  <a
-                    href={href}
-                    onClick={(e) => goTo(e, item)}
-                    data-magnetic
-                    aria-current={isActive ? 'true' : undefined}
-                    className="group flex items-baseline gap-1.5"
-                    onMouseEnter={() => setHovering(true)}
-                    onMouseLeave={() => setHovering(false)}
-                  >
-                    <span className={`font-mono text-[8px] tracking-[0.15em] transition-colors duration-200 ${
-                      isActive ? 'text-[#D2FF00]' : 'text-white/25 group-hover:text-[#D2FF00]/70'
-                    }`}>
-                      {idx}
-                    </span>
-                    <span className={`font-serif text-[11px] tracking-[0.16em] uppercase whitespace-nowrap transition-colors duration-200 ${
-                      isActive ? 'text-white' : 'text-white/45 group-hover:text-white'
-                    }`}>
-                      {label}
-                    </span>
-                  </a>
-                </li>
-              );
-            })}
-
-            {/* Scroll-spy indicator — slides between links */}
-            <span
-              ref={indicatorRef}
-              aria-hidden="true"
-              className="absolute -bottom-1 left-0 h-[2px] bg-[#D2FF00] pointer-events-none"
-              style={{ width: 0, boxShadow: '0 0 12px rgba(210,255,0,0.95), 0 0 4px rgba(210,255,0,1)' }}
-            />
-          </ul>
-
-          {/* ── RIGHT · telemetry cluster + system toggle ──────────────────── */}
-          <div className="justify-self-end flex items-center gap-4 md:gap-5">
-
-            {/* Live scroll readout — value updated imperatively */}
-            <div
-              data-nav-item
-              className="hidden lg:flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] tabular-nums"
-            >
-              <span className="text-white/25">Scroll</span>
-              <span ref={readoutRef} className="text-[#D2FF00]">000</span>
-              <span className="text-white/25">%</span>
-            </div>
-
-            <span data-nav-item className="hidden lg:block w-px h-4 bg-white/10" />
-
-            {/* System status / motion toggle — a11y preserved */}
-            <button
-              onClick={toggleMotion}
+          {/* ── LEFT · race-plate identity (only shown when expanded) ───────── */}
+          {showFullNav && (
+            <a
+              href="/"
+              onClick={goHome}
               data-magnetic
               data-nav-item
-              aria-pressed={motionEnabled}
-              aria-label={motionEnabled ? 'Motion on — click to reduce motion' : 'Motion paused — click to enable'}
-              className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/25 hover:text-[#D2FF00] transition-colors duration-200"
+              className="group flex items-center gap-3 justify-self-start"
               onMouseEnter={() => setHovering(true)}
               onMouseLeave={() => setHovering(false)}
             >
-              <span
-                className="w-[5px] h-[5px] rounded-full transition-colors duration-200"
-                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px rgba(210,255,0,0.95), 0 0 2px rgba(210,255,0,1)' : 'none' }}
-              />
-              {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
-            </button>
+              {/* Ignition tick — grows on hover */}
+              <span className="block w-[3px] h-7 bg-[#D2FF00] origin-center transition-transform duration-300 group-hover:scale-y-125" />
+              <span className="flex flex-col leading-none">
+                <span
+                  className="font-serif text-[16px] md:text-[17px] text-[#D2FF00]"
+                  style={{ letterSpacing: '-0.01em' }}
+                >
+                  RT•MOTO
+                </span>
+                <span className="font-mono text-[7px] tracking-[0.32em] uppercase text-white/30 mt-[3px]">
+                  Pit Wall // 2026
+                </span>
+              </span>
+            </a>
+          )}
 
-            {/* Hamburger — mobile only */}
-            <button
-              onClick={() => setMenuOpen((v) => !v)}
-              data-magnetic
-              data-nav-item
-              aria-expanded={menuOpen}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              className="md:hidden relative w-8 h-8 flex flex-col items-center justify-center gap-[5px]"
-            >
+          {/* ── CENTER · indexed telemetry rail (only shown when expanded) ───── */}
+          {showFullNav && (
+            <ul className="relative hidden md:flex items-stretch gap-7 lg:gap-9 justify-self-center">
+              {LINKS.map((item, i) => {
+                const { idx, label, href } = item;
+                const isActive = i === active;
+                return (
+                  <li
+                    key={label}
+                    ref={(el) => (linkRefs.current[i] = el)}
+                    data-nav-item
+                    className="py-1"
+                  >
+                    <a
+                      href={href}
+                      onClick={(e) => goTo(e, item)}
+                      data-magnetic
+                      aria-current={isActive ? 'true' : undefined}
+                      className="group flex items-baseline gap-1.5"
+                      onMouseEnter={() => setHovering(true)}
+                      onMouseLeave={() => setHovering(false)}
+                    >
+                      <span className={`font-mono text-[8px] tracking-[0.15em] transition-colors duration-200 ${
+                        isActive ? 'text-[#D2FF00]' : 'text-white/25 group-hover:text-[#D2FF00]/70'
+                      }`}>
+                        {idx}
+                      </span>
+                      <span className={`font-serif text-[11px] tracking-[0.16em] uppercase whitespace-nowrap transition-colors duration-200 ${
+                        isActive ? 'text-white' : 'text-white/45 group-hover:text-white'
+                      }`}>
+                        {label}
+                      </span>
+                    </a>
+                  </li>
+                );
+              })}
+
+              {/* Scroll-spy indicator — slides between links */}
               <span
-                className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
-                style={{ transform: menuOpen ? 'translateY(3.25px) rotate(45deg)' : 'none' }}
+                ref={indicatorRef}
+                aria-hidden="true"
+                className="absolute -bottom-1 left-0 h-[2px] bg-[#D2FF00] pointer-events-none"
+                style={{ width: 0, boxShadow: '0 0 12px rgba(210,255,0,0.95), 0 0 4px rgba(210,255,0,1)' }}
               />
-              <span
-                className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
-                style={{ transform: menuOpen ? 'translateY(-3.25px) rotate(-45deg)' : 'none' }}
-              />
-            </button>
+            </ul>
+          )}
+
+          {/* ── RIGHT · telemetry cluster + system toggle (condensed when compact) ── */}
+          <div className="justify-self-end flex items-center gap-4 md:gap-5">
+            {showFullNav ? (
+              <>
+                {/* Live scroll readout — value updated imperatively; quiet over the hero */}
+                <div
+                  data-nav-item
+                  className="hidden lg:flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] tabular-nums"
+                >
+                  <span
+                    className="flex items-center gap-1.5 transition-opacity duration-500"
+                    style={{ opacity: scrolled ? 1 : 0 }}
+                  >
+                    <span className="text-white/25">Scroll</span>
+                    <span ref={readoutRef} className="text-[#D2FF00]">000</span>
+                    <span className="text-white/25">%</span>
+                  </span>
+                </div>
+
+                <span
+                  className="hidden lg:block w-px h-4 bg-white/10 transition-opacity duration-500"
+                  style={{ opacity: scrolled ? 1 : 0 }}
+                />
+
+                {/* System status / motion toggle — a11y preserved */}
+                <button
+                  onClick={toggleMotion}
+                  data-magnetic
+                  data-nav-item
+                  aria-pressed={motionEnabled}
+                  aria-label={motionEnabled ? 'Motion on — click to reduce motion' : 'Motion paused — click to enable'}
+                  className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/25 hover:text-[#D2FF00] transition-colors duration-200"
+                  onMouseEnter={() => setHovering(true)}
+                  onMouseLeave={() => setHovering(false)}
+                >
+                  <span
+                    className="w-[5px] h-[5px] rounded-full transition-colors duration-200"
+                    style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px rgba(210,255,0,0.95), 0 0 2px rgba(210,255,0,1)' : 'none' }}
+                  />
+                  {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
+                </button>
+
+                {/* Hamburger — mobile only */}
+                <button
+                  onClick={() => setMenuOpen((v) => !v)}
+                  data-magnetic
+                  data-nav-item
+                  aria-expanded={menuOpen}
+                  aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                  className="md:hidden relative w-8 h-8 flex flex-col items-center justify-center gap-[5px]"
+                >
+                  <span
+                    className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
+                    style={{ transform: menuOpen ? 'translateY(3.25px) rotate(45deg)' : 'none' }}
+                  />
+                  <span
+                    className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
+                    style={{ transform: menuOpen ? 'translateY(-3.25px) rotate(-45deg)' : 'none' }}
+                  />
+                </button>
+              </>
+            ) : (
+              // Compact right-corner UI when over the hero: small menu button only.
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setMenuOpen((v) => !v)}
+                  aria-expanded={menuOpen}
+                  aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/6 text-[#D2FF00]"
+                >
+                  <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="1" width="16" height="2" rx="1" fill="currentColor" />
+                    <rect y="5" width="16" height="2" rx="1" fill="currentColor" />
+                    <rect y="9" width="16" height="2" rx="1" fill="currentColor" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -353,16 +418,13 @@ const Navbar = () => {
       </nav>
 
       {/* ── MOBILE OVERLAY MENU ────────────────────────────────────────────── */}
-      <div
-        className={`fixed inset-0 z-40 md:hidden bg-black/95 backdrop-blur-lg transition-opacity duration-500 ${
-          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        aria-hidden={!menuOpen}
-      >
-        {/* Faint technical grid for depth */}
-        <div className="absolute inset-0 hairline-grid opacity-60" />
+      <div className={`fixed inset-0 z-40 md:hidden transition-opacity duration-500 bg-black/60 backdrop-blur-lg pointer-events-none`} aria-hidden={!menuOpen}>
+        {/* Faint technical grid for depth (non-interactive) */}
+        <div className="absolute inset-0 hairline-grid opacity-60 pointer-events-none" />
 
-        <div className="relative h-full flex flex-col justify-center px-8 pt-24 pb-12">
+        {/* Inner menu panel — only this panel captures pointer events so the page
+            remains scrollable under the overlay background. */}
+        <div className={`relative h-full flex flex-col justify-center px-8 pt-24 pb-12 ${menuOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}>
           <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-[#D2FF00]/40 mb-8">
             // Navigation
           </span>

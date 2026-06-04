@@ -42,7 +42,7 @@ export default function ProjectDetail() {
         );
     }, overlayRef);
     return () => ctx.revert();
-  }, [!!ride]);
+  }, [!!ride]); // Dependency on the presence of ride
 
   // ── CROSSFADE: animate content when ride changes (not on mount) ───────────
   useEffect(() => {

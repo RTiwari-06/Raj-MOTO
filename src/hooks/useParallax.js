@@ -28,20 +28,26 @@ export function useParallax(containerRef, maxShift = 18) {
       quickYMap.current.set(el, gsap.quickTo(el, 'y', { duration: DUR.fast, ease: EASE.momentum }));
     });
 
-    const unsub = useStore.subscribe((state) => {
-      const { x, y } = state.mouse;
-      // Normalize to -1 … 1 from center of viewport
-      const nx = (x / window.innerWidth  - 0.5) * 2;
-      const ny = (y / window.innerHeight - 0.5) * 2;
+    const unsub = useStore.subscribe(
+      (state) => state.mouse,
+      (mouse) => {
+        const { x, y } = mouse;
+        
+        // Use normalized values directly from the store [-1, 1]
+        // state.mouse in useStore is updated by Cursor.jsx using:
+        // (mx / width) * 2 - 1
+        const nx = x;
+        const ny = y;
 
-      layers.forEach((el) => {
-        const depth = parseFloat(el.dataset.depth) || 1;
-        const qx = quickXMap.current.get(el);
-        const qy = quickYMap.current.get(el);
-        if (qx) qx(nx * maxShift * depth);
-        if (qy) qy(ny * maxShift * depth);
-      });
-    });
+        layers.forEach((el) => {
+          const depth = parseFloat(el.dataset.depth) || 1;
+          const qx = quickXMap.current.get(el);
+          const qy = quickYMap.current.get(el);
+          if (qx) qx(nx * maxShift * depth);
+          if (qy) qy(ny * maxShift * depth);
+        });
+      }
+    );
 
     return () => {
       unsub();

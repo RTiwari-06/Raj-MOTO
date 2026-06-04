@@ -31,10 +31,15 @@ export default function Footer() {
         <div className="mt-10 h-px w-full bg-white/6" />
 
         {/* Bottom corner sign-off */}
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40 absolute right-4 bottom-3">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D2FF00] mr-2" style={{ animation: 'vfPulse 2.4s ease-in-out infinite' }} />
-          Crafted for the streets. Engine running.
-        </p>
+        <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 px-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/20">
+            &copy; {year} RT•MOTO // ALL RIGHTS RESERVED
+          </p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40 flex items-center">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D2FF00] mr-2" style={{ animation: 'vfPulse 2.4s ease-in-out infinite' }} />
+            Crafted for the streets. Engine running.
+          </p>
+        </div>
 
       </div>
     </footer>

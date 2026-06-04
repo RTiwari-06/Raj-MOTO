@@ -1,191 +1,158 @@
-<div align="center">
+# RT•MOTO
 
-<br>
+## SAME RIDER TWO MACHINES
 
-```
- ██████╗ ████████╗ ● ███╗   ███╗ ██████╗ ████████╗ ██████╗
- ██╔══██╗╚══██╔══╝   ████╗ ████║██╔═══██╗╚══██╔══╝██╔═══██╗
- ██████╔╝   ██║      ██╔████╔██║██║   ██║   ██║   ██║   ██║
- ██╔══██╗   ██║      ██║╚██╔╝██║██║   ██║   ██║   ██║   ██║
- ██║  ██║   ██║   ●  ██║ ╚═╝ ██║╚██████╔╝   ██║   ╚██████╔╝
- ╚═╝  ╚═╝   ╚═╝      ╚═╝     ╚═╝ ╚═════╝    ╚═╝    ╚═════╝
-```
+**Cinematic Interactive Experience — The Intersection of Code and Velocity.**
 
-**Cinematic interactive portfolio — where code meets velocity.**
+[Live Experience](https://rt-moto.vercel.app/) · [Performance Audit](#04--performance-engineering) · [Architecture](#05--architecture-overview)
 
-Built by [Raj Tiwari](https://github.com/RTiwari-06) · Bengaluru, India
-
-<br>
-
-[![React](https://img.shields.io/badge/React_19-20232A?style=flat&logo=react&logoColor=61DAFB)](https://react.dev)
-[![Three.js](https://img.shields.io/badge/Three.js-000000?style=flat&logo=three.js&logoColor=white)](https://threejs.org)
-[![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat&logo=greensock&logoColor=black)](https://gsap.com)
-[![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=flat&logo=vite&logoColor=white)](https://vite.dev)
-[![Tailwind](https://img.shields.io/badge/Tailwind_4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-
-</div>
+![Banner Placeholder](https://via.placeholder.com/1200x600/0a0a0a/D2FF00?text=RT•MOTO+CINEMATIC+PREVIEW)
 
 ---
 
-> *"The screen is the circuit. Code is the engine. Momentum is everything."*
+## 01 // THE PHILOSOPHY
 
-<br>
+RT•MOTO is not a portfolio. It is a cinematic investigation into the duality of identity — the transition from human to rider, from static code to mechanical momentum.
 
-## The Experience
+In a digital landscape saturated with generic templates and CRUD applications, RT•MOTO stands as a statement of **Creative Engineering**. It exists to prove that high-fidelity storytelling and production-grade performance are not mutually exclusive. The project treats the browser as a circuit, where every millisecond of frame-time is optimized and every interaction is a deliberate piece of a larger narrative.
 
-RT•MOTO is not a portfolio website. It's a cinematic digital experience — a fusion of motorsport-grade motion design, WebGL shader systems, and immersive scroll storytelling.
+---
 
-Every interaction is engineered. Every transition is intentional. The site moves like a machine: aggressive when it needs to be, precise when it counts.
+## 02 // EXPERIENCE HIGHLIGHTS
 
-<br>
+### Identity Discovery Mechanism
 
-## Architecture
+The Hero experience is built on a custom WebGL shader system that facilitates a transition between two states: the human and the rider. This is not a visual effect; it is a mechanism for uncovering the core narrative of the repository.
 
-```
+### Choreographed Motion Design
+
+Utilizing GSAP and ScrollTrigger, the entire experience is orchestrated as a single continuous sequence. From the tachometer-inspired boot sequence to the horizontal archive transitions, the motion feels weighted, intentional, and mechanical.
+
+### Immersive 3D Telemetry
+
+A scroll-driven 3D helmet scan provides a deep dive into the "Gear Check." This section utilizes React Three Fiber to synchronize 360° model rotation with HUD text reveals, creating a tactile sense of inspection and calibration.
+
+### Cinematic Atmosphere
+
+A combination of custom GLSL noise shaders, film grain overlays, and a brutalist editorial typography system ensures the experience feels like a premium digital publication rather than a standard website.
+
+---
+
+## 03 // HERO BREAKDOWN: THE SHIFT
+
+The Hero section is the heart of the RT•MOTO narrative. It utilizes a dual-texture shader approach to explore identity:
+
+* **`base.jpg` // The Human State:** Represents the static, terrestrial identity.
+* **`reveal.jpg` // The Rider State:** Represents the mechanical, high-velocity identity.
+
+The interaction uses a feathered radial mask and chromatic aberration to "reveal" the rider state as the user interacts with the canvas. It serves as a digital metaphor for the psychological shift that occurs when stepping onto a machine.
+
+---
+
+## 04 // PERFORMANCE ENGINEERING
+
+RT•MOTO is engineered to run at 60FPS across all devices. The performance strategy is treated with the same rigor as the creative direction.
+
+* **Manual Chunk Splitting:** Heavy dependencies (Three.js, GSAP, vendor libs) are isolated into separate chunks to optimize caching and reduce the initial JavaScript execution bottleneck.
+* **On-Demand Rendering:** The WebGL frameloop is managed via `IntersectionObserver`. Canvas rendering is automatically paused when sections are off-screen, significantly reducing GPU/CPU load on mobile devices.
+* **Lazy Loading Pipeline:** All sections below the fold are loaded asynchronous modules. Critical assets like the Hero textures are prioritized via `fetchpriority="high"` and preloads.
+* **Zero-Rerender State:** High-frequency interaction data (mouse position, scroll velocity) is managed outside of the React render cycle using Zustand’s transient subscriptions, ensuring interaction latency (INP) remains negligible.
+
+---
+
+## 05 // ARCHITECTURE OVERVIEW
+
+The repository is organized as a clean engineering system, separating visual presentation from motion orchestration and state management.
+
+```text
 src/
-├── components/          # 20+ React components — each a self-contained section
-│   ├── Hero.jsx         # Layered WebGL hero with shader reveal + parallax
-│   ├── HelmetSection.jsx# Scroll-driven 3D helmet rotation (R3F + GSAP)
-│   ├── RidesSection.jsx # Horizontal scroll archive with containerAnimation
-│   ├── Loader.jsx       # Tachometer-style SVG loading gauge
-│   └── ...
-│
-├── motion/
-│   └── system.js        # Single source of truth — easing, duration, stagger,
-│                         # scroll, velocity, and hover tokens
-│
-├── shaders/             # GLSL programs
-│   ├── heroVertex.glsl
-│   ├── heroFragment.glsl  # Mouse-reactive image reveal + chromatic aberration
-│   ├── fluidVertex.glsl
-│   └── fluidFragment.glsl # Organic fluid background simulation
-│
-├── store/               # Zustand — zero-rerender state for cursor, velocity, UI
-├── hooks/               # useParallax — holographic depth on mouse move
-├── data/                # media.js — centralized content config (swap one line)
-└── utils/               # Lenis smooth scroll + text scramble engine
+├── components/
+│   ├── layout/         # Persistent UI (Navbar, Footer, Viewport Frame)
+│   ├── sections/       # Narrative modules (Hero, The Machine, Helmet, Rides)
+│   ├── ui/             # Reusable interactive primitives (RevealText, Marquee)
+│   └── webgl/          # R3F components and GPU-accelerated layers
+├── motion/             # Centralized motion tokens (Eases, Durations, Staggers)
+├── shaders/            # GLSL programs (Fluid simulation, Hero reveal)
+├── store/              # Multi-store Zustand architecture
+├── hooks/              # Reusable logic (useParallax, interaction observers)
+└── utils/              # Third-party integrations (Lenis, Scramble engine)
 ```
 
-<br>
+---
 
-## Features
+## 06 // TECHNOLOGY STACK
 
-| Feature | Description |
-|---|---|
-| **WebGL Shader Reveal** | Mouse-reactive image transition with soft parallax and feathered reveal mask |
-| **3D Helmet Section** | Scroll-scrubbed 360° helmet rotation with phased text reveals and accent light wash |
-| **Tachometer Loader** | SVG gauge with live arc geometry, needle physics, and redline exit sequence |
-| **Horizontal Rides Archive** | Pinned horizontal scroll with containerAnimation-synced reveals |
-| **Fluid Background** | GLSL fluid simulation rendered via React Three Fiber |
-| **G-Force Velocity Skew** | Lenis scroll velocity → GSAP quickTo → canvas skewX. Zero re-renders |
-| **Holographic Parallax** | Multi-layer mouse-tracked depth via `data-depth` attributes |
-| **Motion Toggle** | Runtime kill switch for all animations — accessibility-first |
-| **Text Scramble** | Character-by-character decode effect on section entries |
-| **Magnetic Cursor** | Custom cursor with hover states, magnetic pull on interactive elements |
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, Vite 8, Tailwind CSS 4 |
+| **Motion** | GSAP 3, ScrollTrigger, Lenis (Smooth Scroll) |
+| **3D / Graphics** | Three.js, React Three Fiber, GLSL |
+| **State** | Zustand |
+| **Infrastructure** | Vercel (Speed Insights & Analytics) |
 
-<br>
+---
 
-## Motion Philosophy
+## 07 // MOBILE EXPERIENCE
 
-The motion system is centralized in [`src/motion/system.js`](src/motion/system.js). No component hard-codes a duration, ease, or timing value.
+Mobile is treated as a first-class target, not an afterthought.
 
-```
-EASE
-├── precision    power4.out      Sharp arrivals — like braking into a corner
-├── authority    expo.out        Cinematic weight — slow build, hard stop
-├── momentum     power3.out      Default motion — smooth, weighted
-├── hover        power2.out      Tactile, immediate
-├── spring       back.out(1.4)   Elastic micro-interactions
-├── exit         power4.in       Fast decisive departures
-└── scrub        none            Pure scroll-position mapping
+* **Touch Philosophy:** Replaces hover-based reveals with scroll-triggered state changes.
+* **Responsive Adaptation:** Layout hierarchy shifts from horizontal to vertical narratives without losing the "editorial" feel.
+* **Thermal Management:** Reduced shader complexity and frameloop culling specifically optimized for mobile GPUs.
 
-DUR
-├── instant      0.12s           State indicators
-├── feedback     0.25s           Hover swaps
-├── fast         0.40s           Quick transitions
-├── standard     0.70s           Default motion
-├── cinematic    1.20s           Section reveals
-└── epic         1.80s           Hero sequences
-```
+---
 
-Every animation speaks the same language. Swap one token, the entire site responds.
-
-<br>
-
-## Stack
-
-| Layer | Technology |
-|---|---|
-| **Framework** | React 19 |
-| **Build** | Vite 8 |
-| **3D** | Three.js + React Three Fiber + drei |
-| **Animation** | GSAP 3 + ScrollTrigger |
-| **Scroll** | Lenis |
-| **Styling** | Tailwind CSS 4 |
-| **State** | Zustand 5 |
-| **Shaders** | Custom GLSL (vertex + fragment) |
-| **Icons** | Lucide React |
-
-<br>
-
-## Getting Started
+## 08 // DEVELOPMENT SETUP
 
 ```bash
-# Clone
+# Clone the repository
 git clone https://github.com/RTiwari-06/Raj-MOTO.git
-cd Raj-MOTO
 
-# Install
+# Install dependencies
 npm install
 
-# Dev server
+# Start local development (Vite)
 npm run dev
+
+# Build for production
+npm run build
 ```
-
-Open `http://localhost:5173` — the tachometer loader fires, then the experience begins.
-
-<br>
-
-## Deploy
-
-Production-ready for static hosting.
-
-```bash
-npm run build     # → dist/
-npm run preview   # local preview of production build
-```
-
-Optimized for **Vercel** and **Netlify** — zero-config deploy from the `main` branch.
-
-<br>
-
-## Roadmap
-
-- [ ] Page transitions with route-based animations
-- [ ] Sound design layer (engine idle, throttle response)
-- [ ] Dark/light theme toggle with shader-aware transitions
-- [ ] CMS integration for ride archive content
-- [ ] Performance dashboard (Lighthouse CI)
-- [ ] PWA support with offline-first architecture
-
-<br>
 
 ---
 
-<div align="center">
+## 09 // SHOWCASE
 
-<br>
+![Hero Preview](https://via.placeholder.com/800x450/0a0a0a/D2FF00?text=HERO+REVEAL+SYSTEM)
 
-```
-RT•MOTO // 2026
-SYSTEM : NOMINAL
-SIGNAL : OPEN
-```
+*Fig 1. Identity Discovery Mechanism*
 
-**Raj Tiwari** · Full-Stack Developer · Bengaluru, India
+![Helmet Preview](https://via.placeholder.com/800x450/0a0a0a/D2FF00?text=3D+HELMET+SECTION)
 
-*Built to move. Engineered to ship.*
+*Fig 2. Gear Check // 360° Inspection*
 
-<br>
+![Rides Preview](https://via.placeholder.com/800x450/0a0a0a/D2FF00?text=RIDES+SECTION)
 
-</div>
+*Fig 3. Horizontal Archive Archive*
+
+---
+
+## 10 // FUTURE EVOLUTION
+
+* [ ] **Immersive Audio:** Engine-frequency driven spatial audio system.
+* [ ] **Asset Upgrades:** High-fidelity 4K texture streaming.
+* [ ] **Interaction Refinement:** Gesture-based navigation for tablet devices.
+* [ ] **Extended Narrative:** Dynamic content integration for race-day telemetry.
+
+---
+
+## 11 // CREDITS
+
+### Creative Direction and Engineering
+
+[Raj Tiwari](https://github.com/RTiwari-06)
+
+*Bengaluru, India // 2026*
+
+---
+
+### RT•MOTO // SYSTEM NOMINAL

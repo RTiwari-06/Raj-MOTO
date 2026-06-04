@@ -228,12 +228,12 @@ export default function TheMachine() {
                     <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 w-8 tabular-nums">
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/55 w-[104px] sm:w-[150px] shrink-0">
+                    <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/55 w-[90px] sm:w-[150px] shrink-0">
                       {item.k}
                     </span>
                     {/* dashed leader connecting label → value (fixed key width keeps starts aligned) */}
-                    <span className="flex-1 mx-3 border-b border-dashed border-white/20" />
-                    <span className="font-mono text-[11px] font-semibold leading-snug text-right text-white transition-colors duration-300 group-hover:text-[#FF6600]">
+                    <span className="hidden sm:flex flex-1 mx-3 border-b border-dashed border-white/20" />
+                    <span className="flex-1 sm:flex-none font-mono text-[10px] sm:text-[11px] font-semibold leading-snug text-right text-white transition-colors duration-300 group-hover:text-[#FF6600]">
                       {item.v}
                     </span>
                   </div>

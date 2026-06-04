@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Saira+Expanded:wght@500;600;700;800;900&display=swap');
-
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
@@ -269,6 +267,7 @@ html.lenis { height: auto; }
   display: flex;
   justify-content: space-between;
   align-items: center;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   background: rgba(13, 13, 13, 0.7);
   border-bottom: 1px solid var(--color-border);
@@ -1053,6 +1052,7 @@ html.lenis { height: auto; }
   text-transform: uppercase;
   line-height: 0.8;
   letter-spacing: -0.04em;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -1163,6 +1163,7 @@ html.lenis { height: auto; }
   --my: 50%;
   --r: 0px;
   cursor: none;
+  -webkit-user-select: none;
   user-select: none;
   transition: --r 300ms var(--ease-out);
 }
@@ -1324,6 +1325,7 @@ html.lenis { height: auto; }
   padding: 4px 8px;
   background: rgba(10, 10, 10, 0.82);
   border: 1px solid var(--color-border-accent);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   font-family: var(--font-mono);
   font-size: 10px;
@@ -1429,10 +1431,21 @@ html.lenis { height: auto; }
 /* ── HERO — Direction 3 atmosphere (darkness-envelope) ─────────────────────── */
 /* Vignette: a soft light pool sits on the subject (centre-right, slightly high);
    darkness deepens to the viewport edges → focus without any added effect. */
+/* Soft key light lifting the figure out of the night — controlled, subtle. */
+.hero-keylight {
+  background: radial-gradient(ellipse 55% 60% at 43% 44%,
+    rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 60%);
+}
+/* Vignette — re-aimed onto the figure (was a 60%/45% grid point). */
 .hero-vignette {
-  background: radial-gradient(ellipse 78% 72% at 60% 45%,
-    transparent 0%, transparent 36%,
-    rgba(0, 0, 0, 0.45) 72%, rgba(0, 0, 0, 0.92) 100%);
+  background: radial-gradient(ellipse 82% 78% at 43% 46%,
+    transparent 0%, transparent 34%,
+    rgba(0, 0, 0, 0.42) 70%, rgba(0, 0, 0, 0.92) 100%);
+}
+/* Grounds the figure and seats the name — a motivated falloff, not a hard crop. */
+.hero-floor {
+  background: linear-gradient(to top,
+    rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.62) 26%, rgba(0, 0, 0, 0) 100%);
 }
 /* Bottom scrim — seats the kicker/CTA AND buries the reveal.jpg watermark. */
 .hero-scrim-bottom {

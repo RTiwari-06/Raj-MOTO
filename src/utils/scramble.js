@@ -29,3 +29,11 @@ export function runScramble(element, finalText, duration = 0.75) {
   raf = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(raf);
 }
+
+/**
+ * Convenient wrapper for runScramble that uses the element's current 
+ * textContent as the final target.
+ */
+export function scrambleText(element, duration = 0.75) {
+  return runScramble(element, element.textContent, duration);
+}
