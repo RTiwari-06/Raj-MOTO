@@ -136,7 +136,7 @@ const Hero = ({ isLoaded = true }) => {
     <section ref={containerRef} className="w-full relative overflow-hidden" style={{ minHeight: '100dvh' }}>
 
       {/* ── LAYER 0: the photograph — instant <img> for LCP, WebGL reveal over it ── */}
-      <div ref={stageRef} className="absolute left-0 right-0 z-0" style={{ willChange: 'transform, opacity', top: '28px', bottom: 0 }}>
+      <div ref={stageRef} className="absolute inset-0 z-0" style={{ willChange: 'transform, opacity' }}>
         <img
           src={MEDIA.hero.primary}
           alt="Raj Tiwari"
@@ -174,9 +174,19 @@ const Hero = ({ isLoaded = true }) => {
         data-depth="-0.1"
         className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-end items-center px-8 md:px-16 pb-12 md:pb-16"
       >
-        {/* Engage / loading button (restored). Pointer events allowed. */}
+        {/* Engage — primary CTA: smooth-scroll into the experience (first section). */}
         <div className="pointer-events-auto mb-6">
-          <button ref={engageRef} className="btn-rt inline-flex items-center gap-3 px-6 py-3 border border-white/20 text-white uppercase tracking-wider">
+          <button
+            ref={engageRef}
+            type="button"
+            onClick={() => {
+              const el = document.querySelector('#machine');
+              if (!el) return;
+              const lenis = window.__lenis;
+              lenis ? lenis.scrollTo(el) : el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="btn-rt inline-flex items-center gap-3 px-6 py-3 border border-white/20 text-white uppercase tracking-wider"
+          >
             <span className="loader w-3 h-3 rounded-full bg-white/80 animate-pulse" />
             <span>Engage</span>
           </button>

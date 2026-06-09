@@ -2,7 +2,7 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '@/store/useStore';
-import vertexShader from '@/shaders/fluidVertex.glsl';
+import vertexShader from '@/shaders/heroVertex.glsl';
 import fragmentShader from '@/shaders/fluidFragment.glsl';
 
 export function FluidBackground() {
@@ -22,6 +22,7 @@ export function FluidBackground() {
         uIntensity:  { value: 0 },
         uFall:       { value: 0 },
         uFallOffset: { value: 0 },
+        u_resolution: { value: new THREE.Vector2(1, 1) },
       },
       depthWrite: false, // Ensure it sits behind the main mesh without depth issues
     });
@@ -42,13 +43,14 @@ export function FluidBackground() {
     // fallOffset accumulates (delta × ramp) so it never jumps when motion stops.
     const active = st.imageHovering ? 1 : 0;
     smoothFall.current += (active - smoothFall.current) * 0.05;
-    fallOffset.current += delta * 0.12 * smoothFall.current;
+    fallOffset.current = (fallOffset.current + delta * 0.12 * smoothFall.current) % 1000.0;
 
-    u.uTime.value       = state.clock.elapsedTime;
+    u.uTime.value       = state.clock.elapsedTime % 1000.0;
     u.uMouse.value.set(smoothMouse.current.x, smoothMouse.current.y);
     u.uIntensity.value  = st.fluidIntensity;
     u.uFall.value       = smoothFall.current;
     u.uFallOffset.value = fallOffset.current;
+    u.u_resolution.value.set(state.viewport.width, state.viewport.height);
 
     meshRef.current.scale.set(state.viewport.width * 1.5, state.viewport.height * 1.5, 1);
   });

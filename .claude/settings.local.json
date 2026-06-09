@@ -43,7 +43,11 @@
       "Bash(/c/Users/compaq/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1.1-full_build/bin/ffmpeg.exe -y -i '/c/Users/compaq/Downloads/Screen Recording 2026-05-15 181138.gif' -vf fps=2,scale=860:-1 '/c/Users/compaq/Desktop/SCT_WD/website designing/.tmp_ref/f%02d.png')",
       "Bash(curl *)",
       "WebFetch(domain:60fps.design)",
-      "WebFetch(domain:discourse.threejs.org)"
+      "WebFetch(domain:discourse.threejs.org)",
+      "Bash(npm install *)",
+      "Bash(npm ls *)",
+      "WebFetch(domain:www.landonorris.com)",
+      "WebFetch(domain:landonorris.framer.website)"
     ],
     "ask": [
       "WebFetch"

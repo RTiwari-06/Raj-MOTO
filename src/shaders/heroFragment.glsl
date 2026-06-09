@@ -3,15 +3,16 @@ precision highp float;
 varying vec2 vUv;
 
 // ─── Uniforms ────────────────────────────────────────────────────────────────
-uniform sampler2D u_texBase;    // human — helmet off, identity (the resting surface)
-uniform sampler2D u_texReveal;  // rider — helmet on, machine (revealed through the blobs)
-uniform vec2      u_resolution; // container px
+uniform sampler2D u_texBase;    // human — helmet off (the resting surface)
+uniform sampler2D u_texReveal;  // rider — helmet on (revealed through the liquid)
+uniform vec2      u_resolution; // container px (only the ratio is used → aspect)
 uniform vec2      u_imageRes;   // image natural px
-uniform vec2      u_focal;      // cover focal point (keeps the figure on portrait)
-uniform float     u_time;       // system time (drives the liquid edge warp)
-uniform vec3      u_points[16]; // trail: xy = UV position (y-up), z = strength 0..1
+uniform vec2      u_focal;      // cover focal point (figure framing)
+uniform float     u_time;       // system time (drives the organic edge warp)
+uniform float     u_radius;     // metaball radius (liquid thickness, field units)
+uniform vec3      u_points[28]; // cursor liquid: xy = pos (screen-UV y-up), z = strength
 
-// ─── Cheap value noise for the organic, liquid blob edges ────────────────────
+// ─── Cheap value noise for the organic, liquid edges ─────────────────────────
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float vnoise(vec2 p) {
   vec2 i = floor(p), f = fract(p);
@@ -35,40 +36,37 @@ void main() {
     : vec2(0.0, (newRes.y - s.y) * u_focal.y);
   vec2 coverUv = vUv * s / newRes + offsetPx / newRes;
 
-  // Same scene in both photos → sample at the same UV → perfect registration, so
-  // the helmet lands on the head and the armour on the torso, in place.
+  // Same scene in both photos → same UV → perfect registration (helmet on head).
   vec4 colorBase   = texture2D(u_texBase,   coverUv);
   vec4 colorReveal = texture2D(u_texReveal, coverUv);
 
-  // ─── LIQUID-BLOB TRAIL MASK (the Lando reveal) ───────────────────────────────
-  // Aspect-correct so blobs read round on screen.
+  // ─── CURSOR LIQUID — one cohesive gooey mass with a soft trailing wake ────────
   vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
 
-  // Low-frequency domain warp → organic, fluid edges (NOT a grain/glitch overlay;
-  // it only shapes the mask boundary, the photo is never distorted).
-  vec2 wp   = vUv * 3.0 + u_time * 0.15;
-  vec2 warp = vec2(vnoise(wp), vnoise(wp + 37.2)) - 0.5;
-  vec2 sp   = vUv * aspect + warp * 0.045;
+  // Two-octave domain warp → organic liquid edges. Boundary-only (NOT a grain /
+  // aberration / glitch overlay; the photo itself is never distorted).
+  vec2 wp1  = vUv * 2.4 + u_time * 0.10;
+  vec2 wp2  = vUv * 4.8 - u_time * 0.14;
+  vec2 warp = (vec2(vnoise(wp1), vnoise(wp1 + 37.2)) - 0.5)
+            + (vec2(vnoise(wp2), vnoise(wp2 + 19.7)) - 0.5) * 0.5;
+  vec2 sp   = vUv * aspect + warp * 0.05;
 
-  // Metaball field: inverse-square falloff summed over the trail → blobs merge.
-  const float R = 0.13;        // blob radius
+  // Inverse-square metaball field over the dense cursor trail → it fuses into one
+  // smooth gooey liquid that follows the pointer (the Lando reveal).
   float field = 0.0;
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 28; i++) {
     vec3  pt = u_points[i];
     vec2  p  = pt.xy * aspect;
     float d2 = dot(sp - p, sp - p);
-    field += pt.z * (R * R) / (d2 + 0.0008);
+    field += pt.z * (u_radius * u_radius) / (d2 + 0.0008);
   }
 
-  float mask = clamp(smoothstep(0.6, 1.1, field), 0.0, 1.0);
+  // Soft, premium feathered liquid edge.
+  float mask = clamp(smoothstep(0.34, 0.82, field), 0.0, 1.0);
 
-  // ─── RESTRAINED FILMIC GRADE — no aberration, no glitch ──────────────────────
-  vec3 gradedBase = colorBase.rgb;
-  gradedBase = mix(gradedBase, vec3(dot(gradedBase, vec3(0.299, 0.587, 0.114))), 0.12);
+  // ─── GRADE — clean reveal (Lando-like), the photo speaks ─────────────────────
+  vec3 reveal = (colorReveal.rgb - 0.5) * 1.04 + 0.5;
+  vec3 color  = mix(colorBase.rgb, reveal, mask);
 
-  vec3 gradedReveal = colorReveal.rgb;
-  gradedReveal.r *= 1.04;       // a hair warmer — the machine state
-
-  vec3 finalColor = mix(gradedBase, gradedReveal, mask);
-  gl_FragColor = vec4(finalColor, 1.0);   // opaque — a living photograph
+  gl_FragColor = vec4(color, 1.0);   // opaque — a living photograph
 }

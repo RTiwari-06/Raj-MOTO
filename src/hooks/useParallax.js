@@ -23,7 +23,6 @@ export function useParallax(containerRef, maxShift = 18) {
     if (!layers.length) return;
 
     layers.forEach((el) => {
-      const depth = parseFloat(el.dataset.depth) || 1;
       quickXMap.current.set(el, gsap.quickTo(el, 'x', { duration: DUR.fast, ease: EASE.momentum }));
       quickYMap.current.set(el, gsap.quickTo(el, 'y', { duration: DUR.fast, ease: EASE.momentum }));
     });
@@ -49,10 +48,13 @@ export function useParallax(containerRef, maxShift = 18) {
       }
     );
 
+    const cleanupX = quickXMap.current;
+    const cleanupY = quickYMap.current;
+
     return () => {
       unsub();
-      quickXMap.current.clear();
-      quickYMap.current.clear();
+      cleanupX.clear();
+      cleanupY.clear();
     };
   }, [containerRef, maxShift]);
 }

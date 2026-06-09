@@ -4,7 +4,6 @@ import { useStore } from '@/store/useStore';
 import * as THREE from 'three';
 
 export function BackgroundOrb() {
-  const { mouse } = useStore();
   const groupRef = useRef();
   const orbRef = useRef();
   const ring1Ref = useRef();
@@ -13,6 +12,7 @@ export function BackgroundOrb() {
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
+    const { mouse } = useStore.getState();
 
     // Smooth container follow (parallax effect mapping to mouse)
     if (groupRef.current) {

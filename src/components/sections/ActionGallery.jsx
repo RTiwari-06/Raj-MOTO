@@ -1,56 +1,131 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MEDIA } from '@/data/media';
-import { EASE, DUR, STAGGER, ST } from '@/motion/system';
 
-const CARDS   = MEDIA.actionCards;
-const CARD_W  = 180;
-const CARD_H  = 270;
+// Utility: Fisher-Yates shuffle
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 export default function ActionGallery() {
-  const sectionRef  = useRef(null);
-  const wrapperRefs = useRef([]);
-  const [hovered, setHovered] = useState(null);
+  const sectionRef = useRef(null);
+  const cardRefs = useRef([]);
+
+  // Randomize cards once per component mount
+  const randomizedCards = useMemo(() => shuffleArray(MEDIA.actionCards), []);
+
+  // Calculate the base structural transforms for the fan-out layout
+  const baseTransforms = randomizedCards.map((_, i) => {
+    // Dynamic normalized index mapping (e.g. for 6 cards: -2.5, -1.5, -0.5, 0.5, 1.5, 2.5)
+    const normalizedIndex = i - (randomizedCards.length - 1) / 2;
+    
+    return {
+      xPercent: -50 + (normalizedIndex * 35), // Slightly tighter offset to fit 6 cards comfortably
+      y: Math.abs(normalizedIndex) * 14.4,    // Parabolic downward arc (scaled down 10% from 16)
+      rotate: normalizedIndex * 8,            // Progressive Z-rotation
+      zIndex: Math.floor(50 - Math.abs(normalizedIndex) * 10) // Center is highest, falling off to flanks
+    };
+  });
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      CARDS.forEach((card, i) => {
+      // Initial entry fan-out animation
+      randomizedCards.forEach((_, i) => {
+        const t = baseTransforms[i];
         gsap.fromTo(
-          wrapperRefs.current[i],
-          { x: 0, y: 40, rotate: 0, opacity: 0, scale: 0.85 },
+          cardRefs.current[i],
+          { xPercent: -50, y: 200, rotate: 0, opacity: 0, scale: 0.8 },
           {
-            x:       card.x,
-            y:       card.y,
-            rotate:  card.rotate,
+            xPercent: t.xPercent,
+            y: t.y,
+            rotate: t.rotate,
             opacity: 1,
-            scale:   1,
-            duration: DUR.cinematic,
-            ease:    EASE.momentum,
-            delay:   i * STAGGER.cards,
+            scale: 1,
+            zIndex: t.zIndex,
+            duration: 1.2,
+            ease: 'power3.out',
+            delay: i * 0.1,
             scrollTrigger: {
               trigger: sectionRef.current,
-              start:   ST.start.section,
-              once:    true,
+              start: 'top 75%',
+              once: true,
             },
-          },
+          }
         );
       });
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [randomizedCards, baseTransforms]);
+
+  const handleMouseEnter = (i) => {
+    const t = baseTransforms[i];
+    
+    // Animate the hovered card upward and scale it
+    gsap.to(cardRefs.current[i], {
+      scale: 1.06,
+      rotate: t.rotate * 0.2, // Slightly reduce rotation for readability
+      y: t.y - 36,            // Lift upward relative to its fan position (scaled down 10% from 40)
+      zIndex: 50,             // Temporarily maximize z-index
+      duration: 0.4,
+      ease: 'power2.out',
+      overwrite: 'auto',
+    });
+
+    // Dim the surrounding cards
+    randomizedCards.forEach((_, j) => {
+      if (i !== j) {
+        gsap.to(cardRefs.current[j], {
+          filter: 'brightness(0.5) grayscale(0.5)',
+          duration: 0.4,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
+      }
+    });
+  };
+
+  const handleMouseLeave = (i) => {
+    const t = baseTransforms[i];
+    
+    // Revert the hovered card to its exact calculated base transform
+    gsap.to(cardRefs.current[i], {
+      scale: 1,
+      rotate: t.rotate,
+      y: t.y,
+      zIndex: t.zIndex,
+      duration: 0.4,
+      ease: 'power2.out',
+      overwrite: 'auto',
+    });
+
+    // Restore surrounding cards
+    randomizedCards.forEach((_, j) => {
+      gsap.to(cardRefs.current[j], {
+        filter: 'brightness(1) grayscale(0)',
+        duration: 0.4,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    });
+  };
 
   return (
     <section
       ref={sectionRef}
       className="relative w-full overflow-hidden py-36 md:py-44"
-      style={{ backgroundColor: '#0a0a0a' }}
+      style={{ backgroundColor: '#0d0d0d' }}
     >
       {/* Header */}
-      <div className="text-center mb-20 px-8">
-        <div className="w-[60px] h-[2px] bg-[#D2FF00] mx-auto mb-8" />
-        <p className="text-[9px] tracking-[0.45em] uppercase font-bold mb-5" style={{ color: '#9a9a9a' }}>
+      <div className="relative text-center z-0 mb-4 px-8">
+        <div className="w-[60px] h-[2px] bg-[#D2FF00] mx-auto mb-6" />
+        <p className="text-[9px] tracking-[0.45em] uppercase font-bold mb-4" style={{ color: '#9a9a9a' }}>
           OFF TRACK
         </p>
         <h2
@@ -61,88 +136,38 @@ export default function ActionGallery() {
         </h2>
       </div>
 
-      {/* Fan container */}
-      <div className="flex items-center justify-center">
-        <div
-          className="relative"
-          style={{ width: CARD_W, height: CARD_H }}
-          onMouseLeave={() => setHovered(null)}
-        >
-          {CARDS.map((card, i) => {
-            const isHovered  = hovered === card.id;
-            const anyHovered = hovered !== null;
+      {/* Mathematical Fan Container */}
+      <div className="relative w-full max-w-6xl mx-auto h-[405px] sm:h-[495px] -mt-6 sm:-mt-12 px-4 z-10">
+        {randomizedCards.map((card, i) => (
+          <div
+            key={card.id}
+            ref={(el) => (cardRefs.current[i] = el)}
+            className="absolute left-1/2 bottom-0 w-[234px] sm:w-[288px] h-[342px] sm:h-[405px] rounded-2xl overflow-hidden cursor-pointer shadow-2xl group border border-white/[0.05]"
+            onMouseEnter={() => handleMouseEnter(i)}
+            onMouseLeave={() => handleMouseLeave(i)}
+          >
+            <img
+              src={card.src}
+              alt={card.label}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              style={{ filter: 'contrast(1.1) saturate(1.2)' }}
+              draggable={false}
+            />
 
-            return (
-              <div
-                key={card.id}
-                ref={(el) => (wrapperRefs.current[i] = el)}
-                className="absolute"
-                style={{
-                  top:       '50%',
-                  left:      '50%',
-                  marginTop:  -(CARD_H / 2),
-                  marginLeft: -(CARD_W / 2),
-                  width:      CARD_W,
-                  height:     CARD_H,
-                  zIndex:     isHovered ? 50 : 0,
-                  opacity:    0,
-                }}
-              >
-                <div
-                  data-magnetic="image"
-                  className="w-full h-full rounded-[1.5rem] overflow-hidden select-none"
-                  style={{
-                    transform:  isHovered ? 'scale(1.12) translateY(-20px)' : anyHovered ? 'scale(0.95)' : 'scale(1)',
-                    transition: `transform ${DUR.standard * 1000}ms cubic-bezier(0.25,0.46,0.45,0.94), filter 0.35s ease, box-shadow 0.35s ease`,
-                    filter:     anyHovered && !isHovered ? 'brightness(0.65)' : 'brightness(1)',
-                    boxShadow:  isHovered
-                      ? '0 40px 90px rgba(0,0,0,0.7), 0 0 44px rgba(210,255,0,0.22)'
-                      : '0 16px 48px rgba(0,0,0,0.6)',
-                    willChange: 'transform',
-                  }}
-                  onMouseEnter={() => setHovered(card.id)}
-                  onMouseLeave={() => setHovered(null)}
-                >
-                  <img
-                    src={card.src}
-                    alt={card.label}
-                    className="w-full h-full object-cover"
-                    style={{ filter: 'contrast(1.2) saturate(1.3) hue-rotate(-10deg)' }}
-                    draggable={false}
-                  />
+            {/* Specular highlight overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-tr from-white/10 via-transparent to-black/20" />
 
-                  {/* Specular highlight */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 55%, rgba(0,0,0,0.1) 100%)',
-                      opacity:    isHovered ? 1 : 0,
-                      transition: 'opacity 0.35s ease',
-                    }}
-                  />
-
-                  {/* Label */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 px-5 pb-5 pt-12 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.72), transparent)',
-                      opacity:    isHovered ? 1 : 0,
-                      transition: 'opacity 0.3s ease',
-                    }}
-                  >
-                    <p className="text-white text-[9px] tracking-[0.3em] uppercase font-bold">
-                      {card.label}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+            {/* Label Gradient & Text */}
+            <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400">
+              <p className="text-white text-[10px] tracking-[0.3em] uppercase font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-400 ease-out">
+                {card.label}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* CTA — editorial hairline links: serif label, mono index, extending
-          arrow, and a lime bar that sweeps the hairline on hover. */}
+      {/* CTA — editorial hairline links */}
       <div className="mt-32 md:mt-44 px-8">
         <div className="mx-auto w-full max-w-xl border-t border-[#f0f0f0]/12">
           {[
@@ -155,12 +180,11 @@ export default function ActionGallery() {
               data-magnetic="cta"
               className="group relative block py-7 select-none"
             >
-              {/* Hairline divider + lime sweep (sits on the row's bottom edge) */}
+              {/* Hairline divider + lime sweep */}
               <span className="absolute bottom-0 left-0 h-px w-full bg-[#f0f0f0]/12" />
               <span className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-[#D2FF00] transition-transform duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
 
               <span className="flex items-end justify-between gap-6">
-                {/* Left — index + serif label */}
                 <span className="flex items-baseline gap-4 md:gap-6">
                   <span className="font-mono text-[10px] tracking-[0.25em] text-[#f0f0f0]/35 transition-colors duration-300 group-hover:text-[#f0f0f0]">
                     {index}
@@ -178,7 +202,6 @@ export default function ActionGallery() {
                   </span>
                 </span>
 
-                {/* Right — extending arrow */}
                 <span className="flex items-center pb-1.5 text-[#f0f0f0]" aria-hidden="true">
                   <span className="block h-px w-7 bg-[#f0f0f0] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-20 group-hover:bg-[#f0f0f0]" />
                   <span className="-ml-px text-xl leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1.5">

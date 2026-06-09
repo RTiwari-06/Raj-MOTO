@@ -10,12 +10,17 @@ export function SmoothScroll({ children }) {
   const setScroll = useStore((state) => state.setScroll);
 
   useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      document.documentElement.classList.add('motion-off');
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       gestureDirection: 'vertical',
-      smooth: true,
+      smooth: !reducedMotion,
       smoothTouch: false,
       touchMultiplier: 2,
     });
@@ -36,6 +41,13 @@ export function SmoothScroll({ children }) {
     }
 
     rafId = requestAnimationFrame(raf);
+
+    // Refresh ScrollTrigger after fonts load to recalculate layouts correctly
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        ScrollTrigger.refresh();
+      });
+    }
 
     return () => {
       cancelAnimationFrame(rafId);

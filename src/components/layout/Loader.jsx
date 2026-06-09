@@ -69,7 +69,7 @@ export default function Loader({ onComplete }) {
   return (
     <div
       ref={loaderRef}
-      className="fixed inset-0 z-[9950] bg-black flex flex-col items-center justify-center select-none px-8"
+      className="fixed inset-0 z-[9950] bg-black/70 backdrop-blur-xl flex flex-col items-center justify-center select-none px-8"
     >
       <div ref={gaugeRef} className="w-full max-w-2xl flex flex-col gap-7">
 

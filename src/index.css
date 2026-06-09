@@ -1,5 +1,25 @@
 @import "tailwindcss";
-@config "../tailwind.config.js";
+
+@theme {
+  --color-dark: #282C20;
+  --color-darker: #1C1F15;
+  --color-black: #111112;
+  --color-light: #EFEEE6;
+  --color-mid: #3D4233;
+  --color-accent: #D2FF00;
+  --color-muted: #888880;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Saira Expanded', 'Arial Narrow', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-display-xl: 160px;
+  --text-display-lg: 120px;
+  --text-display-md: 80px;
+  --text-display-sm: 60px;
+
+  --tracking-tight-cap: -0.04em;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    LAYER 1 — DESIGN TOKENS (Single source of truth)

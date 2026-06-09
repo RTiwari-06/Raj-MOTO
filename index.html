@@ -9,15 +9,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Preload critical Hero image for LCP -->
-    <link rel="preload" href="/base.jpg" as="image" fetchpriority="high">
+    <link rel="preload" href="/base.jpg" as="image">
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Saira+Expanded:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Saira+Expanded:wght@500;600;700;800;900&display=optional" rel="stylesheet">
+
+    <meta name="description" content="RT•MOTO — a cinematic interactive experience on the duality of rider identity.">
+    <meta name="theme-color" content="#111112">
+    <link rel="canonical" href="https://rt-moto.vercel.app/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="RT•MOTO — Same Rider, Two Machines">
+    <meta property="og:description" content="A cinematic WebGL experience. Code and velocity.">
+    <meta property="og:image" content="https://rt-moto.vercel.app/og.jpg">
+    <meta property="og:url" content="https://rt-moto.vercel.app/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://rt-moto.vercel.app/og.jpg">
 
     <title>RT•MOTO — Redefining Limits</title>
   </head>
   <body>
+    <noscript>
+      <div style="padding: 40px; text-align: center; color: white; background: #0a0a0a; font-family: sans-serif; min-height: 100vh;">
+        <h1 style="text-transform: uppercase;">RT•MOTO</h1>
+        <p>This cinematic experience requires JavaScript and WebGL.</p>
+        <img src="/base.jpg" alt="RT-MOTO" style="max-width: 100%; height: auto; margin-top: 20px;">
+      </div>
+    </noscript>
+    <div id="hero-lcp" style="position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #0a0a0a;">
+      <img src="/base.jpg" decoding="async" fetchpriority="high" style="position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: 43% 30%;" alt="">
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

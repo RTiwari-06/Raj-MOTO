@@ -16,9 +16,11 @@ export default function ProjectDetail() {
   const hasPrev = rideIndex > 0;
   const hasNext = rideIndex < rides.length - 1;
 
+  const hasRide = !!ride;
+
   // ── ENTRY: overlay slides up from bottom, then content staggers in ────────
   useEffect(() => {
-    if (!ride) return;
+    if (!hasRide) return;
     const ctx = gsap.context(() => {
       gsap.timeline()
         .fromTo(overlayRef.current,
@@ -42,7 +44,7 @@ export default function ProjectDetail() {
         );
     }, overlayRef);
     return () => ctx.revert();
-  }, [!!ride]); // Dependency on the presence of ride
+  }, [hasRide]); // Dependency on the presence of ride
 
   // ── CROSSFADE: animate content when ride changes (not on mount) ───────────
   useEffect(() => {
