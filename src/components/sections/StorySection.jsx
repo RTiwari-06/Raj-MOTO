@@ -3,6 +3,11 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { EASE, DUR, ST, STAGGER } from '@/motion/system';
 import { MEDIA } from '@/data/media';
+import SignatureDraw from '@/components/ui/SignatureDraw';
+
+const RT_SIGNATURE = "M10 80 C 40 10, 60 10, 90 80 M90 40 L120 40 L120 80 M120 40 C 150 40, 150 10, 120 10"; // Rough RT
+const ACCENT_SLASH = "M0 100 L200 0";
+
 const EVOLUTION_DATA = [
   {
     year: '2015',
@@ -150,16 +155,35 @@ export default function StorySection() {
       >
 
         <div ref={headerRef} className="mb-16 opacity-0 flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div>
+          <div className="relative">
+            {/* Racing Accent Slash */}
+            <SignatureDraw 
+              path={ACCENT_SLASH} 
+              viewBox="0 0 200 100" 
+              className="absolute -top-12 -left-8 w-32 h-16 opacity-20 pointer-events-none"
+              color="#D2FF00"
+              strokeWidth={1}
+            />
+
             <div className="flex items-center gap-3 mb-5">
               <span className="text-accent text-[9px] font-black label-spaced">[ + ]</span>
               <p className="text-[9px] label-spaced uppercase font-black text-accent">
                 R A J &nbsp;//&nbsp; 2 0 2 2 — 2 0 2 6
               </p>
             </div>
-            <h2 className="font-serif font-black uppercase leading-none" style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}>
+            <h2 className="font-serif font-black uppercase leading-none relative" style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}>
               <span className="block" style={{ color: '#D2FF00' }}>THE</span>
               <span className="block text-white">PATH.</span>
+
+              {/* Subtle Signature under "PATH" */}
+              <SignatureDraw 
+                path={RT_SIGNATURE} 
+                viewBox="0 0 200 100" 
+                className="absolute -bottom-4 -right-4 w-24 h-12 opacity-40 pointer-events-none"
+                color="#D2FF00"
+                strokeWidth={1.5}
+                delay={0.5}
+              />
             </h2>
           </div>
           <div className="max-w-md">

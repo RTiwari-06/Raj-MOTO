@@ -917,8 +917,9 @@ html.lenis { height: auto; }
 /* ── THE MACHINE — scoped "arsenal" palette (orange/red/grey, #machine only) ── */
 /* Headline cycles through the machine palette like a breathing mechanical pulse. */
 @keyframes arsenalPulse {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
+  0%   { opacity: 0.7; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.7; }
 }
 /* Rev-limiter: fast, violent colour pulse through the arsenal palette. */
 .arsenal-text {
@@ -928,7 +929,16 @@ html.lenis { height: auto; }
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  animation: arsenalPulse 0.8s linear infinite;
+  animation: arsenalPulse 1.2s ease-in-out infinite;
+}
+@media (pointer: coarse) {
+  .arsenal-text { 
+    animation: arsenalPulse 2s ease-in-out infinite; 
+    background: #FF6600;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }
 .motion-off .arsenal-text { animation: none; }
 @media (prefers-reduced-motion: reduce) {

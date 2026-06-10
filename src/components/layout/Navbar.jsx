@@ -221,7 +221,7 @@ const Navbar = () => {
     <>
       <nav
         ref={navRef}
-        className={`fixed top-0 left-0 w-full z-50 border-b transition-[background-color,border-color] duration-500 ${
+        className={`fixed top-0 left-0 w-full z-50 border-b transition-[background-color,border-color] duration-500 nav-solid-mobile ${
           scrolled
             ? 'bg-black/90 md:bg-black/80 md:backdrop-blur-md border-white/10'
             : 'bg-transparent border-transparent'
@@ -340,7 +340,7 @@ const Navbar = () => {
               data-nav-item
               aria-pressed={motionEnabled}
               aria-label={motionEnabled ? 'Motion on — click to reduce motion' : 'Motion paused — click to enable'}
-              className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/25 hover:text-[#D2FF00] transition-colors duration-200"
+              className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/25 hover:text-[#D2FF00] transition-colors duration-200 touch-buffer"
               onMouseEnter={() => setHovering(true)}
               onMouseLeave={() => setHovering(false)}
             >
@@ -358,7 +358,7 @@ const Navbar = () => {
               data-nav-item
               aria-expanded={menuOpen}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              className="md:hidden relative w-8 h-8 flex flex-col items-center justify-center gap-[5px]"
+              className="md:hidden relative w-8 h-8 flex flex-col items-center justify-center gap-[5px] touch-buffer"
             >
               <span
                 className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"

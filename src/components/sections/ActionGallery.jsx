@@ -34,6 +34,13 @@ export default function ActionGallery() {
   });
 
   useEffect(() => {
+    // Desktop only — mobile uses native CSS scroll snap
+    const isMobile = window.matchMedia('(pointer: coarse)').matches;
+    if (isMobile) {
+      gsap.set(cardRefs.current, { clearProps: 'all' });
+      return;
+    }
+
     const ctx = gsap.context(() => {
       // Initial entry fan-out animation
       randomizedCards.forEach((_, i) => {
@@ -65,6 +72,7 @@ export default function ActionGallery() {
   }, [randomizedCards, baseTransforms]);
 
   const handleMouseEnter = (i) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     const t = baseTransforms[i];
     
     // Animate the hovered card upward and scale it
@@ -92,6 +100,7 @@ export default function ActionGallery() {
   };
 
   const handleMouseLeave = (i) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     const t = baseTransforms[i];
     
     // Revert the hovered card to its exact calculated base transform
@@ -136,13 +145,20 @@ export default function ActionGallery() {
         </h2>
       </div>
 
-      {/* Mathematical Fan Container */}
-      <div className="relative w-full max-w-6xl mx-auto h-[405px] sm:h-[495px] -mt-6 sm:-mt-12 px-4 z-10">
+      {/* Mathematical Fan / Mobile Slider Container */}
+      <div className="relative w-full max-w-6xl mx-auto md:h-[405px] sm:h-[495px] -mt-6 md:-mt-12 px-4 z-10 
+                      flex md:block overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar pb-12 md:pb-0">
         {randomizedCards.map((card, i) => (
           <div
             key={card.id}
             ref={(el) => (cardRefs.current[i] = el)}
-            className="absolute left-1/2 bottom-0 w-[234px] sm:w-[288px] h-[342px] sm:h-[405px] rounded-2xl overflow-hidden cursor-pointer shadow-2xl group border border-white/[0.05]"
+            className="flex-shrink-0 md:absolute left-1/2 bottom-0 w-[234px] sm:w-[288px] h-[342px] sm:h-[405px] 
+                       rounded-2xl overflow-hidden cursor-pointer shadow-2xl group border border-white/[0.05]
+                       snap-center mx-3 md:mx-0 first:ml-8 last:mr-8 md:first:ml-0 md:last:mr-0
+                       transition-transform duration-300 will-change-transform"
+            style={{ 
+              transform: window.matchMedia('(pointer: coarse)').matches ? (i % 2 === 0 ? 'rotate(1deg)' : 'rotate(-1deg)') : undefined 
+            }}
             onMouseEnter={() => handleMouseEnter(i)}
             onMouseLeave={() => handleMouseLeave(i)}
           >

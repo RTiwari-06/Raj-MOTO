@@ -221,7 +221,7 @@ export default function TheMachine() {
                     key={item.k}
                     onMouseEnter={() => setActiveLog(i)}
                     onMouseLeave={() => setActiveLog(null)}
-                    className={`tm-log-row group flex items-center px-5 py-4 transition-colors duration-300 hover:bg-[#FF6600]/[0.04] ${
+                    className={`tm-log-row group flex items-center px-5 py-4 transition-colors duration-300 hover:bg-[#FF6600]/[0.04] touch-buffer ${
                       i !== LOG.length - 1 ? 'border-b border-white/[0.06]' : ''
                     }`}
                   >

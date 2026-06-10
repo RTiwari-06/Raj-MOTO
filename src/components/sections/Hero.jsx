@@ -6,6 +6,7 @@ import { useUIStore } from '@/store/useUIStore';
 import { MEDIA } from '@/data/media';
 import { EASE, DUR, SCROLL } from '@/motion/system';
 import { useParallax } from '@/hooks/useParallax';
+import MobileRevealCanvas from './MobileRevealCanvas';
 
 // The WebGL liquid reveal is desktop-only and code-split — three.js never
 // loads on phones, and on desktop the chunk waits for an idle slot so it
@@ -32,16 +33,18 @@ const Hero = ({ isLoaded = true }) => {
     mq.addEventListener?.('change', apply);
     return () => mq.removeEventListener?.('change', apply);
   }, []);
-  // Touch devices get the static photograph — the shader (and three.js itself)
-  // stays a desktop experience.
+
+  // Touch devices get the lightweight 2D reveal — Three.js stays a desktop luxury.
   const [coarse] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
-  const showCanvas = motionEnabled && !reduceMotion && !coarse;
+  
+  const showWebGL = motionEnabled && !reduceMotion && !coarse;
+  const showMobile = motionEnabled && !reduceMotion && coarse;
 
   // Fetch the WebGL chunk only once the browser is idle.
   const [canvasReady, setCanvasReady] = useState(false);
   useEffect(() => {
-    if (!showCanvas || canvasReady) return;
+    if (!showWebGL || canvasReady) return;
     const arm = () => setCanvasReady(true);
     if ('requestIdleCallback' in window) {
       const id = window.requestIdleCallback(arm, { timeout: 3000 });
@@ -49,7 +52,7 @@ const Hero = ({ isLoaded = true }) => {
     }
     const id = window.setTimeout(arm, 1500);
     return () => window.clearTimeout(id);
-  }, [showCanvas, canvasReady]);
+  }, [showWebGL, canvasReady]);
 
   // 60fps gate — pause the render loop when the hero is off-screen.
   const [inView, setInView] = useState(true);
@@ -89,7 +92,7 @@ const Hero = ({ isLoaded = true }) => {
   // One-time auto-sweep still present, but ambient emit also runs inside the mesh.
   const autoSweptRef = useRef(false);
   useEffect(() => {
-    if (autoSweptRef.current || !showCanvas || reduceMotion || !isLoaded) return;
+    if (autoSweptRef.current || !showWebGL || reduceMotion || !isLoaded) return;
     const el = containerRef.current;
     if (!el) return;
     autoSweptRef.current = true;
@@ -117,7 +120,7 @@ const Hero = ({ isLoaded = true }) => {
       el.removeEventListener('pointerdown', mark);
       el.removeEventListener('pointermove', mark);
     };
-  }, [showCanvas, reduceMotion, isLoaded]);
+  }, [showWebGL, reduceMotion, isLoaded]);
 
   // Entrance — the photograph settles (scale only, never opacity → LCP stays fast),
   // then a subtle cue and the engage button appear.
@@ -153,8 +156,8 @@ const Hero = ({ isLoaded = true }) => {
   return (
     <section ref={containerRef} className="w-full relative overflow-hidden" style={{ minHeight: '100dvh' }}>
 
-      {/* ── LAYER 0: the photograph — instant <img> for LCP, WebGL reveal over it ── */}
-      <div ref={stageRef} className="absolute inset-0 z-0" style={{ willChange: 'transform, opacity' }}>
+      {/* ── LAYER 0: the photograph — isolated grid prevents CLS ── */}
+      <div ref={stageRef} className="absolute inset-0 z-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
         <img
           src={MEDIA.hero.primary}
           srcSet={MEDIA.hero.srcSet}
@@ -162,32 +165,40 @@ const Hero = ({ isLoaded = true }) => {
           alt="Raj Tiwari"
           fetchPriority="high"
           decoding="async"
-          className="absolute left-0 right-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: '43% 46%' }}
         />
-        {showCanvas && canvasReady && (
-          <div className="absolute left-0 right-0 z-10" style={{ top: 0, bottom: 0 }}>
+        
+        {/* WebGL Reveal (Desktop) */}
+        {showWebGL && canvasReady && (
+          <div className="absolute inset-0 z-10 pointer-events-none">
             <Suspense fallback={null}>
               <HeroCanvas inView={inView} />
             </Suspense>
           </div>
         )}
+
+        {/* 2D Canvas Reveal (Mobile) */}
+        {showMobile && (
+          <div className="absolute inset-0 z-10">
+            <MobileRevealCanvas inView={inView} />
+          </div>
+        )}
       </div>
 
-      {/* ── LAYER 1: atmosphere — light pool on the figure, vignette, grounding ── */}
+      {/* ── LAYER 1: atmosphere ── */}
       <div className="absolute inset-0 z-[15] pointer-events-none">
         <div className="hero-keylight absolute inset-0" />
         <div className="hero-vignette absolute inset-0" />
         <div className="hero-floor    absolute inset-x-0 bottom-0 h-[62%]" />
       </div>
 
-      {/* ── LAYER 2: minimal UI — engage button + subtle cue ──────────── */}
+      {/* ── LAYER 2: UI content — independent from hydration ── */}
       <div
         ref={uiLayerRef}
         data-depth="-0.1"
         className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-end items-center px-8 md:px-16 pb-12 md:pb-16"
       >
-        {/* Engage — primary CTA: smooth-scroll into the experience (first section). */}
         <div className="pointer-events-auto mb-6">
           <button
             ref={engageRef}
@@ -205,7 +216,6 @@ const Hero = ({ isLoaded = true }) => {
           </button>
         </div>
 
-        {/* subtle scroll cue still present */}
         <a
           ref={cueRef}
           href="#machine"
