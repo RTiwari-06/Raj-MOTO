@@ -3,13 +3,9 @@ import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { MEDIA } from '@/data/media';
+import { heroPointer } from '@/components/webgl/heroPointer';
 import vertexShader   from '@/shaders/heroVertex.glsl';
 import fragmentShader from '@/shaders/heroFragment.glsl';
-
-// Pointer state lives in module scope — written by Hero's native listeners,
-// read here in useFrame. No React state / no Zustand writes per move: zero churn.
-// eslint-disable-next-line react-refresh/only-export-components
-export const heroPointer = { x: 0.5, y: 0.5, active: false };
 
 // Point budget — MUST match the `u_points[28]` loop bound in heroFragment.glsl.
 // First AUTO_COUNT points are autonomous fluid cells; the rest are the cursor trail.

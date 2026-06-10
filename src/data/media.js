@@ -26,13 +26,14 @@ export const MEDIA = {
   },
 
   hero: {
-    primary: '/base.jpg',
-    reveal:  '/reveal.jpg',
+    primary: '/base-1920.webp',
+    srcSet:  '/base-960.webp 960w, /base-1920.webp 1920w',
+    reveal:  '/reveal-1920.webp',
   },
 
   // Showcase clip — the GoPro wheelie loop running behind the Story timeline
   showcase: {
-    mp4:    '/ride-loop.mp4',
+    mp4:    '/ride-loop-720.mp4',
     webm:   '/ride-loop.webm',
     poster: '/ride-loop-poster.webp',
     label:  'FIELD FOOTAGE // GOPRO',
@@ -134,7 +135,7 @@ export const MEDIA = {
       model:    'HOME-CANDID',
       year:     '2023',
       category: 'HOME Climb // Dawn Patrol',
-      src:      '/bike-4.jpg',
+      src:      '/bike-4-1600.webp',
       accent:   '#FF6B35',
       tag:      'Altitude Run',
       tagline:  'Dawn. Fog. Hairpins. Best debugging session of the year.',
@@ -160,18 +161,18 @@ export const MEDIA = {
     { id: 1,  src: '/moto-fleet.webp',         label: 'The Fleet',     span: 'col-span-2 row-span-2', category: 'Machines',  location: 'Bengaluru' },
     { id: 2,  src: '/moto-group.webp',         label: 'The Crew',      span: 'col-span-1 row-span-2', category: 'Off Track', location: 'Post-Sprint' },
     { id: 3,  src: '/bike-1.jpg',              label: 'Duke Street',   span: 'col-span-1 row-span-1', category: 'Machine',   location: 'MG Road' },
-    { id: 4,  src: '/moto-night-duo.webp',     label: 'Night Run',     span: 'col-span-1 row-span-1', category: 'Night',     location: '02:10 AM' },
-    { id: 5,  src: '/media/gallery/biryani.jpg', label: '3 AM Biryani', span: 'col-span-1 row-span-1', category: 'Off Track', location: 'Shivaji Nagar' },
+    { id: 4,  src: '/moto-night-duo-1600.webp', label: 'Night Run',    span: 'col-span-1 row-span-1', category: 'Night',     location: '02:10 AM' },
+    { id: 5,  src: '/media/gallery/biryani-1200.webp', label: '3 AM Biryani', span: 'col-span-1 row-span-1', category: 'Off Track', location: 'Shivaji Nagar' },
     { id: 6,  src: '/moto-night-helmet.webp',  label: 'Night Visor',   span: 'col-span-1 row-span-2', category: 'Mood',      location: 'Flyover' },
     { id: 7,  src: '/bike-2.jpg',              label: 'Highway North', span: 'col-span-2 row-span-1', category: 'On Road',   location: 'NH-44' },
     { id: 8,  src: '/moto-rider.webp',         label: 'Saddle Up',     span: 'col-span-1 row-span-1', category: 'Portrait',  location: 'RC 390' },
     { id: 9,  src: '/bike-3.jpg',              label: 'Monsoon Loop',  span: 'col-span-1 row-span-1', category: 'Mood',      location: 'Bengaluru' },
-    { id: 10, src: '/bike-4.jpg',              label: 'Nandi Hills',   span: 'col-span-1 row-span-1', category: 'Altitude',  location: '1478 m' },
+    { id: 10, src: '/bike-4-800.webp',         label: 'Nandi Hills',   span: 'col-span-1 row-span-1', category: 'Altitude',  location: '1478 m' },
   ],
 
   actionCards: [
     { id: 1, src: '/moto-night-helmet.webp', label: 'Gear Up',   x: -190, y: 22, rotate: -14 },
-    { id: 2, src: '/moto-night-duo.webp',    label: 'Night Run', x:  -95, y:  8, rotate:  -6 },
+    { id: 2, src: '/moto-night-duo-1600.webp', label: 'Night Run', x: -95, y:  8, rotate:  -6 },
     { id: 3, src: '/moto-rider.webp',        label: 'Saddle Up', x:    0, y:  0, rotate:   0 },
     { id: 4, src: '/moto-fleet.webp',        label: 'The Fleet', x:   95, y:  8, rotate:   6 },
     { id: 5, src: '/moto-group.webp',        label: 'The Crew',  x:  190, y: 22, rotate:  14 },
@@ -179,7 +180,7 @@ export const MEDIA = {
   ],
 
   story: {
-    src:    '/reveal.jpg',
+    src:    '/reveal-1920.webp',
     alt:    'Raj Tiwari — RT•MOTO platform',
     quote:  'The screen is the circuit. Every build is a race.',
     author: 'Raj Tiwari',
@@ -240,13 +241,13 @@ export const MEDIA = {
   ],
 
   rawArchive: [
-    { id: 'raw-1', src: '/media/gallery/IMG_20230611_180844_045.webp', category: 'RAW FEED // 2023' },
-    { id: 'raw-2', src: '/media/gallery/IMG_20230903_150642.jpg', category: 'RAW FEED // 2023' },
-    { id: 'raw-3', src: '/media/gallery/IMG_20240831_195216304.jpg', category: 'RAW FEED // 2024' },
-    { id: 'raw-4', src: '/media/gallery/IMG_202408nenjwnj5098_HDR_AE.jpg', category: 'RAW FEED // 2024' },
-    { id: 'raw-5', src: '/media/gallery/IMG_20260110_001153088_HDR_AE.jpg', category: 'RAW FEED // 2026' },
-    { id: 'raw-6', src: '/media/gallery/IMG20230903161035.jpg', category: 'RAW FEED // 2023' },
-    { id: 'raw-7', src: '/media/gallery/Screenshot_2023-10-17-23-33-12-635_org.videolan.vlc.jpg', category: 'RAW FEED // 2023' },
+    { id: 'raw-1', src: '/media/gallery/IMG_20230611_180844_045-1200.webp', category: 'RAW FEED // 2023' },
+    { id: 'raw-2', src: '/media/gallery/IMG_20230903_150642-1200.webp', category: 'RAW FEED // 2023' },
+    { id: 'raw-3', src: '/media/gallery/IMG_20240831_195216304-1200.webp', category: 'RAW FEED // 2024' },
+    { id: 'raw-4', src: '/media/gallery/IMG_202408nenjwnj5098_HDR_AE-1200.webp', category: 'RAW FEED // 2024' },
+    { id: 'raw-5', src: '/media/gallery/IMG_20260110_001153088_HDR_AE-1200.webp', category: 'RAW FEED // 2026' },
+    { id: 'raw-6', src: '/media/gallery/IMG20230903161035-1200.webp', category: 'RAW FEED // 2023' },
+    { id: 'raw-7', src: '/media/gallery/Screenshot_2023-10-17-23-33-12-635_org.videolan.vlc-1200.webp', category: 'RAW FEED // 2023' },
   ],
 
 };

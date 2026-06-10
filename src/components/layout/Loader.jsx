@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { useProgress } from '@react-three/drei';
 import { gsap } from 'gsap';
 import { DUR, EASE } from '@/motion/system';
+import { MEDIA } from '@/data/media';
 
 function statusLabel(p) {
   if (p < 20) return 'SYSTEM INIT...';
@@ -11,26 +11,45 @@ function statusLabel(p) {
   return 'IGNITION';
 }
 
+// How long the loader may hold the page, no matter what is still in flight.
+const HARD_CAP_MS = 1800;
+
 export default function Loader({ onComplete }) {
-  const { progress } = useProgress();
   const [display, setDisplay] = useState(0);
 
   const loaderRef = useRef(null);
   const gaugeRef  = useRef(null);
   const animated  = useRef({ value: 0 });
 
-  // Smooth the displayed progress
+  // Readiness gate — hero image decoded + fonts ready, hard-capped. The old
+  // drei useProgress source pulled three.js into the eager bundle and never
+  // resolved when the WebGL canvas didn't mount (reduced motion / mobile).
+  const [ready, setReady] = useState(false);
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.to(animated.current, {
-        value: Math.round(progress),
-        duration: DUR.considered,
-        ease: EASE.momentum,
-        onUpdate: () => setDisplay(Math.round(animated.current.value)),
-      });
+    let cancelled = false;
+    const finish = () => { if (!cancelled) setReady(true); };
+
+    const img = new Image();
+    img.src = MEDIA.hero.primary;
+    const imgReady = img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+    const fontsReady = document.fonts?.ready ?? Promise.resolve();
+    Promise.all([imgReady, fontsReady]).then(finish);
+
+    const cap = setTimeout(finish, HARD_CAP_MS);
+    return () => { cancelled = true; clearTimeout(cap); };
+  }, []);
+
+  // Gauge ramp — climbs toward redline while loading, slams to 100 when ready.
+  useEffect(() => {
+    const tween = gsap.to(animated.current, {
+      value: ready ? 100 : 92,
+      duration: ready ? DUR.fast : 1.5,
+      ease: EASE.momentum,
+      overwrite: 'auto',
+      onUpdate: () => setDisplay(Math.round(animated.current.value)),
     });
-    return () => ctx.revert();
-  }, [progress]);
+    return () => tween.kill();
+  }, [ready]);
 
   // Exit sequence when 100%
   useEffect(() => {
@@ -69,7 +88,7 @@ export default function Loader({ onComplete }) {
   return (
     <div
       ref={loaderRef}
-      className="fixed inset-0 z-[9950] bg-black/70 backdrop-blur-xl flex flex-col items-center justify-center select-none px-8"
+      className="loader-shell fixed inset-0 z-[9950] flex flex-col items-center justify-center select-none px-8"
     >
       <div ref={gaugeRef} className="w-full max-w-2xl flex flex-col gap-7">
 

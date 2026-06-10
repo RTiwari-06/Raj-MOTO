@@ -1,4 +1,4 @@
-import { useEffect, useRef, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Canvas } from '@react-three/fiber';
@@ -8,12 +8,28 @@ import { EASE, DUR, ST } from '@/motion/system';
 
 const TECHNICAL = MEDIA.technical;
 
+// Phones keep the fluid, but at native resolution only (it sits under a 75%
+// black overlay — extra DPR is invisible there).
+const COARSE =
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+
 export default function StatRevealSection() {
   const sectionRef  = useRef(null);
   const statRef     = useRef(null);
   const labelRef    = useRef(null);
   const subRef      = useRef(null);
   const counterRef  = useRef({ value: 0 });
+
+  // Render the fluid only while the section is on screen — it previously ran
+  // its frameloop for the whole session, even far off-viewport.
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const ob = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
+    ob.observe(el);
+    return () => ob.disconnect();
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -69,7 +85,8 @@ export default function StatRevealSection() {
           <Canvas
             camera={{ position: [0, 0, 3], fov: 45 }}
             gl={{ antialias: false, alpha: false }}
-            dpr={[1, 1.5]}
+            dpr={[1, COARSE ? 1 : 1.5]}
+            frameloop={inView ? 'always' : 'demand'}
           >
             <Suspense fallback={null}>
               <FluidBackground />

@@ -21,8 +21,8 @@ import { useEffect, useRef } from 'react';
  *   className  extra classes for the outer panel
  */
 export default function ScopeReveal({
-  base = '/base.jpg',
-  reveal = '/reveal.jpg',
+  base = '/base-1920.webp',
+  reveal = '/reveal-1920.webp',
   radius = 150,
   label = 'SECTOR 07',
   coord = '34.1°N · 77.6°E',

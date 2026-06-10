@@ -8,10 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Preload critical Hero image for LCP -->
-    <link rel="preload" href="/base.jpg" as="image">
+    <!-- Preload critical Hero image for LCP (responsive WebP variants) -->
+    <link rel="preload" as="image" href="/base-1920.webp"
+          imagesrcset="/base-960.webp 960w, /base-1920.webp 1920w"
+          imagesizes="100vw" fetchpriority="high">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Saira+Expanded:wght@500;600;700;800;900&display=optional" rel="stylesheet">
+    <!-- NOTE: "Saira Expanded" doesn't exist on Google Fonts — it was silently
+         omitted from the response, so font-serif has always rendered via the
+         'Arial Narrow' fallback. The family is dropped here; the look is
+         unchanged. Inter 800 was unused (800 is serif-only). -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700;800&display=optional" rel="stylesheet">
 
     <meta name="description" content="RT•MOTO — a cinematic interactive experience on the duality of rider identity.">
     <meta name="theme-color" content="#111112">
@@ -31,11 +37,11 @@
       <div style="padding: 40px; text-align: center; color: white; background: #0a0a0a; font-family: sans-serif; min-height: 100vh;">
         <h1 style="text-transform: uppercase;">RT•MOTO</h1>
         <p>This cinematic experience requires JavaScript and WebGL.</p>
-        <img src="/base.jpg" alt="RT-MOTO" style="max-width: 100%; height: auto; margin-top: 20px;">
+        <img src="/base-1920.webp" alt="RT-MOTO" style="max-width: 100%; height: auto; margin-top: 20px;">
       </div>
     </noscript>
     <div id="hero-lcp" style="position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #0a0a0a;">
-      <img src="/base.jpg" decoding="async" fetchpriority="high" style="position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: 43% 30%;" alt="">
+      <img src="/base-1920.webp" srcset="/base-960.webp 960w, /base-1920.webp 1920w" sizes="100vw" decoding="async" fetchpriority="high" style="position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: 43% 30%;" alt="">
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

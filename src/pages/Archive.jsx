@@ -162,9 +162,11 @@ const Archive = () => {
             >
               {/* IMAGE STRIP */}
               <div className="relative aspect-video overflow-hidden pointer-events-none">
-                <img 
-                  src={entry.src} 
-                  alt={entry.model} 
+                <img
+                  src={entry.src}
+                  alt={entry.model}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover object-center filter grayscale brightness-50 contrast-125 transition-all duration-[1200ms] ease-out group-hover:grayscale-0 group-hover:brightness-100 group-hover:scale-[1.08]"
                 />
                 

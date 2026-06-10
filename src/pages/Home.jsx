@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
 import { useUIStore } from '@/store/useUIStore';
@@ -24,6 +24,22 @@ const ScanReveal = lazy(() => import('@/components/ui/ScanReveal'));
 export function Home() {
   const isLoaded = useUIStore((state) => state.isLoaded);
 
+  // Below-fold sections mount only once the browser has an idle slot after
+  // the hero paints. Mounting them with the first render fetched + parsed
+  // every lazy chunk (including three.js via HelmetSection/StatReveal) and ran
+  // each section's GSAP setup inside the LCP window — the main cause of the
+  // multi-second first-load freeze on phones.
+  const [restReady, setRestReady] = useState(false);
+  useEffect(() => {
+    const arm = () => setRestReady(true);
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(arm, { timeout: 2500 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(arm, 1200);
+    return () => window.clearTimeout(id);
+  }, []);
+
   return (
     <>
       <main className={`relative z-10 w-full min-h-screen ${!isLoaded ? 'h-screen overflow-hidden' : ''}`}>
@@ -32,7 +48,10 @@ export function Home() {
         <Navbar />
         <Hero isLoaded={isLoaded} />
 
-        {/* ── Below the fold (Lazy) ── */}
+        {/* ── Below the fold (Lazy, idle-mounted) ── */}
+        {!restReady ? (
+          <div className="h-screen bg-black" />
+        ) : (
         <Suspense fallback={<div className="h-screen bg-black" />}>
           <ScanReveal><TheMachine /></ScanReveal>
           <TextMarquee dark={true} />
@@ -50,6 +69,7 @@ export function Home() {
           <ContactSection />
           <Footer />
         </Suspense>
+        )}
 
       </main>
     </>

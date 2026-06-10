@@ -120,9 +120,11 @@ export default function ContactSection() {
         ref={riderRef}
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40vw] min-w-[320px] h-[85vh] z-20 pointer-events-none flex flex-col items-center justify-end"
       >
-        <img 
-          src="/bike-2.png" 
-          alt="Rider Setup" 
+        <img
+          src="/bike-2-cutout.webp"
+          alt="Rider Setup"
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-contain object-bottom drop-shadow-2xl"
           style={{ filter: 'contrast(1.15) saturate(1.1)' }}
         />

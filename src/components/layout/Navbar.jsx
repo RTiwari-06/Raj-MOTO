@@ -223,7 +223,7 @@ const Navbar = () => {
         ref={navRef}
         className={`fixed top-0 left-0 w-full z-50 border-b transition-[background-color,border-color] duration-500 ${
           scrolled
-            ? 'bg-black/80 backdrop-blur-md border-white/10'
+            ? 'bg-black/90 md:bg-black/80 md:backdrop-blur-md border-white/10'
             : 'bg-transparent border-transparent'
         }`}
         style={{ opacity: 0 }}
@@ -384,7 +384,7 @@ const Navbar = () => {
 
       {/* ── MOBILE OVERLAY MENU ────────────────────────────────────────────── */}
       <div
-        className={`fixed inset-0 z-40 md:hidden bg-black/95 backdrop-blur-lg transition-opacity duration-500 ${
+        className={`fixed inset-0 z-40 md:hidden bg-black/95 transition-opacity duration-500 ${
           menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         aria-hidden={!menuOpen}

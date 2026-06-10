@@ -1,12 +1,16 @@
-import React, { useEffect, useRef, Suspense, useState } from 'react';
+import React, { useEffect, useRef, Suspense, useState, lazy } from 'react';
 import { gsap } from 'gsap';
-import { Canvas } from '@react-three/fiber';
-import { HeroShaderMesh, heroPointer } from '@/components/webgl/HeroShaderMesh';
+import { heroPointer } from '@/components/webgl/heroPointer';
 import { useStore } from '@/store/useStore';
 import { useUIStore } from '@/store/useUIStore';
 import { MEDIA } from '@/data/media';
 import { EASE, DUR, SCROLL } from '@/motion/system';
 import { useParallax } from '@/hooks/useParallax';
+
+// The WebGL liquid reveal is desktop-only and code-split — three.js never
+// loads on phones, and on desktop the chunk waits for an idle slot so it
+// can't compete with the LCP image or fonts.
+const HeroCanvas = lazy(() => import('./HeroCanvas'));
 
 const Hero = ({ isLoaded = true }) => {
   const containerRef = useRef(null);
@@ -28,11 +32,24 @@ const Hero = ({ isLoaded = true }) => {
     mq.addEventListener?.('change', apply);
     return () => mq.removeEventListener?.('change', apply);
   }, []);
-  const showCanvas = motionEnabled && !reduceMotion;
-
-  // Cap device pixel ratio on phones — luxury is smoothness.
+  // Touch devices get the static photograph — the shader (and three.js itself)
+  // stays a desktop experience.
   const [coarse] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
+  const showCanvas = motionEnabled && !reduceMotion && !coarse;
+
+  // Fetch the WebGL chunk only once the browser is idle.
+  const [canvasReady, setCanvasReady] = useState(false);
+  useEffect(() => {
+    if (!showCanvas || canvasReady) return;
+    const arm = () => setCanvasReady(true);
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(arm, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(arm, 1500);
+    return () => window.clearTimeout(id);
+  }, [showCanvas, canvasReady]);
 
   // 60fps gate — pause the render loop when the hero is off-screen.
   const [inView, setInView] = useState(true);
@@ -48,9 +65,10 @@ const Hero = ({ isLoaded = true }) => {
   useParallax(containerRef, 8);
 
   // Pointer → module-scope target. Native + passive: zero React/Zustand churn per move.
+  // Touch devices skip it entirely — these listeners exist only to feed the shader.
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el || coarse) return;
     const onMove = (e) => {
       const r = el.getBoundingClientRect();
       heroPointer.x = (e.clientX - r.left) / r.width;
@@ -66,7 +84,7 @@ const Hero = ({ isLoaded = true }) => {
       el.removeEventListener('pointerenter', onEnter);
       el.removeEventListener('pointerleave', onLeave);
     };
-  }, [setHovering, setImageHovering]);
+  }, [setHovering, setImageHovering, coarse]);
 
   // One-time auto-sweep still present, but ambient emit also runs inside the mesh.
   const autoSweptRef = useRef(false);
@@ -139,24 +157,19 @@ const Hero = ({ isLoaded = true }) => {
       <div ref={stageRef} className="absolute inset-0 z-0" style={{ willChange: 'transform, opacity' }}>
         <img
           src={MEDIA.hero.primary}
+          srcSet={MEDIA.hero.srcSet}
+          sizes="100vw"
           alt="Raj Tiwari"
           fetchPriority="high"
           decoding="async"
           className="absolute left-0 right-0 w-full h-full object-cover"
           style={{ objectPosition: '43% 46%' }}
         />
-        {showCanvas && (
+        {showCanvas && canvasReady && (
           <div className="absolute left-0 right-0 z-10" style={{ top: 0, bottom: 0 }}>
-            <Canvas
-              camera={{ position: [0, 0, 3], fov: 45, near: 0.1, far: 100 }}
-              gl={{ antialias: true, alpha: true }}
-              dpr={[1, coarse ? 1.5 : 2]}
-              frameloop={inView ? 'always' : 'demand'}
-            >
-              <Suspense fallback={null}>
-                <HeroShaderMesh />
-              </Suspense>
-            </Canvas>
+            <Suspense fallback={null}>
+              <HeroCanvas inView={inView} />
+            </Suspense>
           </div>
         )}
       </div>

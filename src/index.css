@@ -892,6 +892,21 @@ html.lenis { height: auto; }
 }
 .motion-off .grain-layer { display: none; }
 
+/* Ignition loader shell — blur is desktop-only; phones composite a full-screen
+   backdrop-filter on every frame, so they get a near-solid curtain instead. */
+.loader-shell {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+@media (pointer: coarse) {
+  .loader-shell {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(10, 10, 10, 0.96);
+  }
+}
+
 /* — Helmet cinematic post-FX: disable the moving/flashing layers when motion is
    reduced (scanline sweep, ignition bloom, scan reticle). The 3D + HUD remain. */
 .motion-off .hfx { display: none; }
@@ -918,6 +933,12 @@ html.lenis { height: auto; }
 .motion-off .arsenal-text { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .arsenal-text { animation: none; }
+}
+/* Phones: the gradient pulse repaints text every frame and the engine jitter
+   re-rasterizes the portrait at 8Hz — both freeze low-end mobile GPUs. */
+@media (pointer: coarse) {
+  .arsenal-text { animation: none; background-position: 35% 50%; }
+  .tm-vibrate   { animation: none; will-change: auto; }
 }
 
 /* KTM-orange registration brackets (variant of .brk) */

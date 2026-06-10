@@ -14,6 +14,10 @@ import { MEDIA } from '@/data/media';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Phones get a tighter GPU budget: lower DPR cap + no MSAA (the HDR look stays).
+const COARSE =
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+
 // GSAP writes, R3F reads — zero React re-renders
 const scrollState = { progress: 0, scanMix: 0, accentMix: 0, igniteMix: 0 };
 
@@ -109,6 +113,10 @@ function HelmetModel() {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
 
+  // Material/light writes only happen when the scroll-driven mixes actually
+  // moved — while pinned but idle this skips every per-frame material loop.
+  const lastMix = useRef({ e: -1, a: -1 });
+
   useFrame((state) => {
     if (groupRef.current) {
       groupRef.current.rotation.y =
@@ -119,16 +127,22 @@ function HelmetModel() {
     }
 
     const e = scrollState.igniteMix;
-    if (materialsRef.current) {
+    const a = scrollState.accentMix;
+    const eChanged = Math.abs(e - lastMix.current.e) > 0.001;
+    const aChanged = Math.abs(a - lastMix.current.a) > 0.001;
+
+    if (eChanged && materialsRef.current) {
       for (const m of materialsRef.current) m.emissiveIntensity = 0.05 + e * 2.2;
     }
 
-    if (accentLightRef.current) {
-      lerpColor.lerpColors(neutralColor, accentColor, scrollState.accentMix);
+    if ((eChanged || aChanged) && accentLightRef.current) {
+      lerpColor.lerpColors(neutralColor, accentColor, a);
       accentLightRef.current.color.copy(lerpColor);
-      accentLightRef.current.intensity =
-        0.6 + scrollState.accentMix * 3 + scrollState.igniteMix * 2.4;
+      accentLightRef.current.intensity = 0.6 + a * 3 + e * 2.4;
     }
+
+    if (eChanged) lastMix.current.e = e;
+    if (aChanged) lastMix.current.a = a;
   });
 
   return (
@@ -246,8 +260,8 @@ export default function HelmetSection() {
       <div className="absolute inset-0 z-10">
         <Canvas
           camera={{ position: [0, 0.5, 8.4], fov: 42, near: 0.1, far: 100 }}
-          gl={{ antialias: true, alpha: true }}
-          dpr={[1, 2]}
+          gl={{ antialias: !COARSE, alpha: true }}
+          dpr={[1, COARSE ? 1.3 : 2]}
           frameloop={inView ? 'always' : 'demand'}
         >
           <Suspense fallback={null}>

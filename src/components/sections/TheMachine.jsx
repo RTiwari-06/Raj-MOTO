@@ -14,7 +14,7 @@ const SPECS = ['SINGLE-CYLINDER', '30 AGGRESSIVE HORSES', 'GEOMETRICALLY AUSTRIA
 // `img` → optional part preview (drop files at these paths to populate; a
 // telemetry "STANDBY" placeholder shows until then).
 const LOG = [
-  { k: 'BLOODLINE',      v: 'Motul 7100 15W50 Synthetic', img: '/media/log/motul.jpg' },
+  { k: 'BLOODLINE',      v: 'Motul 7100 15W50 Synthetic', img: '/media/log/motul-800.webp' },
   { k: 'STOPPING POWER', v: 'BREMBO Sintered Pads // F&R',  img: '/media/log/brakes.jpg' },
   { k: 'ELECTRONICS',    v: 'TFT Display Calibration',     img: '/media/log/tft.jpg' },
   { k: 'EXHAUST',        v: 'Pipe Alignment & Heat Cycle', img: '/media/log/exhaust.jpg' },

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { useStore } from '@/store/useStore';
 import { EASE, DUR } from '@/motion/system';
@@ -11,7 +11,13 @@ export function Cursor() {
   const ringRef = useRef(null);
   const setMouse = useStore((s) => s.setMouse);
 
+  // Touch devices have no cursor — don't mount the layers or any of the
+  // document-wide mousemove/mouseover/mouseout listeners.
+  const [fine] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches);
+
   useEffect(() => {
+    if (!fine) return;
     const dot  = dotRef.current;
     const ring = ringRef.current;
     if (!dot || !ring) return;
@@ -139,7 +145,9 @@ export function Cursor() {
       document.removeEventListener('mouseleave', onWindowLeave);
       document.removeEventListener('mouseenter', onWindowEnter);
     };
-  }, [setMouse]);
+  }, [setMouse, fine]);
+
+  if (!fine) return null;
 
   return (
     <>
