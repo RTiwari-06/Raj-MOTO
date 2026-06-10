@@ -18,84 +18,89 @@ const BRANDS = [
 ];
 
 export default function TextMarquee({ dark = true }) {
+  const wrapRef  = useRef(null);
   const trackRef = useRef(null);
-  const tweenRef = useRef(null);
 
   useEffect(() => {
+    const wrap  = wrapRef.current;
     const track = trackRef.current;
-    if (!track) return;
+    if (!wrap || !track) return;
 
-    const totalWidth = track.scrollWidth / 2;
-
-    // Core Linear Engine
-    tweenRef.current = gsap.to(track, {
-      x: -totalWidth,
+    // Core Linear Engine — xPercent loop is immune to font-load / resize width
+    // changes (content is rendered twice, so -50% is exactly one sequence).
+    const tween = gsap.to(track, {
+      xPercent: -50,
       duration: 40,
       ease: 'none',
       repeat: -1,
+      paused: true,
       force3D: true,
     });
 
-    // Kinetic Inertia Physics Engine
-    let velocityProxy = { scale: 1 };
-    
-    const velocityTrigger = ScrollTrigger.create({
+    // The tween only runs while the marquee is on screen AND motion is enabled —
+    // an always-on infinite tween keeps the GSAP ticker (and the compositor)
+    // busy for the whole session, which drains mobile devices.
+    let inView = false;
+    const sync = () => {
+      if (inView && useUIStore.getState().motionEnabled) tween.play();
+      else tween.pause();
+    };
+
+    // Kinetic Inertia Physics Engine — quickTo reuses a single damping tween
+    // instead of allocating a new one on every scroll event.
+    const velocityProxy = { scale: 1 };
+    const setScale = gsap.quickTo(velocityProxy, 'scale', {
+      duration: 0.5,
+      ease: 'power2.out',
+      onUpdate: () => tween.timeScale(velocityProxy.scale),
+    });
+
+    const st = ScrollTrigger.create({
+      trigger: wrap,
+      start: 'top bottom',
+      end: 'bottom top',
+      onToggle: (self) => {
+        inView = self.isActive;
+        sync();
+      },
+      // Only fires while the marquee is between start/end — no global handler.
       onUpdate: (self) => {
         const scrollVelocity = self.getVelocity();
-        const targetScale = 1 + Math.min(Math.abs(scrollVelocity) * 0.0008, 3.0);
-
-        gsap.to(velocityProxy, {
-          scale: targetScale,
-          duration: 0.5,
-          ease: 'power2.out',
-          overwrite: 'auto',
-          onUpdate: () => {
-            if (tweenRef.current) {
-              tweenRef.current.timeScale(velocityProxy.scale);
-            }
-          }
-        });
+        setScale(1 + Math.min(Math.abs(scrollVelocity) * 0.0008, 3.0));
       },
     });
 
-    const motionEnabled = useUIStore.getState().motionEnabled;
-    if (!motionEnabled && tweenRef.current) tweenRef.current.timeScale(0);
+    inView = st.isActive;
+    sync();
+
+    const unsub = useUIStore.subscribe(sync);
 
     return () => {
-      if (tweenRef.current) tweenRef.current.kill();
-      if (velocityTrigger) velocityTrigger.kill();
+      unsub();
+      st.kill();
+      tween.kill();
+      gsap.set(track, { clearProps: 'transform' });
     };
-  }, []);
-
-  useEffect(() => {
-    const unsub = useUIStore.subscribe((state) => {
-      if (!tweenRef.current) return;
-      gsap.to(tweenRef.current, {
-        timeScale: state.motionEnabled ? 1 : 0,
-        duration: 0.4,
-        ease: 'power2.out'
-      });
-    });
-    return () => unsub();
   }, []);
 
   const textColor = dark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(20, 25, 19, 0.3)';
 
   return (
     <div
-      className="w-full overflow-hidden py-4 select-none relative z-30 mix-blend-screen bg-transparent border-t border-b"
+      ref={wrapRef}
+      className="w-full overflow-hidden py-4 select-none relative z-30 bg-transparent border-t border-b"
       style={{
         borderColor: dark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.06)',
       }}
     >
-      <div 
-        ref={trackRef} 
+      <div
+        ref={trackRef}
         className="flex flex-row flex-nowrap items-center whitespace-nowrap will-change-transform"
       >
         {/* Render sequence twice for seamless loop */}
         {[...BRANDS, ...BRANDS].map((brand, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className="flex-shrink-0 flex flex-row items-center justify-start flex-nowrap"
             style={{ color: textColor }}
           >

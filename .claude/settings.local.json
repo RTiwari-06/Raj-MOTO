@@ -47,7 +47,8 @@
       "Bash(npm install *)",
       "Bash(npm ls *)",
       "WebFetch(domain:www.landonorris.com)",
-      "WebFetch(domain:landonorris.framer.website)"
+      "WebFetch(domain:landonorris.framer.website)",
+      "Bash(claude update *)"
     ],
     "ask": [
       "WebFetch"

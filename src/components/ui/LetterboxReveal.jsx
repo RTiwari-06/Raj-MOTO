@@ -32,17 +32,21 @@ export function LetterboxReveal({
     const bot  = botRef.current;
     if (!root || !top || !bot) return;
 
-    gsap.set(top, { yPercent: -100 });
-    gsap.set(bot, { yPercent:  100 });
-
     const ctx = gsap.context(() => {
+      // Bars start hidden (visibility:hidden) so two full-width fixed layers
+      // aren't kept resident on the GPU while the section is off screen.
+      gsap.set(top, { yPercent: -100, autoAlpha: 0 });
+      gsap.set(bot, { yPercent:  100, autoAlpha: 0 });
+
       const enterTl = gsap.timeline({ paused: true })
+        .set([top, bot], { autoAlpha: 1 }, 0)
         .to(top, { yPercent: 0, duration: DUR.cinematic, ease: EASE.authority }, 0)
         .to(bot, { yPercent: 0, duration: DUR.cinematic, ease: EASE.authority }, 0);
 
       const exitTl = gsap.timeline({ paused: true })
         .to(top, { yPercent: -100, duration: DUR.standard, ease: EASE.exit }, 0)
-        .to(bot, { yPercent:  100, duration: DUR.standard, ease: EASE.exit }, 0);
+        .to(bot, { yPercent:  100, duration: DUR.standard, ease: EASE.exit }, 0)
+        .set([top, bot], { autoAlpha: 0 });
 
       ScrollTrigger.create({
         trigger: root,
@@ -66,13 +70,13 @@ export function LetterboxReveal({
         ref={topRef}
         aria-hidden="true"
         className="pointer-events-none fixed left-0 top-0 w-full bg-black z-[60]"
-        style={{ height: barHeight, willChange: 'transform' }}
+        style={{ height: barHeight, visibility: 'hidden' }}
       />
       <div
         ref={botRef}
         aria-hidden="true"
         className="pointer-events-none fixed left-0 bottom-0 w-full bg-black z-[60]"
-        style={{ height: barHeight, willChange: 'transform' }}
+        style={{ height: barHeight, visibility: 'hidden' }}
       />
     </div>
   );

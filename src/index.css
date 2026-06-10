@@ -958,16 +958,27 @@ html.lenis { height: auto; }
 /* ── DOCTRINE section behaviours ──────────────────────────────────────────── */
 /* Panning telemetry ruler — tick tile repeats and scrolls right→left seamlessly */
 .tick-rule--scroll {
-  background-image:
-    repeating-linear-gradient(90deg, rgba(210, 255, 0, 0.6) 0 1px, transparent 1px 26px),
-    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
-  background-repeat: repeat-x, no-repeat;
-  background-size: 26px 8px, 100% 1px;
-  background-position: 0 bottom, 0 bottom;
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: 0 bottom;
+}
+/* Ticks live on a ::before that pans via transform — animating
+   background-position forced a repaint on every frame. */
+.tick-rule--scroll::before {
+  content: "";
+  position: absolute;
+  inset: 0 -26px 0 0;
+  background-image: repeating-linear-gradient(90deg, rgba(210, 255, 0, 0.6) 0 1px, transparent 1px 26px);
+  background-repeat: repeat-x;
+  background-size: 26px 8px;
+  background-position: 0 bottom;
   animation: tickPan 6s linear infinite;
 }
 @keyframes tickPan {
-  to { background-position: -26px bottom, 0 bottom; }
+  to { transform: translateX(-26px); }
 }
 
 /* Ambient light sweep across hero text (applied to .word children) */
@@ -1005,11 +1016,11 @@ html.lenis { height: auto; }
   animation: asphaltShift 0.4s steps(1) infinite;
 }
 
-.motion-off .tick-rule--scroll,
+.motion-off .tick-rule--scroll::before,
 .motion-off .light-sweep .word,
 .motion-off .asphalt-grain { animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  .tick-rule--scroll, .asphalt-grain { animation: none; }
+  .tick-rule--scroll::before, .asphalt-grain { animation: none; }
   .light-sweep .word { animation: none; -webkit-text-fill-color: #f0f0f0; color: #f0f0f0; }
 }
 
@@ -1229,14 +1240,18 @@ html.lenis { height: auto; }
   left: 0;
   right: 0;
   height: 14%;
-  top: -15%;
+  top: 0;
   background: linear-gradient(transparent, rgba(210, 255, 0, 0.07), transparent);
   mix-blend-mode: screen;
+  /* Sweep via transform — animating `top` forced layout every frame.
+     translateY % is relative to the 14%-tall band: -110% ≈ top:-15%,
+     825% ≈ top:115% of the panel. */
+  transform: translateY(-110%);
   animation: scopeSweep 4.5s linear infinite;
 }
 @keyframes scopeSweep {
-  0%   { top: -15%; }
-  100% { top: 115%; }
+  0%   { transform: translateY(-110%); }
+  100% { transform: translateY(825%); }
 }
 
 /* Edge vignette */

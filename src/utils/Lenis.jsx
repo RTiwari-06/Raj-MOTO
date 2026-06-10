@@ -30,13 +30,15 @@ export function SmoothScroll({ children }) {
 
     lenis.on('scroll', (e) => {
       setScroll(e.scroll, e.velocity);
+      // Keep ScrollTrigger in sync with Lenis — prevents jitter on pinned
+      // sections. Done here (only while scroll actually moves) instead of on
+      // every rAF tick, which kept the main thread busy even at idle.
+      ScrollTrigger.update();
     });
 
     let rafId;
     function raf(time) {
       lenis.raf(time);
-      // Keep ScrollTrigger in sync with Lenis — prevents jitter on pinned sections
-      ScrollTrigger.update();
       rafId = requestAnimationFrame(raf);
     }
 

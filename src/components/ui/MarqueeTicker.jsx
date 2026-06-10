@@ -9,7 +9,7 @@ const LOGOS = [
     name: 'KTM',
     svg: (
       <svg className="h-4 w-auto fill-current tracking-tighter" viewBox="0 0 80 25" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="21" fontSize="22" fontClassName="font-sans font-black" letterSpacing="-1">KTM</text>
+        <text x="0" y="21" fontSize="22" fontWeight="900" letterSpacing="-1">KTM</text>
       </svg>
     )
   },
@@ -17,7 +17,7 @@ const LOGOS = [
     name: 'WP SUSPENSION',
     svg: (
       <svg className="h-3.5 w-auto fill-current tracking-widest" viewBox="0 0 120 20" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="15" fontSize="14" fontClassName="font-mono font-black" letterSpacing="4">WP // SUSP</text>
+        <text x="0" y="15" fontSize="14" fontWeight="900" letterSpacing="4">WP // SUSP</text>
       </svg>
     )
   },
@@ -41,108 +41,103 @@ const LOGOS = [
     name: 'METZELER',
     svg: (
       <svg className="h-3 w-auto fill-current" viewBox="0 0 140 20" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="15" fontSize="13" fontClassName="font-sans font-black" letterSpacing="5">METZELER</text>
+        <text x="0" y="15" fontSize="13" fontWeight="900" letterSpacing="5">METZELER</text>
       </svg>
     )
   }
 ];
 
 export default function MarqueeTicker({ dark = true }) {
+  const wrapRef  = useRef(null);
   const trackRef = useRef(null);
-  const tweenRef = useRef(null);
 
   useEffect(() => {
+    const wrap  = wrapRef.current;
     const track = trackRef.current;
-    if (!track) return;
+    if (!wrap || !track) return;
 
-    // Calculate half width cleanly for perfect seamless resetting
-    const totalWidth = track.scrollWidth / 2;
-
-    // 1. Core Linear Engine: Explicitly 'none' to match luxury cinematic stillness when idle
-    tweenRef.current = gsap.to(track, {
-      x: -totalWidth,
-      duration: 35, // Balanced velocity speed
+    // Core Linear Engine — xPercent loop is immune to font-load / resize width
+    // changes (content is rendered twice, so -50% is exactly one sequence).
+    const tween = gsap.to(track, {
+      xPercent: -50,
+      duration: 35,
       ease: 'none',
       repeat: -1,
-      force3D: true, // Forces subpixel hardware acceleration matrix
+      paused: true,
+      force3D: true,
     });
 
-    // 2. Kinetic Inertia Physics Engine
-    let velocityProxy = { scale: 1 };
-    
-    const velocityTrigger = ScrollTrigger.create({
+    // The tween only runs while the ticker is on screen AND motion is enabled —
+    // an always-on infinite tween keeps the GSAP ticker (and the compositor)
+    // busy for the whole session, which drains mobile devices.
+    let inView = false;
+    const sync = () => {
+      if (inView && useUIStore.getState().motionEnabled) tween.play();
+      else tween.pause();
+    };
+
+    // Kinetic Inertia Physics Engine — quickTo reuses a single damping tween
+    // instead of allocating a new one on every scroll event.
+    const velocityProxy = { scale: 1 };
+    const setScale = gsap.quickTo(velocityProxy, 'scale', {
+      duration: 0.5,
+      ease: 'power2.out',
+      onUpdate: () => tween.timeScale(velocityProxy.scale),
+    });
+
+    const st = ScrollTrigger.create({
+      trigger: wrap,
+      start: 'top bottom',
+      end: 'bottom top',
+      onToggle: (self) => {
+        inView = self.isActive;
+        sync();
+      },
+      // Only fires while the ticker is between start/end — no global handler.
       onUpdate: (self) => {
         const scrollVelocity = self.getVelocity();
-        // Sniffs velocity intensity and caps maximum acceleration to prevent wild visual breaking
-        const targetScale = 1 + Math.min(Math.abs(scrollVelocity) * 0.0008, 3.0);
-
-        // Smoothly dampens the timeScale using an internal GSAP tween to create authentic kinetic fluid drag
-        gsap.to(velocityProxy, {
-          scale: targetScale,
-          duration: 0.5,
-          ease: 'power2.out',
-          overwrite: 'auto',
-          onUpdate: () => {
-            if (tweenRef.current) {
-              tweenRef.current.timeScale(velocityProxy.scale);
-            }
-          }
-        });
+        setScale(1 + Math.min(Math.abs(scrollVelocity) * 0.0008, 3.0));
       },
     });
 
-    // Handle initial state setup
-    const motionEnabled = useUIStore.getState().motionEnabled;
-    if (!motionEnabled && tweenRef.current) tweenRef.current.timeScale(0);
+    inView = st.isActive;
+    sync();
+
+    const unsub = useUIStore.subscribe(sync);
 
     return () => {
-      if (tweenRef.current) tweenRef.current.kill();
-      if (velocityTrigger) velocityTrigger.kill();
+      unsub();
+      st.kill();
+      tween.kill();
+      gsap.set(track, { clearProps: 'transform' });
     };
   }, []);
 
-  // Strict global UI performance subscription 
-  useEffect(() => {
-    const unsub = useUIStore.subscribe((state) => {
-      if (!tweenRef.current) return;
-      gsap.to(tweenRef.current, {
-        timeScale: state.motionEnabled ? 1 : 0,
-        duration: 0.4,
-        ease: 'power2.out'
-      });
-    });
-    return () => unsub();
-  }, []);
-
-  // 125% Density Theme Scaling Configuration
   const textColor = dark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(20, 25, 19, 0.3)';
 
   return (
     <div
-      className="w-full overflow-hidden py-3.5 border-t border-b select-none relative z-30 mix-blend-screen"
+      ref={wrapRef}
+      className="w-full overflow-hidden py-3.5 border-t border-b select-none relative z-30"
       style={{
-        backgroundColor: 'transparent', // Stripped hard background container to native blend over #141913
+        backgroundColor: 'transparent',
         borderColor: dark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.06)',
       }}
     >
-      {/* Track Container: Houses double-buffered layout to completely bulletproof the loop from snapping */}
-      <div 
-        ref={trackRef} 
+      <div
+        ref={trackRef}
         className="flex flex-row flex-nowrap items-center whitespace-nowrap will-change-transform"
       >
-        {/* Render loop sequence twice to cleanly bridge layout width boundaries seamlessly */}
-        {[...LOGOS, ...LOGOS, ...LOGOS, ...LOGOS].map((brand, i) => (
-          <div 
-            key={i} 
+        {/* Render sequence twice for seamless loop */}
+        {[...LOGOS, ...LOGOS].map((brand, i) => (
+          <div
+            key={i}
             className="flex-shrink-0 flex flex-row items-center justify-start flex-nowrap"
             style={{ color: textColor }}
           >
-            {/* SVG Component Asset Block */}
             <div className="px-8 transition-colors duration-300 hover:text-[#D7F700]">
               {brand.svg}
             </div>
-            
-            {/* High-End Structural Separator Axis */}
             <span className="text-[10px] font-mono font-medium tracking-normal opacity-40 px-4">
               //
             </span>
