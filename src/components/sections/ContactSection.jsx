@@ -129,8 +129,9 @@ export default function ContactSection() {
           style={{ filter: 'contrast(1.15) saturate(1.1)' }}
         />
         
-        {/* Subtle Bottom Scrim just to ground the wheels */}
-        <div className="absolute bottom-0 left-0 w-full h-[10vh] bg-gradient-to-t from-[#141913] to-transparent z-10" />
+        {/* Bottom scrim — grounds the wheels; taller on phones where the link
+            columns sit over the cutout and need contrast. */}
+        <div className="absolute bottom-0 left-0 w-full h-[45vh] md:h-[10vh] bg-gradient-to-t from-[#141913] via-[#141913]/70 md:via-transparent to-transparent z-10" />
       </div>
 
       {/* =========================================================================
@@ -138,19 +139,20 @@ export default function ContactSection() {
           ========================================================================= */}
       <div className="absolute inset-0 z-30 pointer-events-none">
         
-        {/* Left Column: Navigation */}
-        <div className="absolute left-12 top-1/2 -translate-y-1/2 pointer-events-auto z-20">
-          <div ref={leftColRef} className="flex flex-col space-y-4">
-            <div className="mb-4">
+        {/* Left Column: Navigation — bottom-left on phones (mid-screen overlaps
+            the rider cutout at small widths), mid-left from md up. */}
+        <div className="absolute left-6 bottom-44 md:left-12 md:bottom-auto md:top-1/2 md:-translate-y-1/2 pointer-events-auto z-20">
+          <div ref={leftColRef} className="flex flex-col space-y-2.5 md:space-y-4">
+            <div className="mb-2 md:mb-4">
               <span className="font-mono text-[9px] tracking-[0.3em] font-bold text-white/40 uppercase pointer-events-none">
                 PAGES //
               </span>
             </div>
             {MENU_LINKS.map((link) => (
-              <a 
+              <a
                 key={link.label}
                 href={link.href}
-                className="font-sans font-black text-xl text-white uppercase tracking-tighter hover:text-[#D7F700] hover:translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-left"
+                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D7F700] hover:translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-left"
               >
                 {link.label}
               </a>
@@ -158,21 +160,21 @@ export default function ContactSection() {
           </div>
         </div>
 
-        {/* Right Column: Socials */}
-        <div className="absolute right-12 top-1/2 -translate-y-1/2 text-right pointer-events-auto z-20">
-          <div ref={rightColRef} className="flex flex-col space-y-4 items-end">
-            <div className="mb-4">
+        {/* Right Column: Socials — bottom-right on phones, mid-right from md up. */}
+        <div className="absolute right-6 bottom-44 md:right-12 md:bottom-auto md:top-1/2 md:-translate-y-1/2 text-right pointer-events-auto z-20">
+          <div ref={rightColRef} className="flex flex-col space-y-2.5 md:space-y-4 items-end">
+            <div className="mb-2 md:mb-4">
               <span className="font-mono text-[9px] tracking-[0.3em] font-bold text-white/40 uppercase pointer-events-none">
                 FOLLOW ON //
               </span>
             </div>
             {SOCIAL_LINKS.map((link) => (
-              <a 
+              <a
                 key={link.label}
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-sans font-black text-xl text-white uppercase tracking-tighter hover:text-[#D7F700] hover:-translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-right"
+                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D7F700] hover:-translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-right"
               >
                 {link.label}
               </a>

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
 import { useUIStore } from '@/store/useUIStore';
@@ -21,24 +21,60 @@ const ContactSection = lazy(() => import('@/components/sections/ContactSection')
 const Footer = lazy(() => import('@/components/layout/Footer'));
 const ScanReveal = lazy(() => import('@/components/ui/ScanReveal'));
 
+// Mounts children only when the user is within ~2 viewports of the section.
+// Used for the WebGL sections (Helmet, StatReveal) so three.js (~1MB) is
+// fetched + parsed shortly before it's needed instead of during page load.
+function NearViewport({ children, height = '100vh' }) {
+  const ref = useRef(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    if (near) return;
+    const el = ref.current;
+    if (!el) return;
+    const ob = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setNear(true); },
+      { rootMargin: '150% 0px' }
+    );
+    ob.observe(el);
+    return () => ob.disconnect();
+  }, [near]);
+  return near ? children : <div ref={ref} style={{ height }} className="bg-black" />;
+}
+
 export function Home() {
   const isLoaded = useUIStore((state) => state.isLoaded);
 
-  // Below-fold sections mount only once the browser has an idle slot after
-  // the hero paints. Mounting them with the first render fetched + parsed
-  // every lazy chunk (including three.js via HelmetSection/StatReveal) and ran
-  // each section's GSAP setup inside the LCP window — the main cause of the
-  // multi-second first-load freeze on phones.
+  // Below-fold sections mount once the browser has an idle slot after the
+  // hero paints — OR the instant the user shows scroll intent, whichever
+  // comes first, so fast scrollers never meet a black gap. Mounting them with
+  // the first render fetched + parsed every lazy chunk and ran each section's
+  // GSAP setup inside the LCP window — the main cause of the first-load
+  // freeze on phones.
   const [restReady, setRestReady] = useState(false);
   useEffect(() => {
+    if (restReady) return;
     const arm = () => setRestReady(true);
+
+    window.addEventListener('scroll', arm, { once: true, passive: true });
+    window.addEventListener('touchstart', arm, { once: true, passive: true });
+    window.addEventListener('wheel', arm, { once: true, passive: true });
+
+    // Scroll intent mounts instantly (listeners above); the idle fallback can
+    // therefore stay generous — it only fires for users who never scroll.
+    let idleId, timerId;
     if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(arm, { timeout: 2500 });
-      return () => window.cancelIdleCallback(id);
+      idleId = window.requestIdleCallback(arm, { timeout: 2500 });
+    } else {
+      timerId = window.setTimeout(arm, 1500);
     }
-    const id = window.setTimeout(arm, 1200);
-    return () => window.clearTimeout(id);
-  }, []);
+    return () => {
+      window.removeEventListener('scroll', arm);
+      window.removeEventListener('touchstart', arm);
+      window.removeEventListener('wheel', arm);
+      if (idleId) window.cancelIdleCallback(idleId);
+      if (timerId) window.clearTimeout(timerId);
+    };
+  }, [restReady]);
 
   return (
     <>
@@ -56,12 +92,12 @@ export function Home() {
           <ScanReveal><TheMachine /></ScanReveal>
           <TextMarquee dark={true} />
           <ScanReveal><ManifestoSection /></ScanReveal>
-          <HelmetSection />
+          <NearViewport><HelmetSection /></NearViewport>
           <ScanReveal><DoctrineSection /></ScanReveal>
           <ScanReveal><TheGrid /></ScanReveal>
           <RidesSection />
           <IABridgeSection />
-          <StatRevealSection />
+          <NearViewport><StatRevealSection /></NearViewport>
           <ScanReveal><ActionGallery /></ScanReveal>
           <ScanReveal><StorySection /></ScanReveal>
           <GallerySection />

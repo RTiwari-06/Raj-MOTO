@@ -154,7 +154,7 @@ const Hero = ({ isLoaded = true }) => {
   }, [reduceMotion]);
 
   return (
-    <section ref={containerRef} className="w-full relative overflow-hidden" style={{ minHeight: '100dvh' }}>
+    <section id="hero" ref={containerRef} className="w-full relative overflow-hidden" style={{ minHeight: '100dvh' }}>
 
       {/* ── LAYER 0: the photograph — isolated grid prevents CLS ── */}
       <div ref={stageRef} className="absolute inset-0 z-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>

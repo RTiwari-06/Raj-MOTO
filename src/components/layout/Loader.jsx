@@ -11,15 +11,26 @@ function statusLabel(p) {
   return 'IGNITION';
 }
 
+// Colour zones: lime → orange → redline as the needle climbs
+const zoneColor = (p) => (p < 65 ? '#D2FF00' : p < 85 ? '#FFA500' : '#FF4444');
+
 // How long the loader may hold the page, no matter what is still in flight.
 const HARD_CAP_MS = 1800;
 
 export default function Loader({ onComplete }) {
-  const [display, setDisplay] = useState(0);
-
   const loaderRef = useRef(null);
   const gaugeRef  = useRef(null);
   const animated  = useRef({ value: 0 });
+
+  // Per-tick gauge updates write straight to the DOM — a setState per GSAP
+  // tick re-rendered the whole loader ~60×/s and blocked touch input on
+  // throttled mobile CPUs during the intro.
+  const numRef    = useRef(null);
+  const pctRef    = useRef(null);
+  const statusRef = useRef(null);
+  const fillRef   = useRef(null);
+
+  const [done, setDone] = useState(false);
 
   // Readiness gate — hero image decoded + fonts ready, hard-capped. The old
   // drei useProgress source pulled three.js into the eager bundle and never
@@ -41,19 +52,42 @@ export default function Loader({ onComplete }) {
 
   // Gauge ramp — climbs toward redline while loading, slams to 100 when ready.
   useEffect(() => {
+    let lastShown = -1;
     const tween = gsap.to(animated.current, {
       value: ready ? 100 : 92,
       duration: ready ? DUR.fast : 1.5,
       ease: EASE.momentum,
       overwrite: 'auto',
-      onUpdate: () => setDisplay(Math.round(animated.current.value)),
+      onUpdate: () => {
+        const d = Math.round(animated.current.value);
+        if (d === lastShown) return;
+        lastShown = d;
+
+        const color = zoneColor(d);
+        if (numRef.current) {
+          numRef.current.textContent = String(d).padStart(3, '0');
+          numRef.current.style.textShadow = `0 0 32px ${color}33`;
+        }
+        if (pctRef.current) pctRef.current.style.color = color;
+        if (statusRef.current) {
+          statusRef.current.textContent = statusLabel(d);
+          statusRef.current.style.color = color + 'cc';
+        }
+        if (fillRef.current) {
+          fillRef.current.style.width = `${d}%`;
+          fillRef.current.style.background = color;
+          fillRef.current.style.boxShadow = `0 0 18px ${color}99`;
+        }
+
+        if (d >= 100) setDone(true);
+      },
     });
     return () => tween.kill();
   }, [ready]);
 
   // Exit sequence when 100%
   useEffect(() => {
-    if (display < 100) return;
+    if (!done) return;
     const ctx = gsap.context(() => {
       gsap.timeline({ onComplete })
         // Fill bar redline flash
@@ -80,10 +114,7 @@ export default function Loader({ onComplete }) {
         }, 0.5);
     }, loaderRef);
     return () => ctx.revert();
-  }, [display, onComplete]);
-
-  // Color ramps lime → orange → redline as the needle climbs
-  const arcColor = display < 65 ? '#D2FF00' : display < 85 ? '#FFA500' : '#FF4444';
+  }, [done, onComplete]);
 
   return (
     <div
@@ -98,27 +129,33 @@ export default function Loader({ onComplete }) {
             RT-MOTO // IGNITION SEQUENCE
           </p>
           <p
+            ref={statusRef}
             className="font-mono text-[8px] uppercase tracking-[0.3em] transition-colors duration-300"
-            style={{ color: arcColor + 'cc' }}
+            style={{ color: '#D2FF00cc' }}
           >
-            {statusLabel(display)}
+            SYSTEM INIT...
           </p>
         </div>
 
         {/* Huge % readout */}
         <div className="flex items-end gap-4">
           <span
+            ref={numRef}
             className="font-serif font-black leading-none text-white"
             style={{
               fontSize: 'clamp(4rem, 14vw, 9rem)',
               letterSpacing: '-0.04em',
-              textShadow: `0 0 32px ${arcColor}33`,
+              textShadow: '0 0 32px #D2FF0033',
               transition: 'text-shadow 0.25s ease',
             }}
           >
-            {String(display).padStart(3, '0')}
+            000
           </span>
-          <span className="mb-3 font-mono text-xl font-bold" style={{ color: arcColor, transition: 'color 0.25s ease' }}>
+          <span
+            ref={pctRef}
+            className="mb-3 font-mono text-xl font-bold"
+            style={{ color: '#D2FF00', transition: 'color 0.25s ease' }}
+          >
             %
           </span>
           <span className="ml-auto mb-3 font-mono text-[10px] tracking-[0.3em] uppercase text-white/25">
@@ -134,11 +171,12 @@ export default function Loader({ onComplete }) {
             {/* Active fill */}
             <div
               id="rt-fill"
+              ref={fillRef}
               className="absolute left-0 top-0 h-full"
               style={{
-                width: `${display}%`,
-                background: arcColor,
-                boxShadow: `0 0 18px ${arcColor}99`,
+                width: '0%',
+                background: '#D2FF00',
+                boxShadow: '0 0 18px #D2FF0099',
                 transition: 'width 0.25s ease, background 0.25s ease',
               }}
             />

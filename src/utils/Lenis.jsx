@@ -6,6 +6,10 @@ import { useStore } from '@/store/useStore';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Mobile browsers fire resize when the URL bar collapses/expands mid-scroll;
+// without this every pinned/triggered section recalculates and visibly jumps.
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 export function SmoothScroll({ children }) {
   const setScroll = useStore((state) => state.setScroll);
 

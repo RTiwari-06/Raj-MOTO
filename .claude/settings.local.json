@@ -48,10 +48,9 @@
       "Bash(npm ls *)",
       "WebFetch(domain:www.landonorris.com)",
       "WebFetch(domain:landonorris.framer.website)",
-      "Bash(claude update *)"
-    ],
-    "ask": [
-      "WebFetch"
+      "Bash(claude update *)",
+      "Skill(update-config)",
+      "PowerShell(Start-Sleep 10; $f = \"C:\\\\Users\\\\compaq\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-compaq-Desktop-SCT-WD-website-designing\\\\8a57b665-cb7b-407f-aca5-c1a05ddd1a62\\\\tasks\\\\b0kx2vnq8.output\"; if \\(Test-Path $f\\) { $c = Get-Content $f -Raw; if \\($c\\) { $c.Length; $c.Substring\\(0, [Math]::Min\\(3000, $c.Length\\)\\) } else { \"EMPTY\" } } else { \"NO FILE\" })"
     ]
   },
   "enabledPlugins": {

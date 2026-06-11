@@ -892,6 +892,13 @@ html.lenis { height: auto; }
 }
 .motion-off .grain-layer { display: none; }
 
+/* Hide the scrollbar on the mobile card slider (ActionGallery snap strip) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Ignition loader shell — blur is desktop-only; phones composite a full-screen
    backdrop-filter on every frame, so they get a near-solid curtain instead. */
 .loader-shell {
