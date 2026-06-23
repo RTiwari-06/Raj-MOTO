@@ -48,16 +48,22 @@ export function SmoothScroll({ children }) {
 
     rafId = requestAnimationFrame(raf);
 
-    // Refresh ScrollTrigger after fonts load to recalculate layouts correctly
+    // Recompute trigger positions once async layout inputs settle: web fonts
+    // swap (text reflows) and images finish decoding (`load`). Pinned sections
+    // measure their start/end before these land, so without the refresh the
+    // pins sit at stale scroll positions.
     if (document.fonts) {
       document.fonts.ready.then(() => {
         ScrollTrigger.refresh();
       });
     }
+    const onLoad = () => ScrollTrigger.refresh();
+    window.addEventListener('load', onLoad);
 
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      window.removeEventListener('load', onLoad);
       if (window.__lenis === lenis) window.__lenis = null;
     };
   }, [setScroll]);

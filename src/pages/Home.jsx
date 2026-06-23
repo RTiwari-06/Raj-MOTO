@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '@/components/layout/Navbar';
 import Hero from '@/components/sections/Hero';
 import { useUIStore } from '@/store/useUIStore';
@@ -21,58 +22,45 @@ const ContactSection = lazy(() => import('@/components/sections/ContactSection')
 const Footer = lazy(() => import('@/components/layout/Footer'));
 const ScanReveal = lazy(() => import('@/components/ui/ScanReveal'));
 
-// Mounts children only when the user is within ~2 viewports of the section.
-// Used for the WebGL sections (Helmet, StatReveal) so three.js (~1MB) is
-// fetched + parsed shortly before it's needed instead of during page load.
-function NearViewport({ children, height = '100vh' }) {
-  const ref = useRef(null);
-  const [near, setNear] = useState(false);
-  useEffect(() => {
-    if (near) return;
-    const el = ref.current;
-    if (!el) return;
-    const ob = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setNear(true); },
-      { rootMargin: '150% 0px' }
-    );
-    ob.observe(el);
-    return () => ob.disconnect();
-  }, [near]);
-  return near ? children : <div ref={ref} style={{ height }} className="bg-black" />;
-}
-
 export function Home() {
   const isLoaded = useUIStore((state) => state.isLoaded);
 
-  // Below-fold sections mount once the browser has an idle slot after the
-  // hero paints — OR the instant the user shows scroll intent, whichever
-  // comes first, so fast scrollers never meet a black gap. Mounting them with
-  // the first render fetched + parsed every lazy chunk and ran each section's
-  // GSAP setup inside the LCP window — the main cause of the first-load
-  // freeze on phones.
+  // Below-fold sections mount at the first idle slot AFTER the hero has painted
+  // (i.e. once the loader hands over `isLoaded`) — deliberately BEFORE the user
+  // scrolls into them. Mounting them while the user still dwells on the hero
+  // means the full document height + every ScrollTrigger (incl. the two pinned
+  // sections) is established against a stable layout; the old "mount on first
+  // scroll" path inserted ~18 screens of DOM mid-scroll, which lurched the page
+  // under the fixed navbar and fired not-yet-positioned pins/reveals.
   const [restReady, setRestReady] = useState(false);
   useEffect(() => {
-    if (restReady) return;
+    if (restReady || !isLoaded) return;
     const arm = () => setRestReady(true);
-
-    window.addEventListener('scroll', arm, { once: true, passive: true });
-    window.addEventListener('touchstart', arm, { once: true, passive: true });
-    window.addEventListener('wheel', arm, { once: true, passive: true });
-
-    // Scroll intent mounts instantly (listeners above); the idle fallback can
-    // therefore stay generous — it only fires for users who never scroll.
     let idleId, timerId;
     if ('requestIdleCallback' in window) {
-      idleId = window.requestIdleCallback(arm, { timeout: 2500 });
+      idleId = window.requestIdleCallback(arm, { timeout: 800 });
     } else {
-      timerId = window.setTimeout(arm, 1500);
+      timerId = window.setTimeout(arm, 400);
     }
     return () => {
-      window.removeEventListener('scroll', arm);
-      window.removeEventListener('touchstart', arm);
-      window.removeEventListener('wheel', arm);
       if (idleId) window.cancelIdleCallback(idleId);
       if (timerId) window.clearTimeout(timerId);
+    };
+  }, [restReady, isLoaded]);
+
+  // Once the below-fold sections are in the DOM, let layout settle for two
+  // frames, then recompute every pin/trigger against the final positions.
+  // Without this the pinned Helmet/Rides sections keep the start/end distances
+  // they measured before their siblings' images decoded.
+  useEffect(() => {
+    if (!restReady) return;
+    let raf1 = 0, raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
     };
   }, [restReady]);
 
@@ -92,12 +80,12 @@ export function Home() {
           <ScanReveal><TheMachine /></ScanReveal>
           <TextMarquee dark={true} />
           <ScanReveal><ManifestoSection /></ScanReveal>
-          <NearViewport><HelmetSection /></NearViewport>
+          <HelmetSection />
           <ScanReveal><DoctrineSection /></ScanReveal>
           <ScanReveal><TheGrid /></ScanReveal>
           <RidesSection />
           <IABridgeSection />
-          <NearViewport><StatRevealSection /></NearViewport>
+          <StatRevealSection />
           <ScanReveal><ActionGallery /></ScanReveal>
           <ScanReveal><StorySection /></ScanReveal>
           <GallerySection />
