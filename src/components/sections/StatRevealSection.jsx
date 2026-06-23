@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Canvas } from '@react-three/fiber';
 import { FluidBackground } from '@/components/webgl/FluidBackground';
+import { attachContextRecovery } from '@/components/webgl/contextRecovery';
 import { MEDIA } from '@/data/media';
 import { EASE, DUR, ST } from '@/motion/system';
 
@@ -20,15 +21,21 @@ export default function StatRevealSection() {
   const subRef      = useRef(null);
   const counterRef  = useRef({ value: 0 });
 
-  // Render the fluid only while the section is on screen — it previously ran
-  // its frameloop for the whole session, even far off-viewport.
+  // `inView` runs the frameloop only while on screen; `near` (wide margin)
+  // decides whether the WebGL context exists at all. Releasing the context
+  // when far off-screen caps simultaneous contexts (≤2 across the page) so the
+  // GPU stops dropping one → the Context-Lost blank screen. The fluid sits
+  // under a 75% black scrim, so the "no canvas" fallback is just black.
   const [inView, setInView] = useState(false);
+  const [near, setNear] = useState(false);
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const ob = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
-    ob.observe(el);
-    return () => ob.disconnect();
+    const viewOb = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
+    const nearOb = new IntersectionObserver(([e]) => setNear(e.isIntersecting), { rootMargin: '200% 0px' });
+    viewOb.observe(el);
+    nearOb.observe(el);
+    return () => { viewOb.disconnect(); nearOb.disconnect(); };
   }, []);
 
   useEffect(() => {
@@ -80,18 +87,21 @@ export default function StatRevealSection() {
       {/* ── COUNTER ZONE — full-viewport with live WebGL bg ─────────────────── */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
 
-        {/* Live WebGL Fluid background */}
+        {/* Live WebGL Fluid background — mounted only while near the viewport */}
         <div className="absolute inset-0 z-0">
-          <Canvas
-            camera={{ position: [0, 0, 3], fov: 45 }}
-            gl={{ antialias: false, alpha: false }}
-            dpr={[1, COARSE ? 1 : 1.5]}
-            frameloop={inView ? 'always' : 'demand'}
-          >
-            <Suspense fallback={null}>
-              <FluidBackground />
-            </Suspense>
-          </Canvas>
+          {near && (
+            <Canvas
+              camera={{ position: [0, 0, 3], fov: 45 }}
+              gl={{ antialias: false, alpha: false }}
+              dpr={[1, COARSE ? 1 : 1.5]}
+              frameloop={inView ? 'always' : 'demand'}
+              onCreated={attachContextRecovery}
+            >
+              <Suspense fallback={null}>
+                <FluidBackground />
+              </Suspense>
+            </Canvas>
+          )}
         </div>
 
         {/* Dark overlay */}

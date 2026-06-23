@@ -11,6 +11,7 @@ import { useGLTF, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { EASE, ST } from '@/motion/system';
 import { MEDIA } from '@/data/media';
+import { attachContextRecovery } from '@/components/webgl/contextRecovery';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -179,13 +180,21 @@ export default function HelmetSection() {
   const bloomRef = useRef(null);
 
   const [inView, setInView] = useState(false);
+  // `near` (mount the GL context) uses a wide margin so the canvas is ready
+  // before the pin engages; `inView` (run the frameloop) uses a tight margin.
+  // Gating the *canvas* — not the whole section — keeps at most ~2 WebGL
+  // contexts alive at once (the source of the Context-Lost blank screen) while
+  // the section's pin layout/height stays constant whether GL is up or not.
+  const [near, setNear] = useState(false);
 
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const ob = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
-    ob.observe(el);
-    return () => ob.disconnect();
+    const viewOb = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
+    const nearOb = new IntersectionObserver(([e]) => setNear(e.isIntersecting), { rootMargin: '200% 0px' });
+    viewOb.observe(el);
+    nearOb.observe(el);
+    return () => { viewOb.disconnect(); nearOb.disconnect(); };
   }, []);
 
   useEffect(() => {
@@ -199,6 +208,7 @@ export default function HelmetSection() {
           pin: true,
           pinSpacing: true,
           anticipatePin: 1,
+          invalidateOnRefresh: true,
           onUpdate: (self) => {
             const p = self.progress;
             if (degreeRef.current) {
@@ -258,18 +268,29 @@ export default function HelmetSection() {
       <div className="absolute inset-0 hairline-grid pointer-events-none z-0 opacity-30" />
 
       <div className="absolute inset-0 z-10">
-        <Canvas
-          camera={{ position: [0, 0.5, 8.4], fov: 42, near: 0.1, far: 100 }}
-          gl={{ antialias: !COARSE, alpha: true }}
-          dpr={[1, COARSE ? 1.3 : 2]}
-          frameloop={inView ? 'always' : 'demand'}
-        >
-          <Suspense fallback={null}>
-            <CameraRig />
-            <HelmetModel />
-            <Environment preset="studio" environmentIntensity={0.25} />
-          </Suspense>
-        </Canvas>
+        {near ? (
+          <Canvas
+            camera={{ position: [0, 0.5, 8.4], fov: 42, near: 0.1, far: 100 }}
+            gl={{ antialias: !COARSE, alpha: true }}
+            dpr={[1, COARSE ? 1.3 : 2]}
+            frameloop={inView ? 'always' : 'demand'}
+            onCreated={attachContextRecovery}
+          >
+            <Suspense fallback={null}>
+              <CameraRig />
+              <HelmetModel />
+              <Environment preset="studio" environmentIntensity={0.25} />
+            </Suspense>
+          </Canvas>
+        ) : (
+          // Far off-screen: release the GL context, show a static helmet still.
+          <img
+            src="/moto-night-helmet.webp"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover opacity-80"
+          />
+        )}
       </div>
 
       <div className="absolute inset-0 z-20 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 42%, rgba(0,0,0,0.55) 100%)' }} />

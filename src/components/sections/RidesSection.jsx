@@ -31,17 +31,23 @@ export default function RidesSection() {
 
       // ── DESKTOP ───────────────────────────────
       if (isDesktop && RIDES.length > 1) {
-        const totalX = window.innerWidth * (RIDES.length - 1);
+        // Function-based so the pin distance + track travel recompute on every
+        // ScrollTrigger.refresh() (invalidateOnRefresh) instead of freezing the
+        // viewport width captured at mount — the source of the broken horizontal
+        // scrub when the page is refreshed after images/lazy mounts settle.
+        const totalX = () => window.innerWidth * (RIDES.length - 1);
 
         const hTween = gsap.to(trackRef.current, {
-          x:    -totalX,
+          x:    () => -totalX(),
           ease: EASE.scrub,
           scrollTrigger: {
-            trigger:       sectionRef.current,
-            start:         'top top',
-            end:           `+=${totalX}`,
-            pin:           true,
-            scrub:         ST.scrub.tight,
+            trigger:           sectionRef.current,
+            start:             'top top',
+            end:               () => '+=' + totalX(),
+            pin:               true,
+            anticipatePin:     1,
+            invalidateOnRefresh: true,
+            scrub:             ST.scrub.tight,
             onUpdate: (self) => {
               // Continuous slide position (0 → RIDES.length-1) for centred emphasis.
               const pos = self.progress * (RIDES.length - 1);
