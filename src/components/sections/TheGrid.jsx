@@ -105,7 +105,10 @@ export default function TheGrid() {
                 >
                   {r.name}
                 </h3>
-                <p className="mt-4 max-h-0 -translate-y-2 overflow-hidden text-sm leading-relaxed text-white/45 opacity-0 transition-all duration-500 ease-out group-hover:max-h-40 group-hover:translate-y-0 group-hover:opacity-100">
+                {/* Detail is an absolute overlay (out of flow) so revealing it on
+                    hover never grows the card / shifts the page. Anchored above the
+                    distance row; fades + slides in. Card is `relative overflow-hidden`. */}
+                <p className="pointer-events-none absolute inset-x-7 bottom-[5.5rem] translate-y-2 text-sm leading-relaxed text-white/50 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:inset-x-8">
                   {r.detail}
                 </p>
               </div>
