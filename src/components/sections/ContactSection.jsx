@@ -152,7 +152,7 @@ export default function ContactSection() {
               <a
                 key={link.label}
                 href={link.href}
-                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D7F700] hover:translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-left"
+                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D2FF00] hover:translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-left"
               >
                 {link.label}
               </a>
@@ -174,7 +174,7 @@ export default function ContactSection() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D7F700] hover:-translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-right"
+                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D2FF00] hover:-translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-right"
               >
                 {link.label}
               </a>
@@ -187,7 +187,7 @@ export default function ContactSection() {
           <a
             ref={ctaRef}
             href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex items-center justify-center px-8 py-3 bg-[#D7F700] text-[#141913] rounded-full font-sans font-black text-[11px] tracking-[0.2em] uppercase hover:bg-white hover:scale-105 transition-all duration-300 shadow-2xl relative z-50 cursor-pointer pointer-events-auto block"
+            className="inline-flex items-center justify-center px-8 py-3 bg-[#D2FF00] text-[#141913] rounded-full font-sans font-black text-[11px] tracking-[0.2em] uppercase hover:bg-white hover:scale-105 transition-all duration-300 shadow-2xl relative z-50 cursor-pointer pointer-events-auto block"
           >
             TRANSMISSION
           </a>

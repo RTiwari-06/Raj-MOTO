@@ -38,6 +38,45 @@
   --color-text-muted:    #444444;
   --color-border:        rgba(255, 255, 255, 0.08);
   --color-border-accent: rgba(210, 255, 0, 0.3);
+  --color-border-warm:   #3d3a39;   /* warm neutral containment border on dark */
+
+  /* Accent as space-separated channels so it composes into rgb()/alpha utilities
+     without a second literal. Use rgb(var(--color-accent-rgb) / <alpha>). */
+  --color-accent-rgb: 210 255 0;
+
+  /* Named literals that were scattered across templates + CSS */
+  --color-ink:     #111112;  /* near-black ink on light surfaces */
+  --color-machine: #FF6600;  /* KTM-orange — scoped to #machine + Turf only */
+
+  /* Luminance surface ladder (Linear method): translucent white stacks read more
+     glassy on the #0a0a0a canvas than solid greys. Existing solid tokens kept for
+     back-compat; new work should prefer these. */
+  --surface-0: var(--color-bg-primary);          /* page */
+  --surface-1: rgba(255, 255, 255, 0.025);        /* card */
+  --surface-2: rgba(255, 255, 255, 0.04);         /* raised */
+  --surface-3: rgba(255, 255, 255, 0.06);         /* hover / active */
+  --surface-border:       rgba(255, 255, 255, 0.08);
+  --surface-border-hover: rgba(255, 255, 255, 0.14);
+
+  /* Elevation: one lift token so the whole site stays consistent, plus a small
+     tokenized shadow stack. */
+  --elevation-hover: -4px;
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.2);
+  --shadow-2: 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-3: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 24px var(--color-accent-dim);
+
+  /* Per-tier display tracking — explicit so the scale never feels accidental. */
+  --tracking-display-xl: -0.04em;
+  --tracking-display-lg: -0.035em;
+  --tracking-display-md: -0.03em;
+  --tracking-display-sm: -0.025em;
+
+  /* Signature intermediate weight (Linear-style "subtle bold"). */
+  --weight-signature: 510;
+
+  /* Single film-grain noise source — referenced by .grain-layer + .asphalt-grain. */
+  --grain-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
   /* — Typography Families — */
   --font-sans:  'Inter', sans-serif;
@@ -128,6 +167,32 @@ body {
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* Inter's intended character: alt 'a'/'g' (cv01) + double-storey forms (ss03)
+     with contextual/standard ligatures. */
+  font-feature-settings: "cv01", "ss03", "calt", "liga";
+}
+
+/* JetBrains/Fira Mono ligatures + contextual alternates for code/telemetry. */
+.font-mono,
+[class*="font-mono"],
+code,
+kbd,
+pre {
+  font-feature-settings: "liga", "calt";
+}
+
+/* Saturated, consistent keyboard focus ring site-wide. :where() keeps specificity
+   at 0 so it never fights component styles, only fills the a11y gap where none
+   was defined. */
+:where(a, button, [role="link"], [role="button"], [tabindex], input, textarea, select):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* iOS: stop the page rubber-banding past Lenis during over-drag. */
+html {
+  overscroll-behavior-y: none;
 }
 
 img,
@@ -146,6 +211,17 @@ button {
   border: none;
   background: none;
   font: inherit;
+}
+
+/* Anchored sections clear the fixed navbar (~88px) on native-hash + back/forward
+   navigation. Lenis scrollTo already applies NAV_OFFSET for in-app clicks. */
+#thesis,
+#machine,
+#rides,
+#story,
+#gallery,
+#connect {
+  scroll-margin-top: 88px;
 }
 
 /* Lenis smooth-scroll integration */
@@ -377,6 +453,11 @@ html.lenis { height: auto; }
   100% { opacity: 0.4; transform: translateY(0); }
   50%   { opacity: 1;   transform: translateY(4px); }
 }
+/* Only hero animation that ignored the global motion switch — resolve it static. */
+.motion-off .hero-scroll-hint {
+  animation: none;
+  opacity: 0.6;
+}
 
 /* ── Section Title — Editorial Style ───────────────────────────────────────── */
 
@@ -444,10 +525,11 @@ html.lenis { height: auto; }
 /* ── Cards ──────────────────────────────────────────────────────────────────── */
 
 .card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background: var(--surface-1);
+  border: 1px solid var(--surface-border);
   border-radius: var(--border-radius-md);
   padding: var(--space-6);
+  box-shadow: var(--shadow-2);
   transition:
     transform      var(--duration-base) var(--ease-out),
     border-color   var(--duration-base) var(--ease-out),
@@ -455,9 +537,9 @@ html.lenis { height: auto; }
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-border-accent);
-  box-shadow: 0 0 24px var(--color-accent-dim);
+  transform: translateY(var(--elevation-hover));
+  border-color: var(--surface-border-hover);
+  box-shadow: var(--shadow-3), var(--shadow-glow);
 }
 
 .card__label {
@@ -501,13 +583,14 @@ html.lenis { height: auto; }
 
 .arsenal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  /* min() guarantees a single safe column between 180px and the container edge. */
+  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
   gap: var(--space-3);
 }
 
 .arsenal-item {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background: var(--surface-1);
+  border: 1px solid var(--surface-border);
   border-bottom: 2px solid transparent;
   border-radius: var(--border-radius-sm);
   padding: var(--space-4) var(--space-5);
@@ -516,7 +599,7 @@ html.lenis { height: auto; }
 
 .arsenal-item:hover {
   border-bottom-color: var(--color-accent);
-  background: var(--color-bg-surface);
+  background: var(--surface-3);
   transform: translateY(-2px);
 }
 
@@ -618,12 +701,14 @@ html.lenis { height: auto; }
 .logo-wall__item {
   opacity: 0.4;
   filter: grayscale(1);
-  transition: all var(--duration-base) var(--ease-out);
+  transition: opacity var(--duration-base) var(--ease-out),
+              filter var(--duration-base) var(--ease-out);
 }
 
 .logo-wall__item:hover {
   opacity: 1;
   filter: none;
+  will-change: filter, opacity;   /* composite the hover repaint */
 }
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
@@ -681,10 +766,10 @@ html.lenis { height: auto; }
   content: "";
   position: absolute;
   inset: 0;
-  background: #D2FF00;
+  background: var(--color-accent);
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--duration-slow) cubic-bezier(0.16, 1, 0.3, 1);
   z-index: -1;
 }
 .btn-rt:hover::before,
@@ -692,18 +777,42 @@ html.lenis { height: auto; }
   transform: scaleX(1);
 }
 .btn-rt:hover {
-  color: #000;
-  border-color: #D2FF00;
-  box-shadow: 0 0 30px rgba(210, 255, 0, 0.18);
+  color: var(--color-ink);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 30px rgb(var(--color-accent-rgb) / 0.18);
 }
 
 .btn-rt--ink::before {
-  background: #111112;
+  background: var(--color-ink);
 }
 .btn-rt--ink:hover {
-  color: #f2f0e8;
-  border-color: #111112;
+  color: var(--color-text-primary);
+  border-color: var(--color-ink);
   box-shadow: 0 0 26px rgba(0, 0, 0, 0.14);
+}
+
+/* Full-pill variant for tags / status / filter chips (Linear/Vercel parallel). */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 9999px;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  transition: color var(--duration-base) var(--ease-out),
+              border-color var(--duration-base) var(--ease-out),
+              background var(--duration-base) var(--ease-out);
+}
+.btn-pill:hover {
+  color: var(--color-text-primary);
+  border-color: var(--surface-border-hover);
+  background: var(--surface-2);
 }
 
 /* ── Contact Finale ─────────────────────────────────────────────────────────── */
@@ -780,13 +889,14 @@ html.lenis { height: auto; }
   background-size: 72px 72px;
 }
 
-/* Throttle snap — 80ms clip-path wipe (override for hover underlines) */
+/* Throttle snap — clip-path wipe for hover underlines. Scoped to .group hovers
+   so an unrelated hover anywhere up the tree can't trip every wipe on the page. */
 .snap-wipe {
   clip-path: inset(0 100% 0 0);
-  transition: clip-path 80ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: clip-path var(--duration-fast) cubic-bezier(0.16, 1, 0.3, 1);
 }
 .snap-wipe.is-visible,
-*:hover > .snap-wipe {
+.group:hover > .snap-wipe {
   clip-path: inset(0 0% 0 0);
 }
 
@@ -809,6 +919,12 @@ html.lenis { height: auto; }
   letter-spacing: 0.35em;
 }
 
+/* Linear-style "subtle bold": the 510 intermediate weight gives nav/labels a
+   precise feel without shouting. Opt-in on Inter-set text. */
+.text-signature {
+  font-weight: var(--weight-signature);
+}
+
 /* ── Scroll Reveal ──────────────────────────────────────────────────────────── */
 
 .reveal {
@@ -827,35 +943,6 @@ html.lenis { height: auto; }
 .reveal-delay-1 { transition-delay: 100ms; }
 .reveal-delay-2 { transition-delay: 200ms; }
 .reveal-delay-3 { transition-delay: 300ms; }
-
-/* ── Marquee Ticker ─────────────────────────────────────────────────────────── */
-
-.marquee {
-  overflow: hidden;
-  white-space: nowrap;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--space-3) 0;
-}
-
-.marquee__track {
-  display: inline-flex;
-  animation: marquee 20s linear infinite;
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-.marquee__item {
-  padding: 0 var(--space-7);
-  font-size: var(--text-xs);
-  font-weight: 500;
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    LAYER 5.5 — TELEMETRY DECK (overhaul · instrument-grade editorial brutalism)
@@ -887,7 +974,7 @@ html.lenis { height: auto; }
   pointer-events: none;
   opacity: 0.045;
   mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: var(--grain-svg);
   background-size: 160px 160px;
 }
 .motion-off .grain-layer { display: none; }
@@ -1049,7 +1136,7 @@ html.lenis { height: auto; }
   pointer-events: none;
   opacity: 0.04;
   mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: var(--grain-svg);
   background-size: 160px 160px;
   animation: asphaltShift 0.4s steps(1) infinite;
 }
@@ -1231,10 +1318,15 @@ html.lenis { height: auto; }
   --mx: 50%;
   --my: 50%;
   --r: 0px;
-  cursor: none;
   -webkit-user-select: none;
   user-select: none;
+  /* Keep the radial-mask repaint off the rest of the page during pointer move. */
+  contain: layout paint style;
   transition: --r 300ms var(--ease-out);
+}
+/* Only steal the cursor when motion is welcome; otherwise the reticle stands in. */
+@media (prefers-reduced-motion: no-preference) {
+  .scope { cursor: none; }
 }
 
 .scope__layer {
@@ -1497,7 +1589,8 @@ html.lenis { height: auto; }
 
   .section-title-lime,
   .section-title-white {
-    font-size: 42px;
+    /* Fluid floor so landscape phones don't clip the cap height. */
+    font-size: clamp(32px, 8vw, 42px);
   }
 }
 
@@ -1533,4 +1626,15 @@ html.lenis { height: auto; }
 /* Top scrim — blends into the navbar, calms top metadata. */
 .hero-scrim-top {
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+}
+
+/* ── Logo marquee marks ──────────────────────────────────────────────
+   Full-colour loop: every brand mark renders in its native colours. A gentle
+   lift + scale on hover gives the strip life without changing its tone. */
+.logo-mark {
+  opacity: 1;
+  transition: transform 0.35s ease;
+}
+.group:hover .logo-mark {
+  transform: translateY(-2px) scale(1.06);
 }

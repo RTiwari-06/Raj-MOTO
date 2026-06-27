@@ -30,6 +30,7 @@ const Navbar = () => {
   const progressRef  = useRef(null);   // hairline scroll-progress fill
   const readoutRef   = useRef(null);   // mono "SCROLL nnn%" telemetry value
   const linkRefs     = useRef([]);     // per-link <li> for measuring the indicator
+  const pendingScroll = useRef(null);  // anchor to scroll to once /home has mounted
 
   const [active,   setActive]   = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,6 +40,25 @@ const Navbar = () => {
   const scrolled      = useStore((state) => state.scroll > 24);
   const motionEnabled = useUIStore((state) => state.motionEnabled);
   const toggleMotion  = useUIStore((state) => state.toggleMotion);
+
+  // Smooth-scroll to an on-page anchor. Crucially calls lenis.start() first: the
+  // mobile menu stops Lenis while open, and goTo fires synchronously on tap —
+  // without restarting, scrollTo would be a silent no-op (the "links don't
+  // scroll on mobile" bug). Retries while the target is still lazy-mounting.
+  const scrollToAnchor = useCallback((hash, tries = 0) => {
+    const el = document.querySelector(hash);
+    if (!el) {
+      if (tries < 60) requestAnimationFrame(() => scrollToAnchor(hash, tries + 1));
+      return;
+    }
+    const lenis = window.__lenis;
+    if (lenis) {
+      lenis.start();
+      lenis.scrollTo(el, { offset: NAV_OFFSET });
+    } else {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
 
   // ── Smooth anchor navigation (drives Lenis when present) ────────────────────
   const goTo = useCallback((e, item) => {
@@ -50,18 +70,25 @@ const Navbar = () => {
       return;
     }
 
+    // From a nested route (e.g. /archive): go home first, then scroll once the
+    // homepage has mounted — avoids the navigate('/'+'#id') reload-to-hash flash.
     if (location.pathname !== '/') {
-      navigate('/' + item.href);
+      pendingScroll.current = item.href;
+      navigate('/');
       return;
     }
 
-    const lenis = window.__lenis;
-    const el = document.querySelector(item.href);
-    if (!el) return;
-    lenis
-      ? lenis.scrollTo(el, { offset: NAV_OFFSET })
-      : el.scrollIntoView({ behavior: 'smooth' });
-  }, [navigate, location.pathname]);
+    scrollToAnchor(item.href);
+  }, [navigate, location.pathname, scrollToAnchor]);
+
+  // Flush a queued cross-route scroll once we're back on the homepage.
+  useEffect(() => {
+    if (location.pathname === '/' && pendingScroll.current) {
+      const hash = pendingScroll.current;
+      pendingScroll.current = null;
+      scrollToAnchor(hash);
+    }
+  }, [location.pathname, scrollToAnchor]);
 
   // ── Logo / IGNITION — home, scrolling to top when already on the homepage ────
   const goHome = useCallback((e) => {
@@ -251,17 +278,12 @@ const Navbar = () => {
           >
             {/* Ignition tick — grows on hover */}
             <span className="block w-[3px] h-7 bg-[#D2FF00] origin-center transition-transform duration-300 group-hover:scale-y-125" />
-            <span className="flex flex-col leading-none">
-              <span
-                className="font-serif text-[16px] md:text-[17px] text-[#D2FF00]"
-                style={{ letterSpacing: '-0.01em' }}
-              >
-                RT•MOTO
-              </span>
-              <span className="font-mono text-[7px] tracking-[0.32em] uppercase text-white/30 mt-[3px]">
-                Pit Wall // 2026
-              </span>
-            </span>
+            <img
+              src="/media/svgs/brand_logo.webp"
+              alt="RT•MOTO"
+              draggable={false}
+              className="h-8 md:h-9 w-auto object-contain"
+            />
           </a>
 
           {/* ── CENTER · indexed telemetry rail ────────────────────────────── */}

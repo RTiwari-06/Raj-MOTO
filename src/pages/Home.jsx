@@ -5,18 +5,15 @@ import Hero from '@/components/sections/Hero';
 import { useUIStore } from '@/store/useUIStore';
 
 // Lazy load sections below the fold
+const IABridgeSection = lazy(() => import('@/components/sections/IABridgeSection'));
 const TheMachine = lazy(() => import('@/components/sections/TheMachine'));
 const TextMarquee = lazy(() => import('@/components/ui/TextMarquee'));
-const ManifestoSection = lazy(() => import('@/components/sections/ManifestoSection'));
-const HelmetSection = lazy(() => import('@/components/sections/HelmetSection'));
 const DoctrineSection = lazy(() => import('@/components/sections/DoctrineSection'));
-const TheGrid = lazy(() => import('@/components/sections/TheGrid'));
 const RidesSection = lazy(() => import('@/components/sections/RidesSection'));
-const IABridgeSection = lazy(() => import('@/components/sections/IABridgeSection'));
 const StatRevealSection = lazy(() => import('@/components/sections/StatRevealSection'));
-const ActionGallery = lazy(() => import('@/components/sections/ActionGallery'));
+const VisorUpHinge = lazy(() => import('@/components/sections/VisorUpHinge'));
 const StorySection = lazy(() => import('@/components/sections/StorySection'));
-const GallerySection = lazy(() => import('@/components/sections/Gallery'));
+const ActionGallery = lazy(() => import('@/components/sections/ActionGallery'));
 const PartnersSection = lazy(() => import('@/components/sections/PartnersSection'));
 const ContactSection = lazy(() => import('@/components/sections/ContactSection'));
 const Footer = lazy(() => import('@/components/layout/Footer'));
@@ -50,8 +47,8 @@ export function Home() {
 
   // Once the below-fold sections are in the DOM, let layout settle for two
   // frames, then recompute every pin/trigger against the final positions.
-  // Without this the pinned Helmet/Rides sections keep the start/end distances
-  // they measured before their siblings' images decoded.
+  // Without this the pinned Rides section keeps the start/end distances
+  // it measured before its siblings' images decoded.
   useEffect(() => {
     if (!restReady) return;
     let raf1 = 0, raf2 = 0;
@@ -77,18 +74,20 @@ export function Home() {
           <div className="h-screen bg-black" />
         ) : (
         <Suspense fallback={<div className="h-screen bg-black" />}>
-          <ScanReveal><TheMachine /></ScanReveal>
-          <TextMarquee dark={true} />
-          <ScanReveal><ManifestoSection /></ScanReveal>
-          <HelmetSection />
-          <ScanReveal><DoctrineSection /></ScanReveal>
-          <ScanReveal><TheGrid /></ScanReveal>
-          <RidesSection />
+          {/* ── ON TRACK ── the performance self ── */}
           <IABridgeSection />
+          <ScanReveal><TheMachine /></ScanReveal>
+          <TextMarquee />
+          <ScanReveal><DoctrineSection /></ScanReveal>
+          <RidesSection />
           <StatRevealSection />
-          <ScanReveal><ActionGallery /></ScanReveal>
+
+          {/* ── VISOR UP ── act break ── */}
+          <VisorUpHinge />
+
+          {/* ── OFF TRACK ── the person ── */}
           <ScanReveal><StorySection /></ScanReveal>
-          <GallerySection />
+          <ActionGallery />
           <PartnersSection />
           <ContactSection />
           <Footer />

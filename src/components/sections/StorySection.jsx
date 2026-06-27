@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { EASE, DUR, ST, STAGGER } from '@/motion/system';
@@ -40,7 +40,16 @@ export default function StorySection() {
   const headerRef  = useRef(null);
   const cardRefs   = useRef([]);
   const videoRef   = useRef(null);
-  const [active, setActive] = useState(false); // cursor hovering → bring footage forward
+  const [active, setActive] = useState(false);       // cursor hovering → bring footage forward
+  const [coarseActive, setCoarseActive] = useState(false); // touch: in-view → auto-play forward
+
+  // Touch has no hover, so the showcase would sit dim forever. On coarse pointers
+  // we brighten the footage while the section is in view instead.
+  const isCoarse = useMemo(
+    () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches,
+    [],
+  );
+  const showFootage = active || coarseActive;
 
   // Only play the background loop while the section is in view — saves CPU/battery
   // and avoids decoding video the visitor never reaches.
@@ -52,16 +61,18 @@ export default function StorySection() {
       ([entry]) => {
         if (entry.isIntersecting) {
           video.play().catch(() => {}); // autoplay can reject if not yet allowed
+          if (isCoarse) setCoarseActive(true);
         } else {
           video.pause();
+          if (isCoarse) setCoarseActive(false);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.25 }
     );
 
     io.observe(video);
     return () => io.disconnect();
-  }, []);
+  }, [isCoarse]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -103,8 +114,8 @@ export default function StorySection() {
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
-            opacity:    active ? 0.92 : 0.2,
-            transform:  active ? 'scale(1.04)' : 'scale(1)',
+            opacity:    showFootage ? 0.92 : 0.2,
+            transform:  showFootage ? 'scale(1.04)' : 'scale(1)',
             transition: 'opacity 700ms ease, transform 1200ms cubic-bezier(0.16,1,0.3,1)',
           }}
           poster={MEDIA.showcase.poster}
@@ -121,7 +132,7 @@ export default function StorySection() {
           className="absolute inset-0"
           style={{
             backgroundColor: 'rgba(8,8,8,1)',
-            opacity:    active ? 0.28 : 0.62,
+            opacity:    showFootage ? 0.28 : 0.62,
             transition: 'opacity 700ms ease',
           }}
         />
@@ -136,19 +147,23 @@ export default function StorySection() {
         </span>
       </div>
 
-      {/* Hover affordance — fades out once the footage is playing forward */}
-      <span
-        className="absolute top-8 right-8 z-20 font-mono text-[8px] tracking-[0.35em] uppercase text-accent/50 pointer-events-none flex items-center gap-2"
-        style={{ opacity: active ? 0 : 1, transition: 'opacity 400ms ease' }}
-      >
-        <span className="inline-block w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-accent/60" />
-        HOVER TO PLAY
-      </span>
+      {/* Hover affordance — desktop only (touch auto-plays in view) */}
+      {!isCoarse && (
+        <span
+          className="absolute top-8 right-8 z-20 font-mono text-[8px] tracking-[0.35em] uppercase text-accent/50 pointer-events-none flex items-center gap-2"
+          style={{ opacity: active ? 0 : 1, transition: 'opacity 400ms ease' }}
+        >
+          <span className="inline-block w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-accent/60" />
+          HOVER TO PLAY
+        </span>
+      )}
 
       <div
         className="relative z-10 max-w-screen-xl mx-auto"
         style={{
-          transform:       active ? 'translateX(-6%) scale(0.82)' : 'translateX(0) scale(1)',
+          // Desktop hover retreats the text to reveal the footage. On touch the
+          // footage auto-plays but the text stays put (no hover-out to restore it).
+          transform:       active && !isCoarse ? 'translateX(-6%) scale(0.82)' : 'translateX(0) scale(1)',
           transformOrigin: 'left center',
           transition:      'transform 800ms cubic-bezier(0.16,1,0.3,1)',
         }}

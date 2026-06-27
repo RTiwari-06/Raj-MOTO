@@ -20,6 +20,9 @@ const WEBP_JOBS = [
   // Contact rider cutout (alpha preserved)
   ['bike-2.png', 'bike-2-cutout.webp', 1000, 80],
 
+  // Navbar brand mark (portrait; ~2x its ~36px render height)
+  ['media/svgs/brand_logo.png', 'media/svgs/brand_logo.webp', 135, 90],
+
   // Rides / gallery
   ['bike-4.jpg', 'bike-4-1600.webp', 1600, 72],
   ['bike-4.jpg', 'bike-4-800.webp',   800, 72],

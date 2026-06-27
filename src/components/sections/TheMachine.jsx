@@ -9,6 +9,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { EASE, DUR, STAGGER, ST } from '@/motion/system';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 
+// Touch devices skip the cursor-follow popup entirely (no hover, and a tap can
+// otherwise pin it frozen at the corner).
+const COARSE =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(pointer: coarse)').matches;
+
 const SPECS = ['SINGLE-CYLINDER', '30 AGGRESSIVE HORSES', 'GEOMETRICALLY AUSTRIAN'];
 
 // `img` → optional part preview (drop files at these paths to populate; a
@@ -28,6 +35,7 @@ export default function TheMachine() {
 
   // Cursor-following part preview popup (position imperative — no re-render).
   useEffect(() => {
+    if (COARSE) return;
     const el = popupRef.current;
     if (!el) return;
     const xTo = gsap.quickTo(el, 'x', { duration: DUR.fast, ease: EASE.momentum });
@@ -73,7 +81,8 @@ export default function TheMachine() {
     >
       <div className="grain-layer" />
 
-      {/* Maintenance-log part preview — follows the cursor */}
+      {/* Maintenance-log part preview — follows the cursor (desktop only) */}
+      {!COARSE && (
       <div ref={popupRef} className="fixed top-0 left-0 z-[9996] pointer-events-none will-change-transform">
         <div
           className="transition-opacity duration-200"
@@ -114,13 +123,15 @@ export default function TheMachine() {
           )}
         </div>
       </div>
+      )}
 
       <div className="relative max-w-screen-xl mx-auto">
 
         <SectionHeader
-          index="02"
+          index="03"
+          total="10"
           kicker="THE MACHINE"
-          readout="KTM DUKE 250 · BS6 / BENGALURU"
+          readout="ON TRACK // KTM DUKE 250 · BS6"
           className="tm-head mb-14 md:mb-20"
         />
 
@@ -219,11 +230,13 @@ export default function TheMachine() {
                 {LOG.map((item, i) => (
                   <div
                     key={item.k}
-                    onMouseEnter={() => setActiveLog(i)}
-                    onMouseLeave={() => setActiveLog(null)}
+                    onMouseEnter={() => !COARSE && setActiveLog(i)}
+                    onMouseLeave={() => !COARSE && setActiveLog(null)}
+                    onClick={() => COARSE && setActiveLog(activeLog === i ? null : i)}
+                    aria-current={COARSE && activeLog === i ? 'true' : undefined}
                     className={`tm-log-row group flex items-center px-5 py-4 transition-colors duration-300 hover:bg-[#FF6600]/[0.04] touch-buffer ${
-                      i !== LOG.length - 1 ? 'border-b border-white/[0.06]' : ''
-                    }`}
+                      activeLog === i ? 'bg-[#FF6600]/[0.06]' : ''
+                    } ${i !== LOG.length - 1 ? 'border-b border-white/[0.06]' : ''}`}
                   >
                     <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 w-8 tabular-nums">
                       {String(i + 1).padStart(2, '0')}
@@ -239,6 +252,34 @@ export default function TheMachine() {
                   </div>
                 ))}
               </div>
+
+              {/* Mobile part preview — touch has no cursor popup, so a tapped row
+                  reveals its part inline here. */}
+              {COARSE && activeLog !== null && (
+                <div key={activeLog} className="mt-5 relative w-full aspect-video bg-[#0b0b0b] border border-[#FF6600]/45 overflow-hidden">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                    <span className="font-mono text-[8px] tracking-[0.35em] text-white/25">IMG // STANDBY</span>
+                    <span className="font-mono text-[9px] tracking-[0.2em] text-[#FF6600]/80">{LOG[activeLog].k}</span>
+                  </div>
+                  <img
+                    src={LOG[activeLog].img}
+                    alt=""
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    className="absolute inset-0 w-full h-full object-contain p-4"
+                    style={{ filter: 'contrast(1.05) saturate(1.05)' }}
+                  />
+                  <div className="absolute inset-0 scan-lines pointer-events-none opacity-40" />
+                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 font-mono text-[7px] tracking-[0.25em] uppercase text-[#FF6600]">
+                    <span className="w-1 h-1 bg-[#FF6600] animate-pulse" />
+                    PART_SECURE // OK
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 px-2.5 py-2 bg-gradient-to-t from-black/95 to-transparent">
+                    <span className="font-mono text-[8px] tracking-[0.2em] uppercase text-white/85">{LOG[activeLog].v}</span>
+                  </div>
+                  <span className="brk brk--mch tl" /><span className="brk brk--mch tr" />
+                  <span className="brk brk--mch bl" /><span className="brk brk--mch br" />
+                </div>
+              )}
             </div>
           </div>
         </div>

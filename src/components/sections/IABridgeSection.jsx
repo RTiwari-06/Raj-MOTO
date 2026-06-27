@@ -55,6 +55,7 @@ export default function IABridgeSection() {
   return (
     <section
       ref={sectionRef}
+      id="thesis"
       className="relative w-full bg-black border-t border-white/5 px-6 md:px-16 py-36 md:py-48 overflow-hidden"
     >
       {/* Hairline grid */}
@@ -71,7 +72,7 @@ export default function IABridgeSection() {
 
         {/* Section tag */}
         <p className="font-mono text-[9px] font-black uppercase tracking-[0.45em] text-white/15 mb-10">
-          APPROACH &nbsp;//&nbsp; PHILOSOPHY
+          ON TRACK &nbsp;//&nbsp; THE THESIS
         </p>
 
         {/* Main title */}

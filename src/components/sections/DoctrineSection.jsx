@@ -1,7 +1,9 @@
 // DOCTRINE (05) — route-map telemetry dashboard (F1-inspired).
-// The Canvas (left): deep-dark container with a glowing SVG route that draws in
-// on selection + live DIST/TIME readouts that glitch-fetch on change.
-// The Schedule (right): minimalist hover-to-select route list.
+// The Canvas (left): a living map — a faint ghost network of every route, the
+// active one traced bright, a live GPS dot running it, origin + completion
+// nodes, and glitch-fetch DIST/TIME readouts.
+// The Schedule (right): hover/auto-cycled route list + live elevation profile
+// and surface/bearing/climb telemetry.
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { runScramble } from '@/utils/scramble';
@@ -14,25 +16,45 @@ const ROUTES = [
     id: '01', name: 'Hebbal Midnight Runs', meta: 'CITY LOOP // 00:30',
     dist: '42 KM', time: '00:38:24',
     path: 'M40,210 C70,140 120,150 150,110 S210,40 250,95 S320,170 360,118',
+    detail: 'Empty flyovers, sodium lights, throttle wide. After midnight the city belongs to the riders.',
+    surface: 'CITY TARMAC', bearing: '012°', climb: 'ROLLING',
+    elev: [22, 40, 28, 46, 30, 52, 38, 30],
   },
   {
     id: '02', name: 'Highway Sprints', meta: 'NH-44 // PRE-DAWN',
     dist: '180 KM', time: '02:18:050',
     path: 'M28,135 C120,128 160,128 220,130 S330,120 384,116',
+    detail: 'Long straights, zero traffic, sustained high-rev cruising. Pure two-wheeled meditation.',
+    surface: 'OPEN TARMAC', bearing: '348°', climb: 'FLAT',
+    elev: [16, 18, 15, 20, 17, 19, 16, 18],
   },
   {
     id: '03', name: 'Nandi Dawn Patrol', meta: 'HILL CLIMB // 04:00',
     dist: '62 KM', time: '01:05:12',
     path: 'M40,228 C90,206 70,164 120,164 S150,108 200,120 S210,58 262,70 S304,30 368,46',
+    detail: '47 hairpins to the summit for sunrise. Cold air, hot tyres, a clear head.',
+    surface: 'HILL TARMAC', bearing: '034°', climb: '+1478 m',
+    elev: [12, 24, 30, 48, 58, 74, 86, 96],
   },
 ];
+
+const CYCLE = 6; // seconds the dashboard dwells on a route before auto-advancing
 
 const prefersReduced = () =>
   typeof window !== 'undefined' &&
   window.matchMedia &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Touch devices render the resolved static dashboard (no rAF GPS-dot loop, no
+// infinite ping/reticle tweens, no off-driver auto-cycle) — tap still switches
+// routes. Treated exactly like reduced motion for the expensive ambient motion.
+const COARSE =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(pointer: coarse)').matches;
+
 export default function DoctrineSection() {
+  const sectionRef = useRef(null);
   const pathRef = useRef(null);
   const distRef = useRef(null);
   const timeRef = useRef(null);
@@ -40,47 +62,66 @@ export default function DoctrineSection() {
   const wpRevealRef = useRef(null);   // reveal scale/opacity
   const wpRingRef = useRef(null);     // pulsing radar ring
   const wpReticleRef = useRef(null);  // rotating reticle
+  const originRef = useRef(null);     // origin node at the route start
+  const dotRef = useRef(null);        // live GPS dot travelling the route
+  const progressRef = useRef(null);   // auto-cycle progress bar
   const cancels = useRef([]);
+
+  // Auto-cycle plumbing
+  const cycleTween = useRef(null);
+  const pausedRef = useRef(false);
+  const inViewRef = useRef(true);
   const [active, setActive] = useState(0);
 
-  // Draw the active route path (stroke-dashoffset trace) + completion waypoint.
+  // Draw the active route + nodes + live GPS dot. Keys on [active].
   useEffect(() => {
     const path = pathRef.current;
     if (!path) return;
     const len = path.getTotalLength();
     const end = path.getPointAtLength(len);
+    const start = path.getPointAtLength(0);
 
-    // Pin the waypoint marker to the route's final coordinate.
-    if (wpPosRef.current) gsap.set(wpPosRef.current, { x: end.x, y: end.y });
+    gsap.set(wpPosRef.current, { x: end.x, y: end.y });
+    gsap.set(originRef.current, { x: start.x, y: start.y });
 
-    if (prefersReduced()) {
+    if (prefersReduced() || COARSE) {
       gsap.set(path, { strokeDasharray: 'none', strokeDashoffset: 0 });
-      gsap.set(wpRevealRef.current, { scale: 1, opacity: 1 });
+      gsap.set([wpRevealRef.current, originRef.current], { scale: 1, opacity: 1 });
+      gsap.set(dotRef.current, { opacity: 0 });
+      gsap.set('.dx-bar', { scaleY: 1 });
       return;
     }
 
     const ctx = gsap.context(() => {
-      // Trace the line over 1.5s.
+      // Trace the active line over 1.5s.
       gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
       gsap.to(path, { strokeDashoffset: 0, duration: 1.5, ease: EASE.precision });
 
-      // Waypoint reveals only once the trace completes (delay = draw duration).
-      gsap.fromTo(
-        wpRevealRef.current,
-        { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)', delay: 1.5 },
-      );
+      // Origin + completion nodes pop in.
+      gsap.fromTo(originRef.current, { scale: 0, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)', delay: 0.2 });
+      gsap.fromTo(wpRevealRef.current, { scale: 0, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)', delay: 1.5 });
 
-      // Live GPS ping — outer ring expands + fades on an infinite loop.
-      gsap.fromTo(
-        wpRingRef.current,
-        { scale: 1, opacity: 0.8 },
-        { scale: 1.5, opacity: 0, duration: 1.2, ease: 'power1.out', repeat: -1, delay: 1.5 },
-      );
-
-      // Reticle slowly rotates — digital targeting marker.
+      // Live GPS ping — outer ring expands + fades on a loop.
+      gsap.fromTo(wpRingRef.current, { scale: 1, opacity: 0.8 },
+        { scale: 1.5, opacity: 0, duration: 1.2, ease: 'power1.out', repeat: -1, delay: 1.5 });
       gsap.to(wpReticleRef.current, { rotation: 360, duration: 6, ease: 'none', repeat: -1 });
-    });
+
+      // The GPS dot runs the route on a loop once the trace lands.
+      const prog = { t: 0 };
+      gsap.to(prog, {
+        t: 1, duration: 3.4, ease: 'none', repeat: -1, delay: 1.4,
+        onUpdate: () => {
+          const pt = path.getPointAtLength(prog.t * len);
+          gsap.set(dotRef.current, { x: pt.x, y: pt.y, opacity: 1 });
+        },
+      });
+
+      // Elevation bars grow in.
+      gsap.fromTo('.dx-bar', { scaleY: 0 },
+        { scaleY: 1, transformOrigin: 'bottom', duration: 0.5, ease: 'power2.out', stagger: 0.05, delay: 0.25 });
+    }, sectionRef);
     return () => ctx.revert();
   }, [active]);
 
@@ -99,16 +140,71 @@ export default function DoctrineSection() {
     return () => cancels.current.forEach((c) => c && c());
   }, [active]);
 
+  // Ambient auto-cycle: a progress bar fills over CYCLE seconds, then advances
+  // to the next route. Pauses on hover and when off-screen; off under reduced
+  // motion (the dashboard stays fully user-driven).
+  useEffect(() => {
+    if (prefersReduced() || COARSE) return;
+    const bar = progressRef.current;
+    if (!bar) return;
+    gsap.set(bar, { scaleX: 0 });
+    const tween = gsap.to(bar, {
+      scaleX: 1, duration: CYCLE, ease: 'none',
+      onComplete: () => setActive((a) => (a + 1) % ROUTES.length),
+    });
+    if (pausedRef.current || !inViewRef.current) tween.pause();
+    cycleTween.current = tween;
+    return () => tween.kill();
+  }, [active]);
+
+  // Pause the cycle while off-screen (don't churn an unseen section).
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inViewRef.current = entry.isIntersecting;
+        const t = cycleTween.current;
+        if (!t) return;
+        if (entry.isIntersecting && !pausedRef.current) t.resume();
+        else t.pause();
+      },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const hold = () => {
+    pausedRef.current = true;
+    cycleTween.current && cycleTween.current.pause();
+  };
+  const release = () => {
+    pausedRef.current = false;
+    if (inViewRef.current) cycleTween.current && cycleTween.current.resume();
+  };
+  const select = (i) => {
+    if (i === active) return;
+    setActive(i); // restarts the cycle tween via the [active] effect
+  };
+
   const route = ROUTES[active];
 
   return (
-    <section className="relative min-h-screen w-full bg-darker px-6 md:px-16 py-24 md:py-32 border-t border-white/5 z-20 overflow-hidden flex flex-col justify-center">
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen w-full bg-darker px-6 md:px-16 py-24 md:py-32 border-t border-white/5 z-20 overflow-hidden flex flex-col justify-center"
+    >
       <div className="grain-layer" />
 
       <div className="relative z-10 max-w-screen-2xl mx-auto w-full">
-        <SectionHeader index="05" kicker="ROUTE DOCTRINE" readout="TURF // BENGALURU" panning className="mb-10 md:mb-14" />
+        <SectionHeader index="04" total="10" kicker="ROUTE DOCTRINE" readout="ON TRACK // TURF · BENGALURU" panning className="mb-10 md:mb-14" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
+        <div
+          onMouseEnter={hold}
+          onMouseLeave={release}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch"
+        >
 
           {/* ── THE CANVAS ─────────────────────────────────────────────── */}
           <div className="lg:col-span-8 relative aspect-[16/10] bg-[#080808] border border-white/10 overflow-hidden">
@@ -126,6 +222,22 @@ export default function DoctrineSection() {
               className="absolute inset-0 w-full h-full p-8"
               aria-hidden="true"
             >
+              {/* Ghost network — every other route, faint + dotted */}
+              {ROUTES.map((r, i) =>
+                i === active ? null : (
+                  <path
+                    key={r.id}
+                    d={r.path}
+                    fill="none"
+                    stroke="rgba(255,255,255,0.12)"
+                    strokeWidth="1"
+                    strokeDasharray="2 5"
+                    strokeLinecap="round"
+                  />
+                ),
+              )}
+
+              {/* Active route */}
               <path
                 ref={pathRef}
                 d={route.path}
@@ -137,14 +249,23 @@ export default function DoctrineSection() {
                 style={{ filter: 'drop-shadow(0 0 10px rgba(255,102,0,0.8))' }}
               />
 
+              {/* Origin node */}
+              <g ref={originRef} style={{ opacity: 0 }}>
+                <circle r="5" fill="none" stroke="#FF6600" strokeWidth="1.2" opacity="0.7" />
+                <circle r="2" fill="#FF6600" />
+              </g>
+
+              {/* Live GPS dot travelling the route */}
+              <g ref={dotRef} style={{ opacity: 0 }}>
+                <circle r="7" fill="rgba(255,102,0,0.18)" />
+                <circle r="3" fill="#FFD9B0" style={{ filter: 'drop-shadow(0 0 7px rgba(255,102,0,1))' }} />
+              </g>
+
               {/* Completion waypoint — HUD targeting marker at the route's end */}
               <g ref={wpPosRef}>
                 <g ref={wpRevealRef} style={{ opacity: 0 }}>
-                  {/* pulsing radar ring */}
                   <circle ref={wpRingRef} r="11" fill="none" stroke="#FF6600" strokeWidth="1.2" />
-                  {/* rotating reticle */}
                   <rect ref={wpReticleRef} x="-8" y="-8" width="16" height="16" fill="none" stroke="#FF6600" strokeWidth="1" />
-                  {/* core node */}
                   <circle r="4" fill="#FF6600" style={{ filter: 'drop-shadow(0 0 6px rgba(255,102,0,0.95))' }} />
                 </g>
               </g>
@@ -172,9 +293,10 @@ export default function DoctrineSection() {
           </div>
 
           {/* ── THE SCHEDULE ───────────────────────────────────────────── */}
-          <div className="lg:col-span-4 flex flex-col justify-center" onMouseLeave={() => {}}>
+          <div className="lg:col-span-4 flex flex-col justify-center">
             <p className="font-mono text-[9px] tracking-[0.4em] uppercase text-white/35 mb-5">
               // ROUTE INDEX
+              {COARSE && <span className="text-[#FF6600]/70">&nbsp;&nbsp;· TAP A ROUTE</span>}
             </p>
 
             <ul className="border-t border-white/10">
@@ -184,8 +306,8 @@ export default function DoctrineSection() {
                   <li
                     key={r.id}
                     data-magnetic
-                    onMouseEnter={() => setActive(i)}
-                    onClick={() => setActive(i)}
+                    onMouseEnter={() => select(i)}
+                    onClick={() => select(i)}
                     className="group relative cursor-pointer border-b border-white/10 py-5 pl-4 flex items-baseline gap-4"
                   >
                     {/* Active left accent bar */}
@@ -210,8 +332,57 @@ export default function DoctrineSection() {
               })}
             </ul>
 
-            <p className="font-mono text-[8px] tracking-[0.35em] uppercase text-white/20 mt-6 leading-relaxed">
-              Hover to trace · {String(ROUTES.length).padStart(2, '0')} routes logged
+            {/* Auto-cycle progress — desktop only (cycle is off on touch) */}
+            <div className="mt-5 flex items-center gap-3">
+              <span className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/30">
+                {COARSE ? 'Selected' : 'Auto-cycle'}
+              </span>
+              {!COARSE && (
+                <div className="relative h-px flex-1 overflow-hidden bg-white/10">
+                  <span ref={progressRef} className="absolute inset-0 origin-left bg-[#FF6600]" style={{ transform: 'scaleX(0)' }} />
+                </div>
+              )}
+              {COARSE && <div className="flex-1" />}
+              <span className="font-mono text-[8px] tabular-nums text-white/30">
+                {String(active + 1).padStart(2, '0')}/{String(ROUTES.length).padStart(2, '0')}
+              </span>
+            </div>
+
+            {/* Live elevation profile */}
+            <div className="mt-7">
+              <div className="flex items-baseline justify-between mb-2">
+                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/30">Elevation profile</p>
+                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-[#FF6600]/70">{route.climb}</p>
+              </div>
+              <div className="flex h-12 items-end gap-[3px]">
+                {route.elev.map((h, i) => (
+                  <span
+                    key={`${route.id}-${i}`}
+                    className="dx-bar flex-1 rounded-sm bg-gradient-to-t from-[#FF6600]/30 to-[#FF6600]/80"
+                    style={{ height: `${h}%` }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Surface / bearing telemetry */}
+            <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-4">
+              {[
+                { label: 'Surface', value: route.surface },
+                { label: 'Bearing', value: route.bearing, accent: true },
+                { label: 'Routes', value: `${String(ROUTES.length).padStart(2, '0')} LOGGED` },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="font-mono text-[8px] tracking-[0.25em] uppercase text-white/30 mb-1">{s.label}</p>
+                  <p className={`font-mono text-[10px] md:text-[11px] tracking-wider uppercase ${s.accent ? 'text-[#FF6600]' : 'text-white/65'}`}>
+                    {s.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <p className="font-sans text-[13px] md:text-sm leading-relaxed text-white/55 mt-6 max-w-sm">
+              {route.detail}
             </p>
           </div>
         </div>

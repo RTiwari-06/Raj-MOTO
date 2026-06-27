@@ -20,27 +20,32 @@ export default function ActionGallery() {
   // Randomize cards once per component mount
   const randomizedCards = useMemo(() => shuffleArray(MEDIA.actionCards), []);
 
+  // Touch devices keep the SAME fan — just tighter (cards overlap more) with
+  // smaller cards so the spread fits a phone. No carousel/grid; the fan is the
+  // section's signature.
+  const isCoarse = useMemo(
+    () => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches,
+    [],
+  );
+  const STEP = isCoarse ? 19 : 35;   // xPercent offset per card (more overlap on touch)
+  const YK   = isCoarse ? 9 : 14.4;  // parabolic downward arc
+  const ROT  = isCoarse ? 6 : 8;     // progressive Z-rotation
+
   // Calculate the base structural transforms for the fan-out layout
   const baseTransforms = randomizedCards.map((_, i) => {
     // Dynamic normalized index mapping (e.g. for 6 cards: -2.5, -1.5, -0.5, 0.5, 1.5, 2.5)
     const normalizedIndex = i - (randomizedCards.length - 1) / 2;
-    
+
     return {
-      xPercent: -50 + (normalizedIndex * 35), // Slightly tighter offset to fit 6 cards comfortably
-      y: Math.abs(normalizedIndex) * 14.4,    // Parabolic downward arc (scaled down 10% from 16)
-      rotate: normalizedIndex * 8,            // Progressive Z-rotation
-      zIndex: Math.floor(50 - Math.abs(normalizedIndex) * 10) // Center is highest, falling off to flanks
+      xPercent: -50 + normalizedIndex * STEP,
+      y: Math.abs(normalizedIndex) * YK,
+      rotate: normalizedIndex * ROT,
+      zIndex: Math.floor(50 - Math.abs(normalizedIndex) * 10), // Center highest, falling off to flanks
     };
   });
 
   useEffect(() => {
-    // Desktop only — mobile uses native CSS scroll snap
-    const isMobile = window.matchMedia('(pointer: coarse)').matches;
-    if (isMobile) {
-      gsap.set(cardRefs.current, { clearProps: 'all' });
-      return;
-    }
-
+    // The fan-out reveal runs on every device — mobile fans in too.
     const ctx = gsap.context(() => {
       // Initial entry fan-out animation
       randomizedCards.forEach((_, i) => {
@@ -71,22 +76,20 @@ export default function ActionGallery() {
     return () => ctx.revert();
   }, [randomizedCards, baseTransforms]);
 
-  const handleMouseEnter = (i) => {
-    if (window.matchMedia('(pointer: coarse)').matches) return;
+  const activeCard = useRef(null); // touch: index of the currently tapped card
+
+  // Lift card `i` to the front and dim the rest (shared by hover + tap).
+  const liftCard = (i) => {
     const t = baseTransforms[i];
-    
-    // Animate the hovered card upward and scale it
     gsap.to(cardRefs.current[i], {
       scale: 1.06,
-      rotate: t.rotate * 0.2, // Slightly reduce rotation for readability
-      y: t.y - 36,            // Lift upward relative to its fan position (scaled down 10% from 40)
-      zIndex: 50,             // Temporarily maximize z-index
+      rotate: t.rotate * 0.2, // ease the tilt for readability
+      y: t.y - 36,            // lift relative to its fan position
+      zIndex: 50,
       duration: 0.4,
       ease: 'power2.out',
       overwrite: 'auto',
     });
-
-    // Dim the surrounding cards
     randomizedCards.forEach((_, j) => {
       if (i !== j) {
         gsap.to(cardRefs.current[j], {
@@ -99,24 +102,15 @@ export default function ActionGallery() {
     });
   };
 
-  const handleMouseLeave = (i) => {
-    if (window.matchMedia('(pointer: coarse)').matches) return;
-    const t = baseTransforms[i];
-    
-    // Revert the hovered card to its exact calculated base transform
-    gsap.to(cardRefs.current[i], {
-      scale: 1,
-      rotate: t.rotate,
-      y: t.y,
-      zIndex: t.zIndex,
-      duration: 0.4,
-      ease: 'power2.out',
-      overwrite: 'auto',
-    });
-
-    // Restore surrounding cards
+  // Return every card to its calculated fan position.
+  const resetCards = () => {
     randomizedCards.forEach((_, j) => {
+      const t = baseTransforms[j];
       gsap.to(cardRefs.current[j], {
+        scale: 1,
+        rotate: t.rotate,
+        y: t.y,
+        zIndex: t.zIndex,
         filter: 'brightness(1) grayscale(0)',
         duration: 0.4,
         ease: 'power2.out',
@@ -125,17 +119,30 @@ export default function ActionGallery() {
     });
   };
 
+  const handleMouseEnter = (i) => { if (!isCoarse) liftCard(i); };
+  const handleMouseLeave = () => { if (!isCoarse) resetCards(); };
+
+  // Touch parity for hover: tap a card to bring it forward; tap again (or
+  // another card) to swap. Tapping the active card resets the fan.
+  const handleTap = (i) => {
+    if (!isCoarse) return;
+    if (activeCard.current === i) { activeCard.current = null; resetCards(); }
+    else { activeCard.current = i; liftCard(i); }
+  };
+
   return (
     <section
       ref={sectionRef}
+      id="gallery"
       className="relative w-full overflow-hidden py-36 md:py-44"
       style={{ backgroundColor: '#0d0d0d' }}
     >
       {/* Header */}
       <div className="relative text-center z-0 mb-4 px-8">
-        <div className="w-[60px] h-[2px] bg-[#D2FF00] mx-auto mb-6" />
-        <p className="text-[9px] tracking-[0.45em] uppercase font-bold mb-4" style={{ color: '#9a9a9a' }}>
-          OFF TRACK
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-5">
+          <span className="text-[#D2FF00] tabular-nums">08</span>
+          <span className="text-white/25"> / 10</span>
+          <span className="text-white/40">&nbsp;&nbsp;OFF TRACK // MOMENTS</span>
         </p>
         <h2
           className="font-serif font-black uppercase leading-none"
@@ -145,22 +152,20 @@ export default function ActionGallery() {
         </h2>
       </div>
 
-      {/* Mathematical Fan / Mobile Slider Container */}
-      <div className="relative w-full max-w-6xl mx-auto md:h-[405px] sm:h-[495px] -mt-6 md:-mt-12 px-4 z-10 
-                      flex md:block overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar pb-12 md:pb-0">
+      {/* Fan container — same fan on every device (tighter + smaller on touch) */}
+      <div className={`relative w-full max-w-6xl mx-auto -mt-6 md:-mt-12 px-4 z-10 ${
+        isCoarse ? 'h-[260px]' : 'h-[420px] sm:h-[495px] md:h-[405px]'
+      }`}>
         {randomizedCards.map((card, i) => (
           <div
             key={card.id}
             ref={(el) => (cardRefs.current[i] = el)}
-            className="flex-shrink-0 md:absolute left-1/2 bottom-0 w-[234px] sm:w-[288px] h-[342px] sm:h-[405px] 
-                       rounded-2xl overflow-hidden cursor-pointer shadow-2xl group border border-white/[0.05]
-                       snap-center mx-3 md:mx-0 first:ml-8 last:mr-8 md:first:ml-0 md:last:mr-0
-                       transition-transform duration-300 will-change-transform"
-            style={{ 
-              transform: window.matchMedia('(pointer: coarse)').matches ? (i % 2 === 0 ? 'rotate(1deg)' : 'rotate(-1deg)') : undefined 
-            }}
+            className={`absolute left-1/2 bottom-0 rounded-2xl overflow-hidden cursor-pointer shadow-2xl group border border-white/[0.05] transition-transform duration-300 will-change-transform ${
+              isCoarse ? 'w-[150px] h-[214px]' : 'w-[234px] sm:w-[288px] h-[342px] sm:h-[405px]'
+            }`}
             onMouseEnter={() => handleMouseEnter(i)}
             onMouseLeave={() => handleMouseLeave(i)}
+            onClick={() => handleTap(i)}
           >
             <img
               src={card.src}
@@ -190,7 +195,7 @@ export default function ActionGallery() {
         <div className="mx-auto w-full max-w-xl border-t border-[#f0f0f0]/12">
           {[
             { href: '#rides',   label: 'View Rides',   index: '01', sub: 'Selected machines' },
-            { href: '#gallery', label: 'Full Gallery', index: '02', sub: 'Every frame' },
+            { href: '/archive', label: 'Full Archive', index: '02', sub: 'Every frame' },
           ].map(({ href, label, index, sub }) => (
             <a
               key={href}
