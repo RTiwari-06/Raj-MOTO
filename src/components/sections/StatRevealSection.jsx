@@ -1,51 +1,34 @@
-import { useEffect, useRef, useState, Suspense } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Canvas } from '@react-three/fiber';
-import { FluidBackground } from '@/components/webgl/FluidBackground';
-import { attachContextRecovery } from '@/components/webgl/contextRecovery';
-import { MEDIA } from '@/data/media';
 import { EASE, DUR, ST } from '@/motion/system';
+import RollingOdometer from '@/components/ui/RollingOdometer';
+import OdometerBackground from '@/components/ui/OdometerBackground';
 
-const TECHNICAL = MEDIA.technical;
-
-// Phones keep the fluid, but at native resolution only (it sits under a 75%
-// black overlay — extra DPR is invisible there).
-const COARSE =
-  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+const prefersReduced = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function StatRevealSection() {
-  const sectionRef  = useRef(null);
-  const statRef     = useRef(null);
-  const labelRef    = useRef(null);
-  const subRef      = useRef(null);
-  const counterRef  = useRef({ value: 0 });
-
-  // `inView` runs the frameloop only while on screen; `near` (wide margin)
-  // decides whether the WebGL context exists at all. Releasing the context
-  // when far off-screen caps simultaneous contexts (≤2 across the page) so the
-  // GPU stops dropping one → the Context-Lost blank screen. The fluid sits
-  // under a 75% black scrim, so the "no canvas" fallback is just black.
-  const [inView, setInView] = useState(false);
-  const [near, setNear] = useState(false);
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const viewOb = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
-    const nearOb = new IntersectionObserver(([e]) => setNear(e.isIntersecting), { rootMargin: '200% 0px' });
-    viewOb.observe(el);
-    nearOb.observe(el);
-    return () => { viewOb.disconnect(); nearOb.disconnect(); };
-  }, []);
+  const sectionRef   = useRef(null);
+  const labelRef     = useRef(null);
+  const subRef       = useRef(null);
+  const counterRef   = useRef({ value: 0 });
+  const odometerRef  = useRef(null);
+  const gaugeRef     = useRef(null);
 
   useEffect(() => {
+    if (prefersReduced()) {
+      odometerRef.current?.setValue(20000);
+      gaugeRef.current?.setProgress(1);
+      gsap.set([labelRef.current, subRef.current], { opacity: 1, yPercent: 0 });
+      return;
+    }
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: ST.start.late,
-          once: true,
-        },
+        scrollTrigger: { trigger: sectionRef.current, start: ST.start.late, once: true },
       });
 
       tl.to(counterRef.current, {
@@ -53,26 +36,19 @@ export default function StatRevealSection() {
         duration: DUR.breath,
         ease: EASE.momentum,
         onUpdate: () => {
-          if (statRef.current) {
-            const v = Math.round(counterRef.current.value);
-            statRef.current.textContent = v.toLocaleString();
-          }
+          const v = counterRef.current.value;
+          odometerRef.current?.setValue(v);
+          gaugeRef.current?.setProgress(v / 20000);
         },
       }, 0);
 
-      tl.fromTo(
-        labelRef.current,
+      tl.fromTo(labelRef.current,
         { yPercent: 60, opacity: 0 },
-        { yPercent: 0, opacity: 1, duration: DUR.considered, ease: EASE.momentum },
-        0.2
-      );
+        { yPercent: 0, opacity: 1, duration: DUR.considered, ease: EASE.momentum }, 0.2);
 
-      tl.fromTo(
-        subRef.current,
+      tl.fromTo(subRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: DUR.standard, ease: EASE.momentum },
-        0.9
-      );
+        { opacity: 1, duration: DUR.standard, ease: EASE.momentum }, 0.9);
     }, sectionRef);
 
     return () => ctx.revert();
@@ -87,25 +63,10 @@ export default function StatRevealSection() {
       {/* ── COUNTER ZONE — full-viewport with live WebGL bg ─────────────────── */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
 
-        {/* Live WebGL Fluid background — mounted only while near the viewport */}
+        {/* Instrument-cluster background — CSS/SVG gauge, no WebGL */}
         <div className="absolute inset-0 z-0">
-          {near && (
-            <Canvas
-              camera={{ position: [0, 0, 3], fov: 45 }}
-              gl={{ antialias: false, alpha: false }}
-              dpr={[1, COARSE ? 1 : 1.5]}
-              frameloop={inView ? 'always' : 'demand'}
-              onCreated={attachContextRecovery}
-            >
-              <Suspense fallback={null}>
-                <FluidBackground />
-              </Suspense>
-            </Canvas>
-          )}
+          <OdometerBackground ref={gaugeRef} />
         </div>
-
-        {/* Dark overlay */}
-        <div className="absolute inset-0 z-10 bg-black/75" />
 
         {/* Counter content */}
         <div className="relative z-20 text-center px-8 select-none">
@@ -136,15 +97,9 @@ export default function StatRevealSection() {
             <div className="h-px w-12 bg-white/15" />
           </div>
 
-          {/* The massive stat */}
+          {/* The massive stat — mechanical odometer reels */}
           <div className="overflow-hidden">
-            <p
-              ref={statRef}
-              className="font-black leading-none text-white"
-              style={{ fontSize: 'clamp(5rem, 22vw, 22rem)', letterSpacing: '-0.04em' }}
-            >
-              0
-            </p>
+            <RollingOdometer ref={odometerRef} digits={5} comma={2} unit="KM" ariaValue="20,000 kilometers clocked" />
           </div>
 
           {/* Counter label */}
