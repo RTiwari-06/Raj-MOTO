@@ -129,7 +129,7 @@ export default function TheMachine() {
 
         <SectionHeader
           index="03"
-          total="10"
+          total="11"
           kicker="THE MACHINE"
           readout="ON TRACK // KTM DUKE 250 · BS6"
           className="tm-head mb-14 md:mb-20"

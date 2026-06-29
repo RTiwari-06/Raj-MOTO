@@ -170,15 +170,6 @@ export const MEDIA = {
     { id: 10, src: '/bike-4-800.webp',         label: 'Nandi Hills',   span: 'col-span-1 row-span-1', category: 'Altitude',  location: '1478 m' },
   ],
 
-  actionCards: [
-    { id: 1, src: '/moto-night-helmet.webp', label: 'Gear Up',   x: -190, y: 22, rotate: -14 },
-    { id: 2, src: '/moto-night-duo-1600.webp', label: 'Night Run', x: -95, y:  8, rotate:  -6 },
-    { id: 3, src: '/moto-rider.webp',        label: 'Saddle Up', x:    0, y:  0, rotate:   0 },
-    { id: 4, src: '/moto-fleet.webp',        label: 'The Fleet', x:   95, y:  8, rotate:   6 },
-    { id: 5, src: '/moto-group.webp',        label: 'The Crew',  x:  190, y: 22, rotate:  14 },
-    { id: 6, src: '/bike-1.jpg',             label: 'Duke Street',x:  285, y: 36, rotate:  22 },
-  ],
-
   story: {
     src:    '/reveal-1920.webp',
     alt:    'Raj Tiwari — RT•MOTO platform',
