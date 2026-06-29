@@ -52,7 +52,15 @@
       "Skill(update-config)",
       "PowerShell(Start-Sleep 10; $f = \"C:\\\\Users\\\\compaq\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-compaq-Desktop-SCT-WD-website-designing\\\\8a57b665-cb7b-407f-aca5-c1a05ddd1a62\\\\tasks\\\\b0kx2vnq8.output\"; if \\(Test-Path $f\\) { $c = Get-Content $f -Raw; if \\($c\\) { $c.Length; $c.Substring\\(0, [Math]::Min\\(3000, $c.Length\\)\\) } else { \"EMPTY\" } } else { \"NO FILE\" })",
       "PowerShell(git push *)",
-      "Bash(awk '{print $5, $9}')"
+      "Bash(awk '{print $5, $9}')",
+      "WebSearch",
+      "Bash(git checkout *)",
+      "Bash(echo \"EXIT_LINT=$?\")",
+      "Bash(tail -8 \"C:/Users/compaq/AppData/Local/Temp/claude/C--Users-compaq-Desktop-SCT-WD-website-designing/a8e0f16b-4e57-4f88-a9db-2d9b7accc092/tasks/bjg1yl9ib.output\")",
+      "PowerShell(git *)",
+      "PowerShell(git commit *)",
+      "PowerShell(\"=== UNSTAGED stat ===\"; git diff --stat; \"=== STAGED stat ===\"; git diff --cached --stat; \"=== settings.local.json diff ===\"; git diff .claude/settings.local.json)",
+      "PowerShell(\"=== DoctrineSection \\(unstaged\\) ===\"; git diff src/components/sections/DoctrineSection.jsx; \"=== media.js \\(unstaged\\) ===\"; git diff src/data/media.js; \"=== Home.jsx \\(unstaged\\) ===\"; git diff src/pages/Home.jsx; \"=== TheMachine \\(unstaged\\) ===\"; git diff src/components/sections/TheMachine.jsx)"
     ]
   },
   "enabledPlugins": {
