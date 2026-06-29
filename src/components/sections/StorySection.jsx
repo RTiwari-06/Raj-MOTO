@@ -5,6 +5,11 @@ import { EASE, DUR, ST, STAGGER } from '@/motion/system';
 import { MEDIA } from '@/data/media';
 import SignatureDraw from '@/components/ui/SignatureDraw';
 
+const prefersReduced = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 const RT_SIGNATURE = "M10 80 C 40 10, 60 10, 90 80 M90 40 L120 40 L120 80 M120 40 C 150 40, 150 10, 120 10"; // Rough RT
 const ACCENT_SLASH = "M0 100 L200 0";
 
@@ -84,7 +89,26 @@ export default function StorySection() {
         }
       );
 
+      const reduced = prefersReduced();
+
       cardRefs.current.forEach((el, i) => {
+        if (!el) return;
+
+        if (reduced) {
+          gsap.set(el, { y: 0, opacity: 1, scale: 1 });
+          return;
+        }
+
+        if (isCoarse) {
+          // Centred timeline beat scales/brightens as you scroll; neighbours dim.
+          gsap.timeline({
+            scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.6 },
+          })
+            .fromTo(el, { scale: 0.95, opacity: 0.5 }, { scale: 1, opacity: 1, ease: 'none' })
+            .to(el, { scale: 0.95, opacity: 0.5, ease: 'none' });
+          return;
+        }
+
         gsap.fromTo(el,
           { y: 40, opacity: 0 },
           {
@@ -96,7 +120,7 @@ export default function StorySection() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isCoarse]);
 
   return (
     <section
