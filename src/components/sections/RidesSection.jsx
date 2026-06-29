@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MEDIA } from '@/data/media';
-import { EASE, DUR, ST } from '@/motion/system';
+import { EASE, DUR, ST, STAGGER } from '@/motion/system';
 import { useRideStore } from '@/store/useRideStore';
 
 const RIDES = MEDIA.rides;
@@ -144,10 +144,30 @@ export default function RidesSection() {
         });
       }
 
-      // ── MOBILE: Vertical reveal ────────────────────────────────────────────
+      // ── MOBILE: scroll-reactive vertical experience ────────────────────────
+      // Transform/opacity/clip only; no pin, no horizontal scrub. Mirrors the
+      // desktop content (parallax, telemetry, active emphasis, progress) for touch.
       if (!isDesktop) {
-        slideRefs.current.forEach((slide) => {
+        const reduced =
+          typeof window !== 'undefined' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        slideRefs.current.forEach((slide, i) => {
           if (!slide) return;
+
+          if (reduced) {
+            // Resolve everything to its visible end state, no motion.
+            gsap.set(slide, { y: 0, opacity: 1 });
+            gsap.set(slide.querySelectorAll('.tele-item'), { opacity: 1, y: 0 });
+            const curtainStatic = slide.querySelector('.ride-reveal');
+            const edgeStatic = slide.querySelector('.ride-reveal-edge');
+            if (curtainStatic) gsap.set(curtainStatic, { clipPath: 'inset(0 0 0 0)' });
+            if (edgeStatic) gsap.set(edgeStatic, { left: 0, top: 0, opacity: 1 });
+            if (dimRefs.current[i]) dimRefs.current[i].style.opacity = '0';
+            return;
+          }
+
+          // Entrance fade (as before).
           gsap.fromTo(slide,
             { y: 50, opacity: 0 },
             {
@@ -155,6 +175,67 @@ export default function RidesSection() {
               scrollTrigger: { trigger: slide, start: ST.start.section, once: true },
             },
           );
+
+          // Image parallax — the over-scaled wrapper drifts vertically as the
+          // slide passes (mobile analog of desktop's xPercent drift).
+          const wrap = imgWrapRefs.current[i];
+          if (wrap) {
+            gsap.fromTo(wrap,
+              { yPercent: -6 },
+              {
+                yPercent: 6, ease: 'none',
+                scrollTrigger: { trigger: slide, start: 'top bottom', end: 'bottom top', scrub: true },
+              },
+            );
+          }
+
+          // Telemetry-on-scroll — the hover curtain content reveals as the slide
+          // centres, then retracts as it leaves. Clip-path opens the panel;
+          // tele-items stagger in. play/reverse on enter/leave both edges.
+          const curtain = slide.querySelector('.ride-reveal');
+          const edge = slide.querySelector('.ride-reveal-edge');
+          const items = slide.querySelectorAll('.tele-item');
+          const tele = gsap.timeline({ paused: true, defaults: { ease: EASE.precision } });
+          if (curtain) tele.fromTo(curtain, { clipPath: 'inset(100% 0 0 100%)' }, { clipPath: 'inset(0 0 0 0)', duration: DUR.standard }, 0);
+          if (edge) tele.fromTo(edge, { opacity: 0 }, { opacity: 1, duration: DUR.fast }, 0);
+          if (items.length) tele.fromTo(items, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: DUR.standard, stagger: STAGGER.elements }, 0.1);
+          ScrollTrigger.create({
+            trigger: slide,
+            start: 'top 60%',
+            end: 'bottom 40%',
+            onEnter: () => tele.play(),
+            onLeave: () => tele.reverse(),
+            onEnterBack: () => tele.play(),
+            onLeaveBack: () => tele.reverse(),
+          });
+
+          // Active-slide emphasis — the centred slide is clear; off-centre dims.
+          const dim = dimRefs.current[i];
+          if (dim) {
+            gsap.set(dim, { opacity: 0.55 });
+            gsap.timeline({
+              scrollTrigger: { trigger: slide, start: 'top bottom', end: 'bottom top', scrub: true },
+            })
+              .to(dim, { opacity: 0, ease: 'none' })
+              .to(dim, { opacity: 0.55, ease: 'none' });
+          }
+
+          // Sticky mini progress — light the dash for the centred slide.
+          ScrollTrigger.create({
+            trigger: slide,
+            start: 'top 55%',
+            end: 'bottom 45%',
+            onToggle: (self) => {
+              const dot = dotRefs.current[i];
+              if (!dot) return;
+              gsap.to(dot, {
+                opacity: self.isActive ? 1 : 0.25,
+                scaleX: self.isActive ? 1.8 : 1,
+                backgroundColor: self.isActive ? ACCENT : 'rgba(255,255,255,0.25)',
+                duration: DUR.feedback, ease: EASE.hover,
+              });
+            },
+          });
         });
       }
 
@@ -348,15 +429,15 @@ export default function RidesSection() {
 
                 <div className="relative z-10">
                   <p
-                    className="font-mono text-[8px] tracking-[0.4em] uppercase mb-5 transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-60 group-hover:translate-y-0 delay-100"
+                    className="tele-item font-mono text-[8px] tracking-[0.4em] uppercase mb-5 transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-60 group-hover:translate-y-0 delay-100"
                     style={{ color: ride.accent || ACCENT }}
                   >
                     Telemetry // 0{i + 1}
                   </p>
-                  <p className="font-serif italic text-white/90 text-base leading-snug mb-8 max-w-[32ch] transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-200">
+                  <p className="tele-item font-serif italic text-white/90 text-base leading-snug mb-8 max-w-[32ch] transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-200">
                     {ride.tagline}
                   </p>
-                  <div className="flex flex-col gap-1 transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-300">
+                  <div className="tele-item flex flex-col gap-1 transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-300">
                     {ride.specs?.map((s) => (
                       <div key={s.label} className="flex items-baseline group/spec">
                         <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/35 whitespace-nowrap transition-colors duration-300 group-hover/spec:text-white/60">
