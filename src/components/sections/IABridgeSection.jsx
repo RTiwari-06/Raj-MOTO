@@ -36,17 +36,36 @@ export default function IABridgeSection() {
         }
       );
 
-      gsap.fromTo(bodyRef.current,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: DUR.standard,
-          ease: EASE.momentum,
-          delay: 0.3,
-          scrollTrigger: { trigger: bodyRef.current, start: ST.start.section, once: true },
-        }
-      );
+      const isCoarse =
+        typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+      const reduced =
+        typeof window !== 'undefined' &&
+        window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduced) {
+        gsap.set(bodyRef.current, { y: 0, opacity: 1 });
+      } else if (isCoarse) {
+        gsap.fromTo(bodyRef.current,
+          { opacity: 0.15 },
+          {
+            opacity: 1, ease: 'none',
+            scrollTrigger: { trigger: bodyRef.current, start: 'top 85%', end: 'top 45%', scrub: true },
+          }
+        );
+      } else {
+        gsap.fromTo(bodyRef.current,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: DUR.standard,
+            ease: EASE.momentum,
+            delay: 0.3,
+            scrollTrigger: { trigger: bodyRef.current, start: ST.start.section, once: true },
+          }
+        );
+      }
     }, sectionRef);
 
     return () => ctx.revert();
