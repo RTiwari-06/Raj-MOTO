@@ -6,6 +6,7 @@
 // and surface/bearing/climb telemetry.
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { runScramble } from '@/utils/scramble';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { EASE } from '@/motion/system';
@@ -175,6 +176,25 @@ export default function DoctrineSection() {
     return () => io.disconnect();
   }, []);
 
+  // Touch: advance the active route as the section scrolls past — the dashboard
+  // is otherwise static on touch (no hover, no auto-cycle). Transform/opacity
+  // only (the [active] effects redraw the route). Off under reduced motion.
+  useEffect(() => {
+    if (!COARSE || prefersReduced()) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    const st = ScrollTrigger.create({
+      trigger: el,
+      start: 'top 80%',
+      end: 'bottom 20%',
+      onUpdate: (self) => {
+        const i = Math.min(ROUTES.length - 1, Math.floor(self.progress * ROUTES.length));
+        setActive((cur) => (cur === i ? cur : i));
+      },
+    });
+    return () => st.kill();
+  }, []);
+
   const hold = () => {
     pausedRef.current = true;
     cycleTween.current && cycleTween.current.pause();
@@ -198,7 +218,7 @@ export default function DoctrineSection() {
       <div className="grain-layer" />
 
       <div className="relative z-10 max-w-screen-2xl mx-auto w-full">
-        <SectionHeader index="04" total="10" kicker="ROUTE DOCTRINE" readout="ON TRACK // TURF · BENGALURU" panning className="mb-10 md:mb-14" />
+        <SectionHeader index="05" total="11" kicker="ROUTE DOCTRINE" readout="ON TRACK // TURF · BENGALURU" panning className="mb-10 md:mb-14" />
 
         <div
           onMouseEnter={hold}
