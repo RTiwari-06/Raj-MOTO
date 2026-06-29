@@ -33,6 +33,21 @@ const SWEEP_DURATION_S = 2.4;
 // Focal point used to bias the scroll-driven reveal toward the rider
 const FOCAL = { x: 0.45, y: 0.42 };
 
+// Ambient idle life — a few always-present, low-strength blobs that drift on
+// cheap sine paths so faint slivers of the rider (MEDIA.hero.reveal) keep
+// breathing through the base photo when nothing else is happening. The mobile
+// analog of the desktop shader's autonomous curl-noise cells. Touch + scroll
+// still dominate (they set larger radius/alpha); ambient is the resting state,
+// replacing today's "radius→0, dead." Honors the dual-identity reveal: drift
+// stays bound to exploring the rider's face, never decorative chaos.
+const AMBIENT = [
+  { bx: 0.42, by: 0.40, ax: 0.05, ay: 0.04, fx: 0.16, fy: 0.11, ph: 0.0 },
+  { bx: 0.52, by: 0.52, ax: 0.06, ay: 0.05, fx: 0.11, fy: 0.15, ph: 2.1 },
+  { bx: 0.38, by: 0.55, ax: 0.04, ay: 0.05, fx: 0.13, fy: 0.09, ph: 4.2 },
+];
+const R_AMBIENT = 0.085; // ambient blob radius (fraction of maxDim)
+const A_AMBIENT = 0.16;  // ambient blob peak alpha
+
 export default function MobileRevealCanvas({ inView }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -82,6 +97,7 @@ export default function MobileRevealCanvas({ inView }) {
 
     let rafId = 0;
     let lastTs = 0;
+    let tSec = 0;            // seconds elapsed, drives ambient drift
 
     const maxDim = () => Math.max(canvas.width, canvas.height);
 
@@ -109,12 +125,24 @@ export default function MobileRevealCanvas({ inView }) {
       const cx = (pos.x + (FOCAL.x - pos.x) * sm) * width;
       const cy = (pos.y + (FOCAL.y - pos.y) * sm) * height;
       const r = Math.max(radius, coverR * sm);
-      if (r < 1) return;
+      const hasMain = r >= 1;
 
       // ── mask ──
       ctx.save();
+
+      // Ambient idle blobs — faded out as the scroll reveal takes over (sm→1).
+      const ambientAlpha = A_AMBIENT * (1 - sm);
+      if (ambientAlpha > 0.01) {
+        const ar = R_AMBIENT * maxDim();
+        for (const a of AMBIENT) {
+          const axp = (a.bx + Math.sin(tSec * a.fx * Math.PI * 2 + a.ph) * a.ax) * width;
+          const ayp = (a.by + Math.cos(tSec * a.fy * Math.PI * 2 + a.ph) * a.ay) * height;
+          drawBlob(axp, ayp, ar, ambientAlpha);
+        }
+      }
+
       for (const t of trail) drawBlob(t.x * width, t.y * height, r * 0.55 * t.s, 0.85 * t.s);
-      drawBlob(cx, cy, r, 1);
+      if (hasMain) drawBlob(cx, cy, r, 1);
 
       // keep only the image inside the mask
       ctx.globalCompositeOperation = 'source-in';
@@ -156,6 +184,7 @@ export default function MobileRevealCanvas({ inView }) {
 
       const dt = Math.min((ts - lastTs) / 1000 || 0.016, 0.05);
       lastTs = ts;
+      tSec += dt;
 
       // auto-sweep drives target + radius until done or interrupted
       if (sweepT >= 0 && sweepT < 1 && !userInteracted) {
@@ -187,7 +216,12 @@ export default function MobileRevealCanvas({ inView }) {
 
       draw();
 
+      // Ambient keeps the loop ticking while the hero is on screen; once the
+      // hero is essentially scrolled away (sm→1) there's nothing to breathe,
+      // so we allow settling (and the inView teardown cancels the rAF anyway).
+      const ambientActive = scrollMix < 0.999;
       const settled =
+        !ambientActive &&
         (sweepT < 0 || sweepT >= 2 || userInteracted) &&
         !touching &&
         Math.abs(target.x - pos.x) < 0.002 &&
