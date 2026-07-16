@@ -368,7 +368,7 @@ const Navbar = () => {
             >
               <span
                 className="w-[5px] h-[5px] rounded-full transition-colors duration-200"
-                style={{ backgroundColor: motionEnabled ? 'var(--color-accent)' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px var(--color-accent), 0 0 2px var(--color-accent)' : 'none' }}
+                style={{ backgroundColor: motionEnabled ? 'var(--color-accent)' : 'var(--color-line-strong)', boxShadow: motionEnabled ? '0 0 8px var(--color-accent), 0 0 2px var(--color-accent)' : 'none' }}
               />
               {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
             </button>
@@ -457,7 +457,7 @@ const Navbar = () => {
             >
               <span
                 className="w-[5px] h-[5px] rounded-full"
-                style={{ backgroundColor: motionEnabled ? 'var(--color-accent)' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px var(--color-accent), 0 0 2px var(--color-accent)' : 'none' }}
+                style={{ backgroundColor: motionEnabled ? 'var(--color-accent)' : 'var(--color-line-strong)', boxShadow: motionEnabled ? '0 0 8px var(--color-accent), 0 0 2px var(--color-accent)' : 'none' }}
               />
               {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
             </button>

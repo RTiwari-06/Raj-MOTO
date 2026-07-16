@@ -249,7 +249,7 @@ export default function DoctrineSection() {
                     key={r.id}
                     d={r.path}
                     fill="none"
-                    stroke="rgba(255,255,255,0.12)"
+                    stroke="var(--color-line)"
                     strokeWidth="1"
                     strokeDasharray="2 5"
                     strokeLinecap="round"

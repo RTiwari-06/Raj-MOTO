@@ -24,6 +24,13 @@ const RIDES = MEDIA.rides;
 // below, and GSAP cannot parse a CSS custom property as a tween target.
 const ACCENT = '#D2FF00';
 
+// The progress dash's idle colour, paired with ACCENT above. Same constraint —
+// it is a GSAP tween target — so it stays literal, but it is hoisted to one
+// definition rather than repeated at each of its three call sites. Snapped to
+// --color-fg-muted (0.35)'s neighbourhood; kept at 0.25 because the dashes read
+// against full-bleed photography rather than the page canvas.
+const DOT_IDLE = 'rgba(255,255,255,0.25)';
+
 export default function RidesSection() {
   const sectionRef = useRef(null);
   const trackRef   = useRef(null);
@@ -70,7 +77,7 @@ export default function RidesSection() {
                 gsap.set(dot, {
                   opacity:         i === idx ? 1 : 0.25,
                   scaleX:          i === idx ? 1.8 : 1,
-                  backgroundColor: i === idx ? ACCENT : 'rgba(255,255,255,0.25)',
+                  backgroundColor: i === idx ? ACCENT : DOT_IDLE,
                 });
               });
               // Active-slide pop: the centred slide is clear; neighbours darken.
@@ -244,7 +251,7 @@ export default function RidesSection() {
               gsap.to(dot, {
                 opacity: self.isActive ? 1 : 0.25,
                 scaleX: self.isActive ? 1.8 : 1,
-                backgroundColor: self.isActive ? ACCENT : 'rgba(255,255,255,0.25)',
+                backgroundColor: self.isActive ? ACCENT : DOT_IDLE,
                 duration: DUR.feedback, ease: EASE.hover,
               });
             },
@@ -304,7 +311,7 @@ export default function RidesSection() {
               ref={(el) => (dotRefs.current[i] = el)}
               className="h-[2px] w-6"
               style={{
-                backgroundColor: i === 0 ? ACCENT : 'rgba(255,255,255,0.25)',
+                backgroundColor: i === 0 ? ACCENT : DOT_IDLE,
                 transformOrigin: 'left center',
                 display: RIDES.length > 1 ? 'block' : 'none',
               }}

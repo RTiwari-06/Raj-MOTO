@@ -100,7 +100,7 @@ export default function ProjectDetail() {
         style={{
           backgroundColor: 'rgba(0,0,0,0.88)',
           backdropFilter:  'blur(12px)',
-          borderBottom:    '1px solid rgba(255,255,255,0.05)',
+          borderBottom:    '1px solid var(--color-line-subtle)',
         }}
       >
         <button
@@ -286,14 +286,14 @@ export default function ProjectDetail() {
                 <p className="text-[9px] font-black uppercase tracking-[0.45em] mb-8 text-fg-muted">
                   RT•MOTO // Full Specification
                 </p>
-                <div style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ border: '1px solid var(--color-line-subtle)' }}>
                   {ride.specs.map((spec, j) => (
                     <div
                       key={spec.label}
                       className="flex items-center justify-between px-6 py-5"
                       style={{
                         borderBottom: j < ride.specs.length - 1
-                          ? '1px solid rgba(255,255,255,0.04)'
+                          ? '1px solid var(--color-line-subtle)'
                           : 'none',
                       }}
                     >

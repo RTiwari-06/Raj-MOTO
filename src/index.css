@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Tailwind 4 auto-detects sources, which swept in the JSX code samples inside
+   docs/superpowers/**.md and emitted utilities for classes no element uses —
+   e.g. .text-white/45 and .text-white/55 were still being generated from old
+   plan documents after every such class had been migrated out of src/. Phantom
+   utilities from prose are indistinguishable from real ones in the output, so
+   scope generation to the app. */
+@source not "../docs";
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    THE TOKEN SET — single source of truth.
 
@@ -138,7 +146,7 @@
      tokenized shadow stack. */
   --elevation-hover: -4px;
   --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.2);
-  --shadow-2: 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-2: 0 0 0 1px var(--color-line-subtle);
   --shadow-3: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
   --shadow-glow: 0 0 24px var(--color-accent-dim);
 
@@ -957,7 +965,13 @@ html.lenis { height: auto; }
   );
 }
 
-/* Hairline technical grid — light sections (ActionGallery, Contact) */
+/* Hairline technical grid — light sections (ActionGallery, Contact)
+   Literal 0.022 on purpose: this is ambient TEXTURE, not a line, and it sits a
+   full tier below --color-line-subtle (0.05). Snapping it to the line ladder
+   would more than double its strength and pull a background grid forward into
+   the composition — a visible regression, not a no-op. Texture below the line
+   ladder is a distinct responsibility; if a third site ever needs this value it
+   earns a --color-grid token rather than borrowing a line one. */
 .hairline-grid {
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
@@ -1031,8 +1045,8 @@ html.lenis { height: auto; }
   height: 14px;
   width: 100%;
   background-image:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0 1px, transparent 1px 26px),
-    linear-gradient(rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10));
+    repeating-linear-gradient(90deg, var(--color-line-strong) 0 1px, transparent 1px 26px),
+    linear-gradient(var(--color-line), var(--color-line));
   background-repeat: no-repeat;
   background-size: 100% 8px, 100% 1px;
   background-position: left bottom, left bottom;
@@ -1040,7 +1054,7 @@ html.lenis { height: auto; }
 .tick-rule--accent {
   background-image:
     repeating-linear-gradient(90deg, var(--color-accent-mid) 0 1px, transparent 1px 26px),
-    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
+    linear-gradient(var(--color-line), var(--color-line));
 }
 
 /* — Film grain overlay element: drop inside any relative container — */
@@ -1164,7 +1178,7 @@ html.lenis { height: auto; }
 .tick-rule--scroll {
   position: relative;
   overflow: hidden;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
+  background-image: linear-gradient(var(--color-line), var(--color-line));
   background-repeat: no-repeat;
   background-size: 100% 1px;
   background-position: 0 bottom;
@@ -1280,7 +1294,7 @@ html.lenis { height: auto; }
 
 /* — Ghost numeral / word: oversized outlined background type for depth — */
 .ghost-mark {
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.05);
+  -webkit-text-stroke: 1px var(--color-line-subtle);
   color: transparent;
   font-family: var(--font-serif);
   font-weight: 800;
@@ -1295,7 +1309,7 @@ html.lenis { height: auto; }
 .lead-dots {
   flex: 1 1 auto;
   margin: 0 12px 4px;
-  border-bottom: 1px dotted rgba(255, 255, 255, 0.18);
+  border-bottom: 1px dotted var(--color-line-strong);
 }
 
 /* — Spec line with hanging mono index, brutalist scale — */
@@ -1679,7 +1693,7 @@ html.lenis { height: auto; }
 /* Soft key light lifting the figure out of the night — controlled, subtle. */
 .hero-keylight {
   background: radial-gradient(ellipse 55% 60% at 43% 44%,
-    rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 60%);
+    var(--color-line-subtle) 0%, rgba(255, 255, 255, 0) 60%);
 }
 /* Vignette — re-aimed onto the figure (was a 60%/45% grid point). */
 .hero-vignette {

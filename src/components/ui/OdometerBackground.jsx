@@ -33,8 +33,8 @@ const OdometerBackground = forwardRef(function OdometerBackground(_props, ref) {
         aria-hidden="true"
       >
         {/* concentric gauge arcs */}
-        <circle cx="100" cy="100" r="92" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.6" />
-        <circle cx="100" cy="100" r="78" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.4" />
+        <circle cx="100" cy="100" r="92" fill="none" stroke="var(--color-line-subtle)" strokeWidth="0.6" />
+        <circle cx="100" cy="100" r="78" fill="none" stroke="var(--color-line-subtle)" strokeWidth="0.4" />
 
         {/* tick marks */}
         {Array.from({ length: TICKS }).map((_, i) => {
@@ -50,7 +50,7 @@ const OdometerBackground = forwardRef(function OdometerBackground(_props, ref) {
             <line
               key={i}
               x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke={major ? 'var(--color-accent-soft)' : 'rgba(255,255,255,0.15)'}
+              stroke={major ? 'var(--color-accent-soft)' : 'var(--color-line-strong)'}
               strokeWidth={major ? 1 : 0.5}
             />
           );
