@@ -295,75 +295,75 @@ export default function HelmetSection() {
 
       <div className="absolute inset-0 z-20 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 42%, rgba(0,0,0,0.55) 100%)' }} />
       <div className="grain-layer z-20" />
-      <div ref={scanlineRef} className="hfx absolute left-0 right-0 z-30 pointer-events-none" style={{ top: '16%', height: '2px', opacity: 0, background: 'linear-gradient(90deg, transparent, rgba(210,255,0,0.9) 50%, transparent)', boxShadow: '0 0 16px rgba(210,255,0,0.6)' }} />
-      <div ref={bloomRef} className="hfx absolute inset-0 z-20 pointer-events-none" style={{ opacity: 0, background: 'radial-gradient(ellipse at center, rgba(210,255,0,0.16) 0%, rgba(210,255,0,0.04) 40%, transparent 72%)' }} />
+      <div ref={scanlineRef} className="hfx absolute left-0 right-0 z-30 pointer-events-none" style={{ top: '16%', height: '2px', opacity: 0, background: 'linear-gradient(90deg, transparent, var(--color-accent) 50%, transparent)', boxShadow: '0 0 16px var(--color-accent-mid)' }} />
+      <div ref={bloomRef} className="hfx absolute inset-0 z-20 pointer-events-none" style={{ opacity: 0, background: 'radial-gradient(ellipse at center, var(--color-accent-dim) 0%, var(--color-accent-wash) 40%, transparent 72%)' }} />
 
       <div ref={reticleRef} className="hfx absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none" style={{ opacity: 0, width: 'min(60vh, 60vw)', height: 'min(60vh, 60vw)' }}>
-        <div className="absolute inset-0 border border-[#D2FF00]/15 rounded-full" />
-        <div className="absolute inset-[18%] border border-[#D2FF00]/10 rounded-full" />
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-[#D2FF00]/15" />
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#D2FF00]/15" />
+        <div className="absolute inset-0 border border-accent-dim rounded-full" />
+        <div className="absolute inset-[18%] border border-accent-dim rounded-full" />
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-accent-dim" />
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-accent-dim" />
         <span className="brk tl" style={{ top: '12%', left: '12%' }} />
         <span className="brk tr" style={{ top: '12%', right: '12%' }} />
         <span className="brk bl" style={{ bottom: '12%', left: '12%' }} />
         <span className="brk br" style={{ bottom: '12%', right: '12%' }} />
       </div>
 
-      <div className="absolute top-4 left-4 w-6 h-[1px] bg-white/15 pointer-events-none z-40" /><div className="absolute top-4 left-4 w-[1px] h-6 bg-white/15 pointer-events-none z-40" />
-      <div className="absolute top-4 right-4 w-6 h-[1px] bg-white/15 pointer-events-none z-40" /><div className="absolute top-4 right-4 w-[1px] h-6 bg-white/15 pointer-events-none z-40" />
-      <div className="absolute bottom-4 left-4 w-6 h-[1px] bg-white/15 pointer-events-none z-40" /><div className="absolute bottom-4 left-4 w-[1px] h-6 bg-white/15 pointer-events-none z-40" />
-      <div className="absolute bottom-4 right-4 w-6 h-[1px] bg-white/15 pointer-events-none z-40" /><div className="absolute bottom-4 right-4 w-[1px] h-6 bg-white/15 pointer-events-none z-40" />
+      <div className="absolute top-4 left-4 w-6 h-[1px] bg-surface-hover pointer-events-none z-40" /><div className="absolute top-4 left-4 w-[1px] h-6 bg-surface-hover pointer-events-none z-40" />
+      <div className="absolute top-4 right-4 w-6 h-[1px] bg-surface-hover pointer-events-none z-40" /><div className="absolute top-4 right-4 w-[1px] h-6 bg-surface-hover pointer-events-none z-40" />
+      <div className="absolute bottom-4 left-4 w-6 h-[1px] bg-surface-hover pointer-events-none z-40" /><div className="absolute bottom-4 left-4 w-[1px] h-6 bg-surface-hover pointer-events-none z-40" />
+      <div className="absolute bottom-4 right-4 w-6 h-[1px] bg-surface-hover pointer-events-none z-40" /><div className="absolute bottom-4 right-4 w-[1px] h-6 bg-surface-hover pointer-events-none z-40" />
 
       <div ref={hudTopRef} className="absolute top-0 left-0 right-0 z-40 pointer-events-none px-8 md:px-16 py-6 flex items-start justify-between" style={{ opacity: 0 }}>
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-[#D2FF00] animate-pulse" /><span className="text-[9px] font-black tracking-[0.35em] uppercase text-[#D2FF00]/60">{d.sectionLabel}</span></div>
-          <div className="flex items-center gap-2 font-mono text-[9px] tracking-[0.25em] uppercase text-white/30"><span>SCAN</span><span ref={scanPctRef} className="text-[#D2FF00]/70 tabular-nums">000</span><span>%</span></div>
+          <div className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-accent animate-pulse" /><span className="text-[9px] font-black tracking-[0.35em] uppercase text-accent-mid">{d.sectionLabel}</span></div>
+          <div className="flex items-center gap-2 font-mono text-[9px] tracking-[0.25em] uppercase text-fg-muted"><span>SCAN</span><span ref={scanPctRef} className="text-accent-mid tabular-nums">000</span><span>%</span></div>
         </div>
-        <span ref={degreeRef} className="font-mono text-[28px] md:text-[40px] font-black text-white/10 tracking-tight select-none tabular-nums">000&deg;</span>
+        <span ref={degreeRef} className="font-mono text-[28px] md:text-[40px] font-black text-fg-faint tracking-tight select-none tabular-nums">000&deg;</span>
       </div>
 
       <div ref={bootRef} className="absolute z-30 pointer-events-none left-8 md:left-16 top-1/2 -translate-y-1/2" style={{ opacity: 0 }}>
-        <div className="flex items-center gap-3 mb-3"><div className="w-2 h-2 bg-[#D2FF00] animate-pulse" /><span className="text-[9px] font-black tracking-[0.4em] uppercase text-[#D2FF00]/70">SYS // POWER ON</span></div>
+        <div className="flex items-center gap-3 mb-3"><div className="w-2 h-2 bg-accent animate-pulse" /><span className="text-[9px] font-black tracking-[0.4em] uppercase text-accent-mid">SYS // POWER ON</span></div>
         <h3 className="font-serif font-black uppercase text-white leading-none" style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)', letterSpacing: '-0.04em' }}>GEAR CHECK</h3>
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/35 mt-3">Initialising inspection sequence…</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-fg-muted mt-3">Initialising inspection sequence…</p>
       </div>
 
       <div ref={identityRef} className="absolute z-30 pointer-events-none left-8 md:left-16 bottom-28 md:bottom-auto md:top-1/2 md:-translate-y-1/2" style={{ opacity: 0 }}>
-        <div className="flex items-center gap-3 mb-3"><div className="w-2 h-2 bg-[#D2FF00]" /><span className="text-[9px] font-black tracking-[0.35em] uppercase text-[#D2FF00]/70">RIDER // IDENTITY</span></div>
+        <div className="flex items-center gap-3 mb-3"><div className="w-2 h-2 bg-accent" /><span className="text-[9px] font-black tracking-[0.35em] uppercase text-accent-mid">RIDER // IDENTITY</span></div>
         <h3 className="font-serif font-black uppercase text-white leading-none" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', letterSpacing: '-0.03em' }}>{d.rider.name}</h3>
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/40 mt-3">{d.rider.role}</p>
-        <p className="font-mono text-[9px] tracking-[0.25em] uppercase text-white/20 mt-1.5">{d.rider.tag}</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-fg-muted mt-3">{d.rider.role}</p>
+        <p className="font-mono text-[9px] tracking-[0.25em] uppercase text-fg-faint mt-1.5">{d.rider.tag}</p>
       </div>
 
       <div ref={calibRef} className="absolute z-30 pointer-events-none right-8 md:right-16 bottom-28 md:bottom-auto md:top-1/2 md:-translate-y-1/2 text-right" style={{ opacity: 0 }}>
-        <div className="flex items-center gap-3 mb-3 justify-end"><span className="text-[9px] font-black tracking-[0.35em] uppercase text-[#D2FF00]/70">CALIBRATION // SPEC</span><div className="w-2 h-2 bg-[#D2FF00]" /></div>
+        <div className="flex items-center gap-3 mb-3 justify-end"><span className="text-[9px] font-black tracking-[0.35em] uppercase text-accent-mid">CALIBRATION // SPEC</span><div className="w-2 h-2 bg-accent" /></div>
         <h3 className="font-serif font-black uppercase text-white leading-none" style={{ fontSize: 'clamp(1.8rem, 4vw, 3.5rem)', letterSpacing: '-0.03em' }}>{d.machine.model}</h3>
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/40 mt-3">{d.machine.variant}</p>
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-fg-muted mt-3">{d.machine.variant}</p>
         <div className="mt-5 space-y-2">
           {d.machine.specs.map((s) => (
             <div key={s.label} className="flex items-center justify-end gap-4">
-              <span className="text-[9px] tracking-[0.3em] uppercase text-white/25 font-mono">{s.label}</span>
-              <span className="text-[11px] font-black text-white/60 font-mono tabular-nums">{s.value}</span>
+              <span className="text-[9px] tracking-[0.3em] uppercase text-fg-muted font-mono">{s.label}</span>
+              <span className="text-[11px] font-black text-fg-2 font-mono tabular-nums">{s.value}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div ref={philoRef} className="absolute z-30 pointer-events-none bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 text-center max-w-lg px-6" style={{ opacity: 0 }}>
-        <div className="flex items-center gap-3 justify-center mb-4"><div className="h-px w-8 bg-[#D2FF00]/30" /><span className="text-[9px] font-black tracking-[0.35em] uppercase text-[#D2FF00]/70">IGNITION</span><div className="h-px w-8 bg-[#D2FF00]/30" /></div>
-        <p className="font-serif italic text-white/85 leading-relaxed" style={{ fontSize: 'clamp(1rem, 2vw, 1.25rem)' }}>&ldquo;{d.philosophy.quote}&rdquo;</p>
-        <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[#D2FF00]/50 mt-3">&mdash; {d.philosophy.author}</p>
+        <div className="flex items-center gap-3 justify-center mb-4"><div className="h-px w-8 bg-accent-soft" /><span className="text-[9px] font-black tracking-[0.35em] uppercase text-accent-mid">IGNITION</span><div className="h-px w-8 bg-accent-soft" /></div>
+        <p className="font-serif italic text-fg leading-relaxed" style={{ fontSize: 'clamp(1rem, 2vw, 1.25rem)' }}>&ldquo;{d.philosophy.quote}&rdquo;</p>
+        <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-accent-mid mt-3">&mdash; {d.philosophy.author}</p>
       </div>
 
       <div ref={finaleRef} className="absolute z-30 pointer-events-none inset-0 flex items-end justify-center pb-16 md:pb-20" style={{ opacity: 0 }}>
         <div className="text-center">
-          <div className="flex items-center gap-4 justify-center mb-2"><div className="h-px w-12 bg-[#D2FF00]/40" /><span className="text-[10px] font-black tracking-[0.4em] uppercase text-[#D2FF00]">READY TO RACE</span><div className="h-px w-12 bg-[#D2FF00]/40" /></div>
-          <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/25 mt-1">360&deg; INSPECTION VERIFIED // GEAR CHECK COMPLETE</p>
+          <div className="flex items-center gap-4 justify-center mb-2"><div className="h-px w-12 bg-accent-soft" /><span className="text-[10px] font-black tracking-[0.4em] uppercase text-accent">READY TO RACE</span><div className="h-px w-12 bg-accent-soft" /></div>
+          <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted mt-1">360&deg; INSPECTION VERIFIED // GEAR CHECK COMPLETE</p>
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 z-40 h-[2px] bg-white/5">
-        <div ref={progressRef} className="h-full bg-[#D2FF00]/70 origin-left" style={{ transform: 'scaleX(0)', boxShadow: '0 0 10px rgba(210,255,0,0.5)' }} />
+      <div className="absolute bottom-0 left-0 right-0 z-40 h-[2px] bg-line-subtle">
+        <div ref={progressRef} className="h-full bg-accent-mid origin-left" style={{ transform: 'scaleX(0)', boxShadow: '0 0 10px var(--color-accent-mid)' }} />
       </div>
     </section>
   );

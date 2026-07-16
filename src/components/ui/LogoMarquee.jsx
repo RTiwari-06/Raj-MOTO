@@ -3,7 +3,7 @@ import { useMarquee } from '@/components/ui/useMarquee';
 
 // Band colour — a true neutral charcoal (no colour cast) so every brand logo
 // reads accurately as it loops.
-const BAND_BG = '#15171A';
+const BAND_BG = 'var(--color-canvas-raised)';
 const EDGE_FADE =
   'linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)';
 

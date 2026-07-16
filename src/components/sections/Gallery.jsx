@@ -101,7 +101,7 @@ export default function GallerySection() {
     <section
       id="gallery"
       ref={sectionRef}
-      className="relative w-full bg-[#0a0a0a] py-28 md:py-36 px-6 md:px-16 border-t border-white/5 overflow-hidden"
+      className="relative w-full bg-canvas py-28 md:py-36 px-6 md:px-16 border-t border-line-subtle overflow-hidden"
     >
       <div className="grain-layer" />
 
@@ -113,7 +113,7 @@ export default function GallerySection() {
       >
         <div
           className="px-3.5 py-2 text-[9px] font-black tracking-[0.3em] uppercase whitespace-nowrap"
-          style={{ background: '#D2FF00', color: '#0a0a0a' }}
+          style={{ background: 'var(--color-accent)', color: 'var(--color-canvas)' }}
         >
           VIEW {hoveredPhoto ? `// ${hoveredPhoto.location}` : ''}
         </div>
@@ -128,7 +128,7 @@ export default function GallerySection() {
             className="font-serif font-black uppercase leading-none"
             style={{ fontSize: 'clamp(2.6rem, 8vw, 8rem)', letterSpacing: '-0.04em', lineHeight: '0.86' }}
           >
-            <span className="block" style={{ color: '#D2FF00' }}>VISUAL</span>
+            <span className="block" style={{ color: 'var(--color-accent)' }}>VISUAL</span>
             <span className="block text-white">ARCHIVE</span>
           </h2>
         </div>
@@ -147,15 +147,15 @@ export default function GallerySection() {
             <div
               key={photo.id}
               data-magnetic="image"
-              className={`grid-cell group relative overflow-hidden cursor-none opacity-0 bg-[#0d0d0d] ${photo.span}`}
+              className={`grid-cell group relative overflow-hidden cursor-none opacity-0 bg-canvas ${photo.span}`}
               onMouseEnter={() => setHovered(photo.id)}
               onMouseLeave={() => setHovered(null)}
               onClick={() => setLightbox(photo)}
             >
               {/* Placeholder behind (shows for unshot tiles) */}
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
-                <span className="font-mono text-[8px] tracking-[0.35em] text-white/20">NO FEED</span>
-                <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#D2FF00]/50">{photo.label}</span>
+                <span className="font-mono text-[8px] tracking-[0.35em] text-fg-faint">NO FEED</span>
+                <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-accent-mid">{photo.label}</span>
               </div>
 
               {/* Parallax wrapper + image (hover scale 1.05 over 0.6s) */}
@@ -180,7 +180,7 @@ export default function GallerySection() {
               />
               <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 pointer-events-none">
                 <span
-                  className="font-mono text-[8px] tracking-[0.35em] uppercase text-[#D2FF00]/80 block mb-1.5 transition-opacity duration-300"
+                  className="font-mono text-[8px] tracking-[0.35em] uppercase text-accent block mb-1.5 transition-opacity duration-300"
                   style={{ opacity: hovered === photo.id ? 1 : 0.6 }}
                 >
                   {photo.category}
@@ -203,7 +203,7 @@ export default function GallerySection() {
         {/* CTA — editorial hairline links (carries the /archive entry forward
             from the retired ActionGallery so the Archive page stays reachable) */}
         <div className="mt-24 md:mt-32">
-          <div className="mx-auto w-full max-w-xl border-t border-white/12">
+          <div className="mx-auto w-full max-w-xl border-t border-line">
             {[
               { href: '#rides',   label: 'View Rides',   index: '01', sub: 'Selected machines' },
               { href: '/archive', label: 'Full Archive', index: '02', sub: 'Every frame' },
@@ -214,11 +214,11 @@ export default function GallerySection() {
                 data-magnetic="cta"
                 className="group relative block py-7 select-none"
               >
-                <span className="absolute bottom-0 left-0 h-px w-full bg-white/12" />
-                <span className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-[#D2FF00] transition-transform duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
+                <span className="absolute bottom-0 left-0 h-px w-full bg-line" />
+                <span className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-accent transition-transform duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
                 <span className="flex items-end justify-between gap-6">
                   <span className="flex items-baseline gap-4 md:gap-6">
-                    <span className="font-mono text-[10px] tracking-[0.25em] text-white/35 transition-colors duration-300 group-hover:text-white">
+                    <span className="font-mono text-[10px] tracking-[0.25em] text-fg-muted transition-colors duration-300 group-hover:text-white">
                       {index}
                     </span>
                     <span className="flex flex-col">
@@ -228,7 +228,7 @@ export default function GallerySection() {
                       >
                         {label}
                       </span>
-                      <span className="mt-2 font-mono text-[9px] tracking-[0.3em] uppercase text-white/30">
+                      <span className="mt-2 font-mono text-[9px] tracking-[0.3em] uppercase text-fg-muted">
                         {sub}
                       </span>
                     </span>
@@ -262,9 +262,9 @@ export default function GallerySection() {
               className="w-full max-h-[82vh] object-contain"
               style={{ borderRadius: '2px' }}
             />
-            <div className="flex items-center justify-between mt-5 border-t border-white/10 pt-4">
+            <div className="flex items-center justify-between mt-5 border-t border-line pt-4">
               <div>
-                <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-[#D2FF00] mb-1">
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase text-accent mb-1">
                   {lightbox.category} · {lightbox.location}
                 </p>
                 <p className="font-serif font-black uppercase text-white text-2xl leading-none tracking-tight">
@@ -274,22 +274,22 @@ export default function GallerySection() {
               <div className="flex items-center gap-4">
                 <button
                   data-magnetic
-                  className="w-9 h-9 border border-white/20 hover:border-[#D2FF00] hover:text-[#D2FF00] flex items-center justify-center text-white/60 transition-all duration-200 text-sm font-bold"
+                  className="w-9 h-9 border border-line-strong hover:border-accent hover:text-accent flex items-center justify-center text-fg-2 transition-all duration-200 text-sm font-bold"
                   onClick={() => navigate(-1)}
                   aria-label="Previous"
                 >←</button>
-                <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-white/40 tabular-nums">
+                <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-fg-muted tabular-nums">
                   {String(lightboxIndex + 1).padStart(2, '0')} / {String(PHOTOS.length).padStart(2, '0')}
                 </span>
                 <button
                   data-magnetic
-                  className="w-9 h-9 border border-white/20 hover:border-[#D2FF00] hover:text-[#D2FF00] flex items-center justify-center text-white/60 transition-all duration-200 text-sm font-bold"
+                  className="w-9 h-9 border border-line-strong hover:border-accent hover:text-accent flex items-center justify-center text-fg-2 transition-all duration-200 text-sm font-bold"
                   onClick={() => navigate(1)}
                   aria-label="Next"
                 >→</button>
                 <button
                   data-magnetic
-                  className="font-mono text-[10px] tracking-[0.2em] uppercase font-bold text-white/40 hover:text-white transition-colors ml-3"
+                  className="font-mono text-[10px] tracking-[0.2em] uppercase font-bold text-fg-muted hover:text-white transition-colors ml-3"
                   onClick={() => setLightbox(null)}
                 >Close ✕</button>
               </div>

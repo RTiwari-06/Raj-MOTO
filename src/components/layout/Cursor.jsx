@@ -66,6 +66,18 @@ export function Cursor() {
       ringY(my);
     };
 
+    // ⚠ The colours in the gsap.to() calls below are deliberately LITERAL, not
+    // var(--color-accent-*). GSAP interpolates colour numerically and cannot parse
+    // a CSS custom property as a tween TARGET — it would fail to animate rather
+    // than error, i.e. break silently. Do not "tokenize" these.
+    //
+    // They are still snapped to the accent ramp so they stay on-system:
+    //   #D2FF00 = --color-accent · 0.6 = --color-accent-mid
+    //   0.35    = --color-accent-soft  · 0.14 = --color-accent-dim
+    //
+    // (Setting a var() as a tween START is fine — getComputedStyle resolves it
+    // before GSAP reads it — which is why the ring's initial border in the JSX
+    // below can and does use a token.)
     const onEnter = (e) => {
       const magnetic = e.target.closest('[data-magnetic]');
       if (magnetic) {
@@ -75,21 +87,21 @@ export function Cursor() {
         if (type === 'cta') {
           gsap.to(ring, {
             width: 44, height: 44,
-            backgroundColor: 'rgba(210,255,0,0.12)',
-            borderColor: 'rgba(210,255,0,0.9)',
+            backgroundColor: 'rgba(210,255,0,0.14)',
+            borderColor: '#D2FF00',
             duration: DUR.feedback, ease: EASE.momentum,
           });
         } else if (type === 'image') {
           gsap.to(ring, {
             width: 52, height: 52,
-            borderColor: 'rgba(210,255,0,0.5)',
+            borderColor: 'rgba(210,255,0,0.6)',
             duration: DUR.feedback, ease: EASE.momentum,
           });
         } else {
           // default — link hover
           gsap.to(ring, {
             width: 40, height: 40,
-            borderColor: 'rgba(210,255,0,0.7)',
+            borderColor: 'rgba(210,255,0,0.6)',
             duration: DUR.feedback, ease: EASE.momentum,
           });
         }
@@ -159,7 +171,7 @@ export function Cursor() {
           width:           4,
           height:          4,
           borderRadius:    '50%',
-          backgroundColor: '#D2FF00',
+          backgroundColor: 'var(--color-accent)',
           transform:       'translate(-50%, -50%)',
           willChange:      'transform',
         }}
@@ -173,7 +185,7 @@ export function Cursor() {
           width:        36,
           height:       36,
           borderRadius: '50%',
-          border:       '1.5px solid rgba(210,255,0,0.35)',
+          border:       '1.5px solid var(--color-accent-soft)',
           transform:    'translate(-50%, -50%)',
           willChange:   'transform',
         }}

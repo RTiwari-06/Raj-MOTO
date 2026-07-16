@@ -15,17 +15,17 @@ export function SectionHeader({
     <div className={`w-full ${className}`}>
       <div className="flex items-end justify-between gap-6">
         <div className="flex items-baseline gap-3 md:gap-4">
-          <span className="font-mono text-[10px] md:text-[11px] tracking-[0.25em] text-[#D2FF00] tabular-nums">
+          <span className="font-mono text-[10px] md:text-[11px] tracking-[0.25em] text-accent tabular-nums">
             {index}
-            <span className="text-white/25"> / {total}</span>
+            <span className="text-fg-muted"> / {total}</span>
           </span>
-          <span className="font-mono text-[9px] md:text-[10px] tracking-[0.35em] uppercase text-white/45">
+          <span className="font-mono text-[9px] md:text-[10px] tracking-[0.35em] uppercase text-fg-2">
             {kicker}
           </span>
         </div>
 
         {readout && (
-          <span className="hidden sm:block font-mono text-[9px] tracking-[0.3em] uppercase text-white/30 text-right leading-relaxed">
+          <span className="hidden sm:block font-mono text-[9px] tracking-[0.3em] uppercase text-fg-muted text-right leading-relaxed">
             {readout}
           </span>
         )}

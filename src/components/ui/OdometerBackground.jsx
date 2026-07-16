@@ -25,7 +25,7 @@ const OdometerBackground = forwardRef(function OdometerBackground(_props, ref) {
       {/* instrument vignette */}
       <div
         className="absolute inset-0"
-        style={{ background: 'radial-gradient(circle at 50% 46%, rgba(22,22,22,0.9) 0%, #060606 58%, #000 100%)' }}
+        style={{ background: 'radial-gradient(circle at 50% 46%, rgba(22,22,22,0.9) 0%, var(--color-canvas-deep) 58%, #000 100%)' }}
       />
       <svg
         viewBox="0 0 200 200"
@@ -50,7 +50,7 @@ const OdometerBackground = forwardRef(function OdometerBackground(_props, ref) {
             <line
               key={i}
               x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke={major ? 'rgba(210,255,0,0.45)' : 'rgba(255,255,255,0.15)'}
+              stroke={major ? 'var(--color-accent-soft)' : 'rgba(255,255,255,0.15)'}
               strokeWidth={major ? 1 : 0.5}
             />
           );
@@ -60,10 +60,10 @@ const OdometerBackground = forwardRef(function OdometerBackground(_props, ref) {
         <g ref={needleRef} transform={`rotate(${START_DEG} 100 100)`}>
           <line
             x1="100" y1="100" x2="100" y2="18"
-            stroke="#D2FF00" strokeWidth="1.4" strokeLinecap="round"
-            style={{ filter: 'drop-shadow(0 0 4px rgba(210,255,0,0.7))' }}
+            stroke="var(--color-accent)" strokeWidth="1.4" strokeLinecap="round"
+            style={{ filter: 'drop-shadow(0 0 4px var(--color-accent-mid))' }}
           />
-          <circle cx="100" cy="100" r="3" fill="#D2FF00" />
+          <circle cx="100" cy="100" r="3" fill="var(--color-accent)" />
         </g>
       </svg>
     </div>

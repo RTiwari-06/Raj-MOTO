@@ -88,16 +88,16 @@ export default function ContactSection() {
     <section
       id="connect"
       ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-[#141913] select-none"
+      className="relative w-full h-screen overflow-hidden bg-canvas-raised select-none"
     >
       {/* =========================================================================
           LAYER 1: Deepest Background (Stylized Vector Graphic)
           ========================================================================= */}
       <div className="absolute inset-0 z-0 flex items-center justify-center opacity-20 pointer-events-none">
-        <svg viewBox="0 0 800 600" className="w-[120%] h-auto max-h-screen fill-none stroke-[#D2FF00] stroke-[1.5px] opacity-10">
+        <svg viewBox="0 0 800 600" className="w-[120%] h-auto max-h-screen fill-none stroke-accent stroke-[1.5px] opacity-10">
           <path d="M-100,300 L200,100 L400,500 L600,200 L900,400" />
-          <circle cx="400" cy="500" r="8" fill="#D2FF00" />
-          <circle cx="200" cy="100" r="8" fill="#D2FF00" />
+          <circle cx="400" cy="500" r="8" fill="var(--color-accent)" />
+          <circle cx="200" cy="100" r="8" fill="var(--color-accent)" />
         </svg>
       </div>
 
@@ -131,7 +131,7 @@ export default function ContactSection() {
         
         {/* Bottom scrim — grounds the wheels; taller on phones where the link
             columns sit over the cutout and need contrast. */}
-        <div className="absolute bottom-0 left-0 w-full h-[45vh] md:h-[10vh] bg-gradient-to-t from-[#141913] via-[#141913]/70 md:via-transparent to-transparent z-10" />
+        <div className="absolute bottom-0 left-0 w-full h-[45vh] md:h-[10vh] bg-gradient-to-t from-canvas-raised via-canvas-raised/70 md:via-transparent to-transparent z-10" />
       </div>
 
       {/* =========================================================================
@@ -144,7 +144,7 @@ export default function ContactSection() {
         <div className="absolute left-6 bottom-44 md:left-12 md:bottom-auto md:top-1/2 md:-translate-y-1/2 pointer-events-auto z-20">
           <div ref={leftColRef} className="flex flex-col space-y-2.5 md:space-y-4">
             <div className="mb-2 md:mb-4">
-              <span className="font-mono text-[9px] tracking-[0.3em] font-bold text-white/40 uppercase pointer-events-none">
+              <span className="font-mono text-[9px] tracking-[0.3em] font-bold text-fg-muted uppercase pointer-events-none">
                 PAGES //
               </span>
             </div>
@@ -152,7 +152,7 @@ export default function ContactSection() {
               <a
                 key={link.label}
                 href={link.href}
-                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D2FF00] hover:translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-left"
+                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-accent hover:translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-left"
               >
                 {link.label}
               </a>
@@ -164,7 +164,7 @@ export default function ContactSection() {
         <div className="absolute right-6 bottom-44 md:right-12 md:bottom-auto md:top-1/2 md:-translate-y-1/2 text-right pointer-events-auto z-20">
           <div ref={rightColRef} className="flex flex-col space-y-2.5 md:space-y-4 items-end">
             <div className="mb-2 md:mb-4">
-              <span className="font-mono text-[9px] tracking-[0.3em] font-bold text-white/40 uppercase pointer-events-none">
+              <span className="font-mono text-[9px] tracking-[0.3em] font-bold text-fg-muted uppercase pointer-events-none">
                 FOLLOW ON //
               </span>
             </div>
@@ -174,7 +174,7 @@ export default function ContactSection() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-[#D2FF00] hover:-translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-right"
+                className="font-sans font-black text-base md:text-xl text-white uppercase tracking-tighter hover:text-accent hover:-translate-x-2 transition-transform duration-300 relative z-50 pointer-events-auto origin-right"
               >
                 {link.label}
               </a>
@@ -187,7 +187,7 @@ export default function ContactSection() {
           <a
             ref={ctaRef}
             href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex items-center justify-center px-8 py-3 bg-[#D2FF00] text-[#141913] rounded-full font-sans font-black text-[11px] tracking-[0.2em] uppercase hover:bg-white hover:scale-105 transition-all duration-300 shadow-2xl relative z-50 cursor-pointer pointer-events-auto block"
+            className="inline-flex items-center justify-center px-8 py-3 bg-accent text-ink rounded-full font-sans font-black text-[11px] tracking-[0.2em] uppercase hover:bg-white hover:scale-105 transition-all duration-300 shadow-2xl relative z-50 cursor-pointer pointer-events-auto block"
           >
             TRANSMISSION
           </a>

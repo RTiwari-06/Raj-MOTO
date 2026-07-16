@@ -125,7 +125,7 @@ export default function Loader({ onComplete }) {
 
         {/* Top status row */}
         <div className="flex items-center justify-between">
-          <p className="font-mono text-[9px] uppercase tracking-[0.4em] text-white/35">
+          <p className="font-mono text-[9px] uppercase tracking-[0.4em] text-fg-muted">
             RT-MOTO // IGNITION SEQUENCE
           </p>
           <p
@@ -158,7 +158,7 @@ export default function Loader({ onComplete }) {
           >
             %
           </span>
-          <span className="ml-auto mb-3 font-mono text-[10px] tracking-[0.3em] uppercase text-white/25">
+          <span className="ml-auto mb-3 font-mono text-[10px] tracking-[0.3em] uppercase text-fg-muted">
             RPM ×10³
           </span>
         </div>
@@ -194,7 +194,7 @@ export default function Loader({ onComplete }) {
         </div>
 
         {/* Scale labels */}
-        <div className="flex justify-between font-mono text-[8px] tracking-[0.25em] text-white/25">
+        <div className="flex justify-between font-mono text-[8px] tracking-[0.25em] text-fg-muted">
           <span>0</span>
           <span>IDLE</span>
           <span>CRUISE</span>
@@ -208,8 +208,8 @@ export default function Loader({ onComplete }) {
         const isBottom = pos.includes('bottom');
         return (
           <div key={i} className={`absolute ${pos} w-5 h-5`} aria-hidden="true">
-            <div className={`absolute ${isBottom ? 'bottom-0' : 'top-0'} ${isRight ? 'right-0' : 'left-0'} w-full h-px bg-[#D2FF00]/28`} />
-            <div className={`absolute ${isBottom ? 'bottom-0' : 'top-0'} ${isRight ? 'right-0' : 'left-0'} w-px h-full bg-[#D2FF00]/28`} />
+            <div className={`absolute ${isBottom ? 'bottom-0' : 'top-0'} ${isRight ? 'right-0' : 'left-0'} w-full h-px bg-accent-soft`} />
+            <div className={`absolute ${isBottom ? 'bottom-0' : 'top-0'} ${isRight ? 'right-0' : 'left-0'} w-px h-full bg-accent-soft`} />
           </div>
         );
       })}

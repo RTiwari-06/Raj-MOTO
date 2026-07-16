@@ -105,17 +105,17 @@ const Archive = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#050505] text-[#F5F5F5] selection:bg-[#D2FF00] selection:text-black pb-40 overflow-x-hidden">
+    <div ref={containerRef} className="min-h-screen bg-canvas-deep text-[#F5F5F5] selection:bg-accent selection:text-black pb-40 overflow-x-hidden">
       <div className="grain-layer opacity-[0.03] pointer-events-none" />
 
       {/* ── PERMANENT STATUS BAR (TOP) ── */}
       <div className="fixed top-0 left-0 w-full z-[100] px-6 md:px-12 py-8 flex items-center justify-between mix-blend-difference pointer-events-none font-mono">
         <div className="pointer-events-auto flex gap-6">
-          <button onClick={() => navigate('/')} className="group flex items-center gap-3 text-white/40 hover:text-white transition-colors">
+          <button onClick={() => navigate('/')} className="group flex items-center gap-3 text-fg-muted hover:text-white transition-colors">
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-[9px] uppercase tracking-[0.4em]">Main_Terminal</span>
           </button>
-          <button onClick={() => navigate('/#machine')} className="group flex items-center gap-3 text-[#FF6600]/60 hover:text-[#FF6600] transition-colors">
+          <button onClick={() => navigate('/#machine')} className="group flex items-center gap-3 text-machine/60 hover:text-machine transition-colors">
             <Cpu size={14} />
             <span className="text-[9px] uppercase tracking-[0.4em]">Machine_Core</span>
           </button>
@@ -130,12 +130,12 @@ const Archive = () => {
       {/* ── SECTION 01: CINEMATIC COVER ── */}
       <header className="relative w-full flex flex-col items-center justify-center text-center px-6 pt-[20vh] mb-[15vh]">
         <div className="archive-hero-title">
-          <div className="flex items-center justify-center gap-3 mb-6 font-mono text-[10px] tracking-[0.6em] uppercase text-[#D2FF00]/40">
-             <div className="w-1.5 h-1.5 bg-[#D2FF00] animate-pulse rounded-full" />
+          <div className="flex items-center justify-center gap-3 mb-6 font-mono text-[10px] tracking-[0.6em] uppercase text-accent-soft">
+             <div className="w-1.5 h-1.5 bg-accent animate-pulse rounded-full" />
              <span>Accessing_Visual_Logs</span>
           </div>
-          <div className="relative inline-block border-2 border-[#D2FF00] bg-[#050505] px-10 py-8 md:px-16 md:py-12 mb-8 shadow-[0_0_40px_rgba(210,255,0,0.1)]">
-             <div className="absolute inset-0 opacity-20 bg-[linear-gradient(rgba(210,255,0,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(210,255,0,0.4)_1px,transparent_1px)] bg-[size:24px_24px]" />
+          <div className="relative inline-block border-2 border-accent bg-canvas-deep px-10 py-8 md:px-16 md:py-12 mb-8 shadow-[0_0_40px_var(--color-accent-dim)]">
+             <div className="absolute inset-0 opacity-20 bg-[linear-gradient(var(--color-accent-soft)_1px,transparent_1px),linear-gradient(90deg,var(--color-accent-soft)_1px,transparent_1px)] bg-[size:24px_24px]" />
              <h1 className="relative z-10 font-serif font-black italic text-7xl md:text-[14vw] leading-[0.75] tracking-tighter uppercase text-white drop-shadow-md">
                Grid_<br />Archive
              </h1>
@@ -153,7 +153,7 @@ const Archive = () => {
           {ALL_ENTRIES.map((entry, idx) => (
             <div 
               key={entry.id || idx}
-              className={`grid-item group relative overflow-hidden bg-[#0a0a0a] border border-white/5 cursor-pointer ${getGridSpan(idx)}`}
+              className={`grid-item group relative overflow-hidden bg-canvas border border-line-subtle cursor-pointer ${getGridSpan(idx)}`}
               onClick={() => setLightbox(entry)}
               onMouseEnter={(e) => {
                 const text = e.currentTarget.querySelector('.scramble-target');
@@ -172,32 +172,32 @@ const Archive = () => {
                 
                 {/* Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent opacity-60" />
-                <div className="absolute inset-0 bg-[#D2FF00]/0 group-hover:bg-[#D2FF00]/5 transition-colors duration-1000" />
+                <div className="absolute inset-0 bg-transparent group-hover:bg-accent-wash transition-colors duration-1000" />
                 
                 {/* Telemetry Index */}
-                <div className="absolute top-6 left-8 font-mono text-[9px] tracking-[0.4em] uppercase text-white/30 flex items-center gap-3">
-                  <span className="text-[#D2FF00]/40">//</span>
+                <div className="absolute top-6 left-8 font-mono text-[9px] tracking-[0.4em] uppercase text-fg-muted flex items-center gap-3">
+                  <span className="text-accent-soft">//</span>
                   <span>SYS_{String(idx + 1).padStart(3, '0')}</span>
                 </div>
               </div>
 
               {/* INFO BAR */}
-              <div className="flex items-center justify-between p-6 bg-black/40 backdrop-blur-md border-t border-white/5 transition-colors duration-500 group-hover:bg-[#D2FF00]/5 group-hover:border-[#D2FF00]/10">
+              <div className="flex items-center justify-between p-6 bg-black/40 backdrop-blur-md border-t border-line-subtle transition-colors duration-500 group-hover:bg-accent-wash group-hover:border-accent-dim">
                 <div className="flex flex-col gap-1.5">
-                  <span className="font-mono text-[7px] tracking-[0.4em] uppercase text-[#D2FF00]/50 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-1 group-hover:translate-y-0">
+                  <span className="font-mono text-[7px] tracking-[0.4em] uppercase text-accent-mid opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-1 group-hover:translate-y-0">
                     Data_Verification_Success
                   </span>
-                  <h3 className="scramble-target font-serif font-black italic uppercase text-xl md:text-3xl tracking-tighter leading-none text-white/90 group-hover:text-white">
+                  <h3 className="scramble-target font-serif font-black italic uppercase text-xl md:text-3xl tracking-tighter leading-none text-fg group-hover:text-white">
                     {entry.model || `Sector_Log_${idx}`}
                   </h3>
                 </div>
                 
                 <div className="flex items-center gap-8 opacity-20 group-hover:opacity-100 transition-opacity">
                    <div className="flex flex-col items-end font-mono text-[8px] tracking-[0.3em] uppercase">
-                      <span className="text-white/40 mb-1">Season</span>
+                      <span className="text-fg-muted mb-1">Season</span>
                       <span className="text-white">{entry.year || '2026'}</span>
                    </div>
-                   <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-[#D2FF00] group-hover:border-[#D2FF00] group-hover:text-black transition-all">
+                   <div className="w-12 h-12 rounded-full border border-line flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-black transition-all">
                       <Maximize2 size={14} />
                    </div>
                 </div>
@@ -213,30 +213,30 @@ const Archive = () => {
           className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-3xl flex flex-col items-center justify-center p-6 md:p-12 animate-in fade-in zoom-in-95 duration-700"
           onClick={() => setLightbox(null)}
         >
-          <button className="absolute top-12 right-12 text-white/40 hover:text-[#D2FF00] transition-colors p-4" onClick={() => setLightbox(null)}>
+          <button className="absolute top-12 right-12 text-fg-muted hover:text-accent transition-colors p-4" onClick={() => setLightbox(null)}>
             <X size={32} strokeWidth={1} />
           </button>
 
           <div className="relative w-full max-w-7xl h-full flex flex-col justify-between items-center p-8" onClick={(e) => e.stopPropagation()}>
             <div className="relative w-full flex-1 flex items-center justify-center min-h-0 mb-8">
-              <div className="relative group overflow-hidden border border-white/5 bg-black/50 w-full h-full flex items-center justify-center">
+              <div className="relative group overflow-hidden border border-line-subtle bg-black/50 w-full h-full flex items-center justify-center">
                 <img src={lightbox.src} alt={lightbox.model} className="w-full max-h-[65vh] object-contain opacity-0 animate-in fade-in duration-1000 delay-200" onLoad={(e) => e.currentTarget.classList.remove('opacity-0')} />
-                <div className="absolute inset-0 pointer-events-none border-[1px] border-white/5 opacity-10" />
+                <div className="absolute inset-0 pointer-events-none border-[1px] border-line-subtle opacity-10" />
               </div>
             </div>
 
-            <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-12 border-t border-white/10 pt-8 shrink-0">
+            <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-12 border-t border-line pt-8 shrink-0">
               <div className="max-w-3xl">
-                <span className="font-mono text-[10px] tracking-[0.8em] uppercase text-[#D2FF00] mb-6 flex items-center gap-4">
-                  <span className="w-2 h-2 bg-[#D2FF00] animate-pulse rounded-full" />
+                <span className="font-mono text-[10px] tracking-[0.8em] uppercase text-accent mb-6 flex items-center gap-4">
+                  <span className="w-2 h-2 bg-accent animate-pulse rounded-full" />
                   LOG_DATA_FEED // NODE_{ALL_ENTRIES.indexOf(lightbox).toString().padStart(3, '0')}
                 </span>
                 <h2 className="font-serif font-black italic uppercase text-6xl md:text-[8vw] text-white tracking-tighter leading-[0.7]">{lightbox.model}</h2>
               </div>
               
               <div className="flex gap-4">
-                 <button onClick={() => navigateLightbox(-1)} className="w-16 h-16 border border-white/10 flex items-center justify-center hover:bg-[#D2FF00] hover:text-black transition-all duration-700 text-xl group"><span className="group-hover:-translate-x-1 transition-transform">←</span></button>
-                 <button onClick={() => navigateLightbox(1)} className="w-16 h-16 border border-white/10 flex items-center justify-center hover:bg-[#D2FF00] hover:text-black transition-all duration-700 text-xl group"><span className="group-hover:translate-x-1 transition-transform">→</span></button>
+                 <button onClick={() => navigateLightbox(-1)} className="w-16 h-16 border border-line flex items-center justify-center hover:bg-accent hover:text-black transition-all duration-700 text-xl group"><span className="group-hover:-translate-x-1 transition-transform">←</span></button>
+                 <button onClick={() => navigateLightbox(1)} className="w-16 h-16 border border-line flex items-center justify-center hover:bg-accent hover:text-black transition-all duration-700 text-xl group"><span className="group-hover:translate-x-1 transition-transform">→</span></button>
               </div>
             </div>
           </div>
@@ -244,7 +244,7 @@ const Archive = () => {
       )}
 
       {/* ── FOOTER ── */}
-      <footer className="relative z-10 mt-40 px-6 md:px-12 py-10 flex justify-between items-center border-t border-white/5 font-mono text-[8px] tracking-[0.5em] uppercase opacity-20 pointer-events-none">
+      <footer className="relative z-10 mt-40 px-6 md:px-12 py-10 flex justify-between items-center border-t border-line-subtle font-mono text-[8px] tracking-[0.5em] uppercase opacity-20 pointer-events-none">
         <span>RT•MOTO // CORE_ARCHIVE</span>
         <span className="hidden md:inline">Processing: 60FPS // No_Signal_Loss</span>
         <span>©2026_Terminal_Secure</span>

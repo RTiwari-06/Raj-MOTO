@@ -23,7 +23,7 @@ const ROUTES = [
   },
   {
     id: '02', name: 'Highway Sprints', meta: 'NH-44 // PRE-DAWN',
-    dist: '180 KM', time: '02:18:050',
+    dist: '180 KM', time: '02:18:05',
     path: 'M28,135 C120,128 160,128 220,130 S330,120 384,116',
     detail: 'Long straights, zero traffic, sustained high-rev cruising. Pure two-wheeled meditation.',
     surface: 'OPEN TARMAC', bearing: '348°', climb: 'FLAT',
@@ -213,7 +213,7 @@ export default function DoctrineSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen w-full bg-darker px-6 md:px-16 py-24 md:py-32 border-t border-white/5 z-20 overflow-hidden flex flex-col justify-center"
+      className="relative min-h-screen w-full bg-canvas-raised px-6 md:px-16 py-24 md:py-32 border-t border-line-subtle z-20 overflow-hidden flex flex-col justify-center"
     >
       <div className="grain-layer" />
 
@@ -227,13 +227,13 @@ export default function DoctrineSection() {
         >
 
           {/* ── THE CANVAS ─────────────────────────────────────────────── */}
-          <div className="lg:col-span-8 relative aspect-[16/10] bg-[#080808] border border-white/10 overflow-hidden">
+          <div className="lg:col-span-8 relative aspect-[16/10] bg-canvas-deep border border-line overflow-hidden">
             <div className="absolute inset-0 hairline-grid opacity-40 pointer-events-none" />
             <div className="absolute inset-0 scan-lines opacity-40 pointer-events-none" />
 
             {/* Orange targeting brackets */}
-            <span className="brk brk--mch tl" /><span className="brk brk--mch tr" />
-            <span className="brk brk--mch bl" /><span className="brk brk--mch br" />
+            <span className="brk tl" /><span className="brk tr" />
+            <span className="brk bl" /><span className="brk br" />
 
             {/* Route map */}
             <svg
@@ -262,51 +262,54 @@ export default function DoctrineSection() {
                 ref={pathRef}
                 d={route.path}
                 fill="none"
-                stroke="#FF6600"
+                stroke="var(--color-accent)"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                style={{ filter: 'drop-shadow(0 0 10px rgba(255,102,0,0.8))' }}
+                style={{ filter: 'drop-shadow(0 0 10px var(--color-accent-mid))' }}
               />
 
               {/* Origin node */}
               <g ref={originRef} style={{ opacity: 0 }}>
-                <circle r="5" fill="none" stroke="#FF6600" strokeWidth="1.2" opacity="0.7" />
-                <circle r="2" fill="#FF6600" />
+                <circle r="5" fill="none" stroke="var(--color-accent)" strokeWidth="1.2" opacity="0.7" />
+                <circle r="2" fill="var(--color-accent)" />
               </g>
 
               {/* Live GPS dot travelling the route */}
               <g ref={dotRef} style={{ opacity: 0 }}>
-                <circle r="7" fill="rgba(255,102,0,0.18)" />
-                <circle r="3" fill="#FFD9B0" style={{ filter: 'drop-shadow(0 0 7px rgba(255,102,0,1))' }} />
+                <circle r="7" fill="var(--color-accent-dim)" />
+                {/* White-hot core inside the lime halo. Was #FFD9B0 — a warm peach
+                    picked to pair with the orange this section used to use; against
+                    lime it read as a cream dot in a green glow. */}
+                <circle r="3" fill="#FFFFFF" style={{ filter: 'drop-shadow(0 0 7px var(--color-accent))' }} />
               </g>
 
               {/* Completion waypoint — HUD targeting marker at the route's end */}
               <g ref={wpPosRef}>
                 <g ref={wpRevealRef} style={{ opacity: 0 }}>
-                  <circle ref={wpRingRef} r="11" fill="none" stroke="#FF6600" strokeWidth="1.2" />
-                  <rect ref={wpReticleRef} x="-8" y="-8" width="16" height="16" fill="none" stroke="#FF6600" strokeWidth="1" />
-                  <circle r="4" fill="#FF6600" style={{ filter: 'drop-shadow(0 0 6px rgba(255,102,0,0.95))' }} />
+                  <circle ref={wpRingRef} r="11" fill="none" stroke="var(--color-accent)" strokeWidth="1.2" />
+                  <rect ref={wpReticleRef} x="-8" y="-8" width="16" height="16" fill="none" stroke="var(--color-accent)" strokeWidth="1" />
+                  <circle r="4" fill="var(--color-accent)" style={{ filter: 'drop-shadow(0 0 6px var(--color-accent))' }} />
                 </g>
               </g>
             </svg>
 
             {/* Corner telemetry readouts */}
-            <div className="absolute top-4 left-5 font-mono text-[9px] tracking-[0.3em] uppercase text-[#FF6600]">
+            <div className="absolute top-4 left-5 font-mono text-[9px] tracking-[0.3em] uppercase text-accent">
               ROUTE {route.id}
             </div>
-            <div className="absolute top-4 right-5 font-mono text-[9px] tracking-[0.3em] uppercase text-white/40 text-right max-w-[55%] truncate">
+            <div className="absolute top-4 right-5 font-mono text-[9px] tracking-[0.3em] uppercase text-fg-muted text-right max-w-[55%] truncate">
               {route.meta}
             </div>
             <div className="absolute bottom-4 left-5">
-              <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/35">Distance</p>
+              <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">Distance</p>
               <p ref={distRef} className="font-mono text-[15px] md:text-[18px] font-bold text-white tabular-nums tracking-wider">
                 {route.dist}
               </p>
             </div>
             <div className="absolute bottom-4 right-5 text-right">
-              <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/35">Est. Time</p>
-              <p ref={timeRef} className="font-mono text-[15px] md:text-[18px] font-bold text-[#FF6600] tabular-nums tracking-wider">
+              <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">Est. Time</p>
+              <p ref={timeRef} className="font-mono text-[15px] md:text-[18px] font-bold text-accent tabular-nums tracking-wider">
                 {route.time}
               </p>
             </div>
@@ -314,12 +317,12 @@ export default function DoctrineSection() {
 
           {/* ── THE SCHEDULE ───────────────────────────────────────────── */}
           <div className="lg:col-span-4 flex flex-col justify-center">
-            <p className="font-mono text-[9px] tracking-[0.4em] uppercase text-white/35 mb-5">
+            <p className="font-mono text-[9px] tracking-[0.4em] uppercase text-fg-muted mb-5">
               // ROUTE INDEX
-              {COARSE && <span className="text-[#FF6600]/70">&nbsp;&nbsp;· TAP A ROUTE</span>}
+              {COARSE && <span className="text-accent-mid">&nbsp;&nbsp;· TAP A ROUTE</span>}
             </p>
 
-            <ul className="border-t border-white/10">
+            <ul className="border-t border-line">
               {ROUTES.map((r, i) => {
                 const isActive = i === active;
                 return (
@@ -328,23 +331,23 @@ export default function DoctrineSection() {
                     data-magnetic
                     onMouseEnter={() => select(i)}
                     onClick={() => select(i)}
-                    className="group relative cursor-pointer border-b border-white/10 py-5 pl-4 flex items-baseline gap-4"
+                    className="group relative cursor-pointer border-b border-line py-5 pl-4 flex items-baseline gap-4"
                   >
                     {/* Active left accent bar */}
                     <span
-                      className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#FF6600] origin-center transition-transform duration-300"
-                      style={{ transform: isActive ? 'scaleY(1)' : 'scaleY(0)', boxShadow: isActive ? '0 0 10px rgba(255,102,0,0.8)' : 'none' }}
+                      className="absolute left-0 top-0 bottom-0 w-[2px] bg-accent origin-center transition-transform duration-300"
+                      style={{ transform: isActive ? 'scaleY(1)' : 'scaleY(0)', boxShadow: isActive ? '0 0 10px var(--color-accent-mid)' : 'none' }}
                     />
-                    <span className={`font-mono text-[11px] tabular-nums transition-colors duration-300 ${isActive ? 'text-[#FF6600]' : 'text-white/30'}`}>
+                    <span className={`font-mono text-[11px] tabular-nums transition-colors duration-300 ${isActive ? 'text-accent' : 'text-fg-muted'}`}>
                       [{r.id}]
                     </span>
                     <span
-                      className={`flex-1 font-sans font-light uppercase text-[13px] md:text-[15px] transition-all duration-300 ${isActive ? 'text-white' : 'text-white/45'}`}
+                      className={`flex-1 font-sans font-light uppercase text-[13px] md:text-[15px] transition-all duration-300 ${isActive ? 'text-white' : 'text-fg-2'}`}
                       style={{ letterSpacing: '0.18em', transform: isActive ? 'translateX(4px)' : 'translateX(0)' }}
                     >
                       {r.name}
                     </span>
-                    <span className={`font-mono text-[11px] tracking-wider whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-[#FF6600]' : 'text-white/30'}`}>
+                    <span className={`font-mono text-[11px] tracking-wider whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-accent' : 'text-fg-muted'}`}>
                       — {r.dist}
                     </span>
                   </li>
@@ -354,16 +357,16 @@ export default function DoctrineSection() {
 
             {/* Auto-cycle progress — desktop only (cycle is off on touch) */}
             <div className="mt-5 flex items-center gap-3">
-              <span className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/30">
+              <span className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">
                 {COARSE ? 'Selected' : 'Auto-cycle'}
               </span>
               {!COARSE && (
-                <div className="relative h-px flex-1 overflow-hidden bg-white/10">
-                  <span ref={progressRef} className="absolute inset-0 origin-left bg-[#FF6600]" style={{ transform: 'scaleX(0)' }} />
+                <div className="relative h-px flex-1 overflow-hidden bg-surface-raised">
+                  <span ref={progressRef} className="absolute inset-0 origin-left bg-accent" style={{ transform: 'scaleX(0)' }} />
                 </div>
               )}
               {COARSE && <div className="flex-1" />}
-              <span className="font-mono text-[8px] tabular-nums text-white/30">
+              <span className="font-mono text-[8px] tabular-nums text-fg-muted">
                 {String(active + 1).padStart(2, '0')}/{String(ROUTES.length).padStart(2, '0')}
               </span>
             </div>
@@ -371,14 +374,14 @@ export default function DoctrineSection() {
             {/* Live elevation profile */}
             <div className="mt-7">
               <div className="flex items-baseline justify-between mb-2">
-                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-white/30">Elevation profile</p>
-                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-[#FF6600]/70">{route.climb}</p>
+                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">Elevation profile</p>
+                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-accent-mid">{route.climb}</p>
               </div>
               <div className="flex h-12 items-end gap-[3px]">
                 {route.elev.map((h, i) => (
                   <span
                     key={`${route.id}-${i}`}
-                    className="dx-bar flex-1 rounded-sm bg-gradient-to-t from-[#FF6600]/30 to-[#FF6600]/80"
+                    className="dx-bar flex-1 rounded-sm bg-gradient-to-t from-accent-soft to-accent"
                     style={{ height: `${h}%` }}
                   />
                 ))}
@@ -386,22 +389,22 @@ export default function DoctrineSection() {
             </div>
 
             {/* Surface / bearing telemetry */}
-            <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-4">
+            <div className="mt-6 grid grid-cols-3 gap-3 border-t border-line pt-4">
               {[
                 { label: 'Surface', value: route.surface },
                 { label: 'Bearing', value: route.bearing, accent: true },
                 { label: 'Routes', value: `${String(ROUTES.length).padStart(2, '0')} LOGGED` },
               ].map((s) => (
                 <div key={s.label}>
-                  <p className="font-mono text-[8px] tracking-[0.25em] uppercase text-white/30 mb-1">{s.label}</p>
-                  <p className={`font-mono text-[10px] md:text-[11px] tracking-wider uppercase ${s.accent ? 'text-[#FF6600]' : 'text-white/65'}`}>
+                  <p className="font-mono text-[8px] tracking-[0.25em] uppercase text-fg-muted mb-1">{s.label}</p>
+                  <p className={`font-mono text-[10px] md:text-[11px] tracking-wider uppercase ${s.accent ? 'text-accent' : 'text-fg-2'}`}>
                     {s.value}
                   </p>
                 </div>
               ))}
             </div>
 
-            <p className="font-sans text-[13px] md:text-sm leading-relaxed text-white/55 mt-6 max-w-sm">
+            <p className="font-sans text-[13px] md:text-sm leading-relaxed text-fg-2 mt-6 max-w-sm">
               {route.detail}
             </p>
           </div>

@@ -7,8 +7,21 @@ import { useRideStore } from '@/store/useRideStore';
 
 const RIDES = MEDIA.rides;
 
-// Lando DNA: one accent only. Per-ride colors in media.js are intentionally
-// left in the data but overridden to lime here so nothing competes.
+// ⚠ KNOWN-BROKEN — this comment used to claim "one accent only: per-ride colors in
+// media.js are intentionally left in the data but overridden to lime here so
+// nothing competes." That was false. `ride.accent || ACCENT` is used in six places
+// below (tag, CTA, arrow, telemetry label, curtain edge + its glow), so media.js's
+// per-ride colours win: lime, silver #C0C0C0, blue #4FA8D5 and orange #FF6B35 all
+// ship. The section renders four accents, not one.
+//
+// Left as-is deliberately: unifying it is sub-project B, not this token pass. The
+// comment is corrected rather than deleted because a rule stated in a comment and
+// contradicted by the code next to it is worse than no rule at all — that
+// contradiction is the single thing most likely to fail a design review.
+// Spec: docs/superpowers/specs/2026-07-16-token-truth-design.md
+//
+// Literal, not var(--color-accent): this feeds gsap.set({ backgroundColor })
+// below, and GSAP cannot parse a CSS custom property as a tween target.
 const ACCENT = '#D2FF00';
 
 export default function RidesSection() {
@@ -268,10 +281,10 @@ export default function RidesSection() {
       >
         {/* SELECTED / WORK stacked title */}
         <div>
-          <div className="w-8 h-[1.5px] bg-[#D2FF00] mb-3" />
+          <div className="w-8 h-[1.5px] bg-accent mb-3" />
           <p
             className="font-serif font-black uppercase leading-none"
-            style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.6rem)', letterSpacing: '-0.02em', color: '#D2FF00' }}
+            style={{ fontSize: 'clamp(1.1rem, 2.2vw, 1.6rem)', letterSpacing: '-0.02em', color: 'var(--color-accent)' }}
           >
             RIDES /
           </p>
@@ -303,9 +316,9 @@ export default function RidesSection() {
       {/* Scroll cue (only if > 1 ride) */}
       {RIDES.length > 1 && (
         <div className="hidden md:flex absolute bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-none items-center gap-3">
-          <div className="w-6 h-[1px] bg-white/15" />
-          <p className="text-[8px] font-black uppercase tracking-[0.45em] text-white/25">Scroll</p>
-          <div className="w-6 h-[1px] bg-white/15" />
+          <div className="w-6 h-[1px] bg-surface-hover" />
+          <p className="text-[8px] font-black uppercase tracking-[0.45em] text-fg-muted">Scroll</p>
+          <div className="w-6 h-[1px] bg-surface-hover" />
         </div>
       )}
 
@@ -338,7 +351,7 @@ export default function RidesSection() {
 
             {/* Gradient overlays — dark pockets for legible typography */}
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 55%, transparent 100%)' }} />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #0a0a0a 0%, transparent 50%, #0a0a0a 100%)', opacity: 0.85 }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, var(--color-canvas) 0%, transparent 50%, var(--color-canvas) 100%)', opacity: 0.85 }} />
 
             {/* Active-slide emphasis — darkens when this slide is off-centre */}
             <div
@@ -349,7 +362,7 @@ export default function RidesSection() {
 
             {/* ── TOP-LEFT: category label in mono ─────────────────────────── */}
             <div className="absolute top-[76px] left-10 md:left-16 z-10 pointer-events-none">
-              <p className="font-mono text-[9px] tracking-[0.4em] uppercase text-white/35">
+              <p className="font-mono text-[9px] tracking-[0.4em] uppercase text-fg-muted">
                 {ride.category}
               </p>
             </div>
@@ -357,7 +370,7 @@ export default function RidesSection() {
             {/* Slide index (hidden if only 1 ride) */}
             {RIDES.length > 1 && (
               <div className="absolute top-[76px] right-10 md:right-16 pointer-events-none z-10">
-                <p className="text-[8px] font-black uppercase tracking-[0.5em]" style={{ color: 'rgba(210,255,0,0.5)' }}>
+                <p className="text-[8px] font-black uppercase tracking-[0.5em]" style={{ color: 'var(--color-accent-mid)' }}>
                   0{i + 1}&nbsp;/&nbsp;0{RIDES.length}
                 </p>
               </div>
@@ -368,7 +381,7 @@ export default function RidesSection() {
               ref={(el) => (nameRefs.current[i] = el)}
               className="absolute bottom-14 left-10 md:left-16 z-10 opacity-0"
             >
-              <p className="font-mono text-[9px] tracking-[0.4em] uppercase text-white/40 mb-4">
+              <p className="font-mono text-[9px] tracking-[0.4em] uppercase text-fg-muted mb-4">
                 {ride.year}
               </p>
               <h3
@@ -410,15 +423,15 @@ export default function RidesSection() {
               >
                 →
               </span>
-              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/25">
+              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-fg-muted">
                 {ride.odometer} GP raced
               </p>
-              <div className="h-px w-12 bg-white/10" />
+              <div className="h-px w-12 bg-surface-raised" />
             </div>
 
             {/* ── HOVER CURTAIN: diagonal corner-wipe revealing tagline + specs ─ */}
             <div className="absolute bottom-0 right-0 z-20 pointer-events-none w-[min(420px,72vw)]">
-              <div className="ride-reveal relative bg-black/85 backdrop-blur-md pl-8 pr-10 md:pr-16 py-10 overflow-hidden border-l border-white/5">
+              <div className="ride-reveal relative bg-black/85 backdrop-blur-md pl-8 pr-10 md:pr-16 py-10 overflow-hidden border-l border-line-subtle">
                 {/* Cinematic textures */}
                 <div className="grain-layer opacity-10" />
                 <div className="absolute inset-0 scan-lines opacity-20" />
@@ -434,17 +447,17 @@ export default function RidesSection() {
                   >
                     Telemetry // 0{i + 1}
                   </p>
-                  <p className="tele-item font-serif italic text-white/90 text-base leading-snug mb-8 max-w-[32ch] transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-200">
+                  <p className="tele-item font-serif italic text-fg text-base leading-snug mb-8 max-w-[32ch] transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-200">
                     {ride.tagline}
                   </p>
                   <div className="tele-item flex flex-col gap-1 transition-all duration-500 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 delay-300">
                     {ride.specs?.map((s) => (
                       <div key={s.label} className="flex items-baseline group/spec">
-                        <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/35 whitespace-nowrap transition-colors duration-300 group-hover/spec:text-white/60">
+                        <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-fg-muted whitespace-nowrap transition-colors duration-300 group-hover/spec:text-fg-2">
                           {s.label}
                         </span>
                         <span className="lead-dots opacity-20" />
-                        <span className="font-mono text-[11px] tracking-[0.1em] text-white/80 whitespace-nowrap transition-colors duration-300 group-hover/spec:text-white">
+                        <span className="font-mono text-[11px] tracking-[0.1em] text-fg whitespace-nowrap transition-colors duration-300 group-hover/spec:text-white">
                           {s.value}
                         </span>
                       </div>

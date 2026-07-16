@@ -10,7 +10,7 @@ export default function SignatureDraw({
   path, 
   viewBox = "0 0 200 100", 
   className = "", 
-  color = "#D2FF00",
+  color = "var(--color-accent)",
   strokeWidth = 2,
   duration = 1.5,
   delay = 0

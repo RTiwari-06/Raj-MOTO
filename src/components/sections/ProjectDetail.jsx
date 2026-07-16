@@ -106,12 +106,12 @@ export default function ProjectDetail() {
         <button
           onClick={handleClose}
           data-magnetic
-          className="flex items-center gap-3 text-[9px] font-black tracking-[0.3em] uppercase transition-colors duration-200 text-white/40 hover:text-white"
+          className="flex items-center gap-3 text-[9px] font-black tracking-[0.3em] uppercase transition-colors duration-200 text-fg-muted hover:text-white"
         >
           ← &nbsp;Fleet
         </button>
 
-        <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white/15">
+        <span className="text-[8px] font-black uppercase tracking-[0.5em] text-fg-faint">
           RT•MOTO // DETAIL
         </span>
 
@@ -142,8 +142,8 @@ export default function ProjectDetail() {
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 22%)' }} />
 
           {/* Corner precision glyphs */}
-          <span className="absolute top-8 left-8 md:left-16 text-[8px] font-black text-white/10 select-none pointer-events-none">[ + ]</span>
-          <span className="absolute top-8 right-8 md:right-16 text-[8px] font-black text-white/10 select-none pointer-events-none">[ + ]</span>
+          <span className="absolute top-8 left-8 md:left-16 text-[8px] font-black text-fg-faint select-none pointer-events-none">[ + ]</span>
+          <span className="absolute top-8 right-8 md:right-16 text-[8px] font-black text-fg-faint select-none pointer-events-none">[ + ]</span>
 
           {/* ── SPEC PANEL — right side ────────────────────────────────── */}
           <div className="hidden md:block absolute right-16 top-1/2 -translate-y-1/2 w-[300px]">
@@ -164,7 +164,7 @@ export default function ProjectDetail() {
                       : 'none',
                   }}
                 >
-                  <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/25">
+                  <span className="text-[8px] font-black uppercase tracking-[0.3em] text-fg-muted">
                     {spec.label}
                   </span>
                   <span className="text-sm font-black tracking-tight text-white">
@@ -200,7 +200,7 @@ export default function ProjectDetail() {
                 {ride.tag}
               </span>
               {ride.odometer && (
-                <span className="text-[8px] font-bold uppercase tracking-[0.3em] text-white/30">
+                <span className="text-[8px] font-bold uppercase tracking-[0.3em] text-fg-muted">
                   {ride.odometer} km on the clock
                 </span>
               )}
@@ -209,16 +209,16 @@ export default function ProjectDetail() {
 
           {/* Scroll cue */}
           <div className="hidden md:flex absolute bottom-9 left-1/2 -translate-x-1/2 items-center gap-3 pointer-events-none">
-            <div className="w-6 h-px bg-white/12" />
-            <p className="text-[8px] font-black uppercase tracking-[0.45em] text-white/20">Scroll</p>
-            <div className="w-6 h-px bg-white/12" />
+            <div className="w-6 h-px bg-line" />
+            <p className="text-[8px] font-black uppercase tracking-[0.45em] text-fg-faint">Scroll</p>
+            <div className="w-6 h-px bg-line" />
           </div>
         </div>
 
         {/* ── STORY SECTION ─────────────────────────────────────────────── */}
         <div
-          className="px-8 md:px-16 py-24 md:py-32 border-t border-white/5"
-          style={{ backgroundColor: '#1C1F15' }}
+          className="px-8 md:px-16 py-24 md:py-32 border-t border-line-subtle"
+          style={{ backgroundColor: 'var(--color-canvas-raised)' }}
         >
           <div className="max-w-screen-xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
@@ -255,7 +255,7 @@ export default function ProjectDetail() {
 
                 {/* Mobile spec list */}
                 <div className="md:hidden mt-12">
-                  <p className="text-[8px] font-black uppercase tracking-[0.5em] mb-5 text-white/30">
+                  <p className="text-[8px] font-black uppercase tracking-[0.5em] mb-5 text-fg-muted">
                     RT•MOTO // SPEC
                   </p>
                   <div style={{ border: `1px solid ${ride.accent}22` }}>
@@ -269,7 +269,7 @@ export default function ProjectDetail() {
                             : 'none',
                         }}
                       >
-                        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/25">
+                        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-fg-muted">
                           {spec.label}
                         </span>
                         <span className="text-sm font-black tracking-tight" style={{ color: ride.accent }}>
@@ -283,7 +283,7 @@ export default function ProjectDetail() {
 
               {/* ── Full spec table — desktop ───────────────────────────── */}
               <div className="hidden lg:block">
-                <p className="text-[9px] font-black uppercase tracking-[0.45em] mb-8 text-white/25">
+                <p className="text-[9px] font-black uppercase tracking-[0.45em] mb-8 text-fg-muted">
                   RT•MOTO // Full Specification
                 </p>
                 <div style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -297,7 +297,7 @@ export default function ProjectDetail() {
                           : 'none',
                       }}
                     >
-                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/25">
+                      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-fg-muted">
                         {spec.label}
                       </span>
                       <span
@@ -313,7 +313,7 @@ export default function ProjectDetail() {
                 {/* Precision line + glyph */}
                 <div className="flex items-center gap-4 mt-6">
                   <div className="h-px flex-1" style={{ backgroundColor: `${ride.accent}18` }} />
-                  <span className="text-[8px] font-black text-white/15">[ + ]</span>
+                  <span className="text-[8px] font-black text-fg-faint">[ + ]</span>
                 </div>
               </div>
 
@@ -327,8 +327,8 @@ export default function ProjectDetail() {
       {/* ── NAVIGATION FOOTER ────────────────────────────────────────────── */}
       <div
         ref={navFooterRef}
-        className="px-8 md:px-16 py-14 border-t border-white/5 opacity-0"
-        style={{ backgroundColor: '#111112' }}
+        className="px-8 md:px-16 py-14 border-t border-line-subtle opacity-0"
+        style={{ backgroundColor: 'var(--color-canvas-raised)' }}
       >
         <div className="max-w-screen-xl mx-auto flex items-center justify-between">
 
@@ -336,7 +336,7 @@ export default function ProjectDetail() {
             <button
               data-magnetic
               onClick={() => navigateRide(-1)}
-              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200 text-white/35 hover:text-white"
+              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200 text-fg-muted hover:text-white"
             >
               <span className="transition-transform duration-200 group-hover:-translate-x-1">←</span>
               Prev Ride
@@ -362,7 +362,7 @@ export default function ProjectDetail() {
             <button
               data-magnetic
               onClick={() => navigateRide(1)}
-              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200 text-white/35 hover:text-white"
+              className="group flex items-center gap-3 text-[10px] font-black tracking-[0.35em] uppercase transition-colors duration-200 text-fg-muted hover:text-white"
             >
               Next Ride
               <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>

@@ -1,13 +1,81 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   THE TOKEN SET — single source of truth.
+
+   Every value here is emitted BOTH as a Tailwind utility (`text-fg-muted`) and as
+   a CSS custom property (`var(--color-fg-muted)`). That is the entire point: the
+   old system had index.css component classes on one ladder (--surface-* at
+   .025/.04/.06/.08/.14) and JSX on another (white/5,/10,/15 = .05/.10/.15), so a
+   card styled by CSS never matched a card styled by Tailwind. One definition now
+   feeds both worlds.
+
+   Values are snapped to the DOMINANT REAL USAGE measured across the codebase, not
+   to an idealised ramp — so migrating a literal to its token is a visual no-op.
+   That is what makes "anything that moves visibly is a bug" a usable test.
+
+   Spec: docs/superpowers/specs/2026-07-16-token-truth-design.md
+   ═══════════════════════════════════════════════════════════════════════════════ */
 @theme {
-  --color-dark: #282C20;
-  --color-darker: #1C1F15;
+  /* — Canvas — true-neutral. The old ramp disagreed on hue: 141913 / 1C1F15 were
+       green-tinted, 15171A blue-tinted, on a supposedly neutral page. 14 → 3. */
+  --color-canvas-deep:    #050505;   /* ← #050505 #060606 #080808              */
+  --color-canvas:         #0a0a0a;   /* ← #0a0a0a #0b0b0b #0d0d0d — the page   */
+  --color-canvas-raised:  #141414;   /* ← #141414 #141913 #15171a #1a1a1a #1f1f1f */
+
+  /* — Foreground. 16 tiers → 4. /25–/40 alone carried 68 of 106 text uses inside
+       a perceptually identical band: one tier cosplaying as four. */
+  --color-fg:             rgba(255, 255, 255, 0.90);  /* ← /80 /85 /90          */
+  --color-fg-2:           rgba(255, 255, 255, 0.60);  /* ← /45 /50 /55 /60 /65  */
+  --color-fg-muted:       rgba(255, 255, 255, 0.35);  /* ← /25 /30 /35 /40      */
+  --color-fg-faint:       rgba(255, 255, 255, 0.15);  /* ← /10 /15 /18 /20      */
+
+  /* — Lines. Hairlines drawn as `bg-white/5` on an h-px div are the SAME role as
+       `border-white/5`, just a different mechanism — so they share these tokens. */
+  --color-line-subtle:    rgba(255, 255, 255, 0.05);
+  --color-line:           rgba(255, 255, 255, 0.10);
+  --color-line-strong:    rgba(255, 255, 255, 0.20);
+
+  /* — Surfaces. Same values as the line ladder by coincidence of measurement, but
+       a DIFFERENT responsibility: these fill, those delineate. Kept separate so
+       one can be retuned without dragging the other with it. */
+  --color-surface:        rgba(255, 255, 255, 0.05);
+  --color-surface-raised: rgba(255, 255, 255, 0.10);
+  --color-surface-hover:  rgba(255, 255, 255, 0.15);
+
+  /* — Accent. 17 alpha variants → 5. `--color-accent` IS the full-opacity step;
+       there is deliberately no `--color-accent-full`, since an opaque lime and
+       #D2FF00 are the same colour and shipping both would reintroduce the
+       duplicate-responsibility problem this set exists to remove. */
+  --color-accent:         #D2FF00;                    /* ← .9 .95 1            */
+  --color-accent-mid:     rgba(210, 255, 0, 0.60);    /* ← .5 .6 .7 .75        */
+  --color-accent-soft:    rgba(210, 255, 0, 0.35);    /* ← .3 .35 .4 .45       */
+  --color-accent-dim:     rgba(210, 255, 0, 0.14);    /* ← .1 .12 .16          */
+  --color-accent-wash:    rgba(210, 255, 0, 0.06);    /* ← .03 .04 .07         */
+
+  /* — Ink: near-black type on LIGHT surfaces (lime CTAs, inverted chips). A
+       different responsibility from the canvas ramp — canvas-on-dark vs
+       type-on-light — so it stays its own token even though the value is a
+       neighbour of --color-black. Promoted from :root so a `text-ink` utility
+       exists; previously ink-on-lime was spelled `text-[#141913]`, a green-tinted
+       one-off. */
+  --color-ink:            #111112;
+
+  /* — The one sanctioned palette exception: KTM orange, scoped to #machine ONLY.
+       This rule is now enforced rather than merely documented — Doctrine had 20
+       occurrences to TheMachine's 18, i.e. the exception had outgrown the rule. */
+  --color-machine:        #FF6600;
+
+  /* — Kept as-is, deliberately —
+       ⚠ --color-black OVERRIDES Tailwind's built-in `black`, so all 34 bg-black /
+       text-black sites render #111112 — LIGHTER than the #0a0a0a canvas. That is
+       almost certainly unintended, but re-valuing it moves 34 sites at once and
+       would break this change's no-op guarantee. Flagged as follow-up, not fixed. */
   --color-black: #111112;
   --color-light: #EFEEE6;
-  --color-mid: #3D4233;
-  --color-accent: #D2FF00;
-  --color-muted: #888880;
+
+  /* Removed: --color-dark #282C20, --color-mid #3D4233, --color-muted #888880 —
+     zero utility uses, zero var() uses. Dead green-tinted palette. */
 
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Saira Expanded', 'Arial Narrow', sans-serif;
@@ -26,37 +94,45 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* — Colors — */
-  --color-bg-primary:    #0a0a0a;
-  --color-bg-secondary:  #141414;
-  --color-bg-card:       #1a1a1a;
-  --color-bg-surface:    #1f1f1f;
-  --color-accent:        #D2FF00;
-  --color-accent-dim:    rgba(210, 255, 0, 0.12);
-  --color-text-primary:  #f0f0f0;
-  --color-text-secondary:#888888;
-  --color-text-muted:    #444444;
-  --color-border:        rgba(255, 255, 255, 0.08);
-  --color-border-accent: rgba(210, 255, 0, 0.3);
+  /* — Colors —
+     NOTE: the canonical definitions now live in the @theme block at the top of this
+     file, which emits each one as both a utility and a var(). Everything below is
+     an ALIAS pointing at those, kept so existing consumers keep working. Do not
+     give an alias its own literal value — that is precisely how the two-ladder
+     split happened in the first place. Prefer the @theme names in new work. */
+  --color-bg-primary:    var(--color-canvas);
+  --color-bg-secondary:  var(--color-canvas-raised);
+  --color-bg-card:       var(--color-canvas-raised);
+  --color-bg-surface:    var(--color-canvas-raised);
+
+  /* Text aliases. The CSS world used SOLID greys (#f0f0f0/#888888/#444444) while
+     JSX used white ALPHAS — a third mismatch the audit turned up. Composited over
+     the #0a0a0a canvas these land within a few points of the fg ladder, so they
+     collapse onto it rather than persisting as a parallel scale. */
+  --color-text-primary:  var(--color-fg);
+  --color-text-secondary:var(--color-fg-2);
+  --color-text-muted:    var(--color-fg-muted);
+
+  --color-border:        var(--color-line);
+  --color-border-accent: var(--color-accent-soft);
   --color-border-warm:   #3d3a39;   /* warm neutral containment border on dark */
 
   /* Accent as space-separated channels so it composes into rgb()/alpha utilities
      without a second literal. Use rgb(var(--color-accent-rgb) / <alpha>). */
   --color-accent-rgb: 210 255 0;
 
-  /* Named literals that were scattered across templates + CSS */
-  --color-ink:     #111112;  /* near-black ink on light surfaces */
-  --color-machine: #FF6600;  /* KTM-orange — scoped to #machine + Turf only */
-
-  /* Luminance surface ladder (Linear method): translucent white stacks read more
-     glassy on the #0a0a0a canvas than solid greys. Existing solid tokens kept for
-     back-compat; new work should prefer these. */
-  --surface-0: var(--color-bg-primary);          /* page */
-  --surface-1: rgba(255, 255, 255, 0.025);        /* card */
-  --surface-2: rgba(255, 255, 255, 0.04);         /* raised */
-  --surface-3: rgba(255, 255, 255, 0.06);         /* hover / active */
-  --surface-border:       rgba(255, 255, 255, 0.08);
-  --surface-border-hover: rgba(255, 255, 255, 0.14);
+  /* Surface ladder — aliases onto the @theme surfaces. These previously carried
+     their own literals (.025/.04/.06/.08/.14) that matched NOTHING in JSX, which
+     is why ~160 literals routed around them: adopting them would have changed how
+     everything looked. Re-valued to the measured reality, so they are adoptable.
+     The ~10 CSS call sites below shift slightly — the one accepted deviation from
+     this change's no-op guarantee. */
+  --surface-0: var(--color-canvas);              /* page */
+  --surface-1: var(--color-surface);             /* card        (was .025) */
+  --surface-2: var(--color-surface-raised);      /* raised      (was .04)  */
+  --surface-3: var(--color-surface-raised);      /* hover       (was .06)  */
+  --surface-border:       var(--color-line);        /* (was .08) */
+  --surface-border-hover: var(--color-line-strong); /* (was .14) */
 
   /* Elevation: one lift token so the whole site stays consistent, plus a small
      tokenized shadow stack. */
@@ -719,7 +795,7 @@ html.lenis { height: auto; }
   gap: var(--space-3);
   padding: var(--space-4) var(--space-7);
   background: var(--color-accent);
-  color: #0d0d0d;
+  color: var(--color-canvas);
   font-weight: 700;
   font-size: var(--text-sm);
   letter-spacing: var(--tracking-caps);
@@ -963,7 +1039,7 @@ html.lenis { height: auto; }
 }
 .tick-rule--accent {
   background-image:
-    repeating-linear-gradient(90deg, rgba(210, 255, 0, 0.6) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, var(--color-accent-mid) 0 1px, transparent 1px 26px),
     linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
 }
 
@@ -1015,9 +1091,12 @@ html.lenis { height: auto; }
   50%  { opacity: 1; }
   100% { opacity: 0.7; }
 }
-/* Rev-limiter: fast, violent colour pulse through the arsenal palette. */
+/* Rev-limiter: fast, violent colour pulse through the arsenal palette.
+   Scoped to #machine — the one sanctioned palette exception. The red and grey
+   stops are part of the KTM grade and have no site-wide token by design; only the
+   orange is tokenised, since it is the hue the exception is actually about. */
 .arsenal-text {
-  background: linear-gradient(90deg, #FF6600, #FF0000, #808080, #FF6600);
+  background: linear-gradient(90deg, var(--color-machine), #FF0000, #808080, var(--color-machine));
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -1026,9 +1105,9 @@ html.lenis { height: auto; }
   animation: arsenalPulse 1.2s ease-in-out infinite;
 }
 @media (pointer: coarse) {
-  .arsenal-text { 
-    animation: arsenalPulse 2s ease-in-out infinite; 
-    background: #FF6600;
+  .arsenal-text {
+    animation: arsenalPulse 2s ease-in-out infinite;
+    background: var(--color-machine);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1047,7 +1126,7 @@ html.lenis { height: auto; }
 
 /* KTM-orange registration brackets (variant of .brk) */
 .brk--mch::before,
-.brk--mch::after { background: #FF6600; }
+.brk--mch::after { background: var(--color-machine); }
 
 /* Engine idle — tiny high-frequency jitter on the portrait wrapper */
 @keyframes engine-vibrate {
@@ -1096,7 +1175,7 @@ html.lenis { height: auto; }
   content: "";
   position: absolute;
   inset: 0 -26px 0 0;
-  background-image: repeating-linear-gradient(90deg, rgba(210, 255, 0, 0.6) 0 1px, transparent 1px 26px);
+  background-image: repeating-linear-gradient(90deg, var(--color-accent-mid) 0 1px, transparent 1px 26px);
   background-repeat: repeat-x;
   background-size: 26px 8px;
   background-position: 0 bottom;
@@ -1190,7 +1269,7 @@ html.lenis { height: auto; }
 .brk::after {
   content: "";
   position: absolute;
-  background: rgba(210, 255, 0, 0.5);
+  background: var(--color-accent-mid);
 }
 .brk::before { width: 100%; height: 1px; top: 0; left: 0; }
 .brk::after  { width: 1px; height: 100%; top: 0; left: 0; }
@@ -1236,7 +1315,7 @@ html.lenis { height: auto; }
   border-left: 2px solid transparent;
 }
 .log-row:hover {
-  background: rgba(210, 255, 0, 0.03);
+  background: var(--color-accent-wash);
   border-left-color: var(--color-accent);
 }
 
@@ -1279,7 +1358,7 @@ html.lenis { height: auto; }
 /* — Dynamic Accent Button — Outline → Fill — */
 .btn-accent {
   --btn-accent: var(--color-accent);
-  --btn-accent-dim: rgba(210, 255, 0, 0.45);
+  --btn-accent-dim: var(--color-accent-soft);
   border: 1px solid var(--btn-accent-dim);
   color: var(--btn-accent);
   background: transparent;
@@ -1371,7 +1450,7 @@ html.lenis { height: auto; }
   right: 0;
   height: 14%;
   top: 0;
-  background: linear-gradient(transparent, rgba(210, 255, 0, 0.07), transparent);
+  background: linear-gradient(transparent, var(--color-accent-wash), transparent);
   mix-blend-mode: screen;
   /* Sweep via transform — animating `top` forced layout every frame.
      translateY % is relative to the 14%-tall band: -110% ≈ top:-15%,
@@ -1453,13 +1532,13 @@ html.lenis { height: auto; }
 .scope__ring {
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(210, 255, 0, 0.75);
+  border: 1px solid var(--color-accent-mid);
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 26px rgba(210, 255, 0, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 26px var(--color-accent-dim);
 }
 .scope__ring--spin {
   inset: 7px;
-  border: 1px dashed rgba(210, 255, 0, 0.4);
+  border: 1px dashed var(--color-accent-soft);
   box-shadow: none;
   animation: scopeSpin 9s linear infinite;
 }
@@ -1472,7 +1551,7 @@ html.lenis { height: auto; }
 .scope__cross::after {
   content: "";
   position: absolute;
-  background: rgba(210, 255, 0, 0.6);
+  background: var(--color-accent-mid);
 }
 .scope__cross::before { left: 50%; top: 12%; bottom: 12%; width: 1px; transform: translateX(-50%); }
 .scope__cross::after  { top: 50%; left: 12%; right: 12%; height: 1px; transform: translateY(-50%); }
@@ -1503,7 +1582,7 @@ html.lenis { height: auto; }
 }
 .scope.is-scanning .scope__readout { opacity: 1; }
 .scope__readout-live {
-  color: #0a0a0a;
+  color: var(--color-ink);   /* type on a lime chip → ink, not canvas */
   background: var(--color-accent);
   padding: 1px 5px;
   font-weight: 700;

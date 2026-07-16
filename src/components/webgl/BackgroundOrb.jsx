@@ -37,6 +37,9 @@ export function BackgroundOrb() {
 
   return (
     <group ref={groupRef} position={[2.5, 0, -2]}>
+      {/* Literal hex, not var(--color-accent): these are Three.js/R3F colour props,
+          parsed by THREE.Color — which resolves no CSS custom properties. Same for
+          the meshBasicMaterials below and THREE.Color in HelmetSection. */}
       <pointLight ref={accentLight} color="#D2FF00" position={[2, 2, 4]} distance={20} />
       <pointLight color="#FF8700" position={[-3, -1, 1]} intensity={2} distance={15} />
 

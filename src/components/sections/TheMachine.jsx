@@ -77,7 +77,7 @@ export default function TheMachine() {
     <section
       id="machine"
       ref={sectionRef}
-      className="relative w-full bg-[#0a0a0a] border-t border-white/5 px-6 md:px-16 py-24 md:py-32 overflow-hidden"
+      className="relative w-full bg-canvas border-t border-line-subtle px-6 md:px-16 py-24 md:py-32 overflow-hidden"
     >
       <div className="grain-layer" />
 
@@ -89,11 +89,11 @@ export default function TheMachine() {
           style={{ transform: 'translate(-112%, -55%)', opacity: activeLog !== null ? 1 : 0 }}
         >
           {activeLog !== null && (
-            <div key={activeLog} className="relative w-[240px] h-[135px] bg-[#0b0b0b] border border-[#FF6600]/45 overflow-hidden">
+            <div key={activeLog} className="relative w-[240px] h-[135px] bg-canvas border border-machine/45 overflow-hidden">
               {/* STANDBY placeholder (fallback if an image fails to load) */}
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-                <span className="font-mono text-[8px] tracking-[0.35em] text-white/25">IMG // STANDBY</span>
-                <span className="font-mono text-[9px] tracking-[0.2em] text-[#FF6600]/80">{LOG[activeLog].k}</span>
+                <span className="font-mono text-[8px] tracking-[0.35em] text-fg-muted">IMG // STANDBY</span>
+                <span className="font-mono text-[9px] tracking-[0.2em] text-machine/80">{LOG[activeLog].k}</span>
               </div>
               {/* object-contain → full part shown in original colour, never cropped */}
               <img
@@ -106,16 +106,16 @@ export default function TheMachine() {
               <div className="absolute inset-0 scan-lines pointer-events-none opacity-40" />
 
               {/* Corner telemetry overlay — status + raw filename */}
-              <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 font-mono text-[7px] tracking-[0.25em] uppercase text-[#FF6600]">
-                <span className="w-1 h-1 bg-[#FF6600] animate-pulse" />
+              <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 font-mono text-[7px] tracking-[0.25em] uppercase text-machine">
+                <span className="w-1 h-1 bg-machine animate-pulse" />
                 PART_SECURE // OK
               </div>
-              <span className="absolute top-2.5 right-2.5 font-mono text-[7px] tracking-[0.15em] text-white/40 max-w-[42%] truncate text-right">
+              <span className="absolute top-2.5 right-2.5 font-mono text-[7px] tracking-[0.15em] text-fg-muted max-w-[42%] truncate text-right">
                 {LOG[activeLog].img.split('/').pop()}
               </span>
 
               <div className="absolute bottom-0 left-0 right-0 px-2.5 py-2 bg-gradient-to-t from-black/95 to-transparent">
-                <span className="font-mono text-[8px] tracking-[0.2em] uppercase text-white/85">{LOG[activeLog].v}</span>
+                <span className="font-mono text-[8px] tracking-[0.2em] uppercase text-fg">{LOG[activeLog].v}</span>
               </div>
               <span className="brk brk--mch tl" /><span className="brk brk--mch tr" />
               <span className="brk brk--mch bl" /><span className="brk brk--mch br" />
@@ -170,30 +170,30 @@ export default function TheMachine() {
 
               {/* Top HUD strip */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between font-mono text-[9px] tracking-[0.3em] uppercase">
-                <span className="flex items-center gap-1.5 text-[#FF6600]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6600] animate-pulse" />
+                <span className="flex items-center gap-1.5 text-machine">
+                  <span className="w-1.5 h-1.5 rounded-full bg-machine animate-pulse" />
                   REC
                 </span>
-                <span className="text-white/40">34.1°N · 77.6°E</span>
+                <span className="text-fg-muted">34.1°N · 77.6°E</span>
               </div>
 
               {/* Bottom scrim + machine tag */}
               <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black to-transparent pointer-events-none" />
               <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
-                <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-[#FF6600]">
+                <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-machine">
                   KTM DUKE 250 BS6
                 </span>
-                <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-white/35">
+                <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-fg-muted">
                   UNIT 01
                 </span>
               </div>
             </div>
 
             {/* Sub-portrait readout */}
-            <div className="mt-4 flex items-center gap-3 font-mono text-[9px] tracking-[0.25em] uppercase text-white/30">
-              <span className="text-[#FF6600]/80">NUMBER SERIAL</span>
-              <span className="flex-1 border-b border-dashed border-white/20" />
-              <span className="text-white/55">BR01FZ1138 </span>
+            <div className="mt-4 flex items-center gap-3 font-mono text-[9px] tracking-[0.25em] uppercase text-fg-muted">
+              <span className="text-machine/80">NUMBER SERIAL</span>
+              <span className="flex-1 border-b border-dashed border-line-strong" />
+              <span className="text-fg-2">BR01FZ1138 </span>
             </div>
           </div>
 
@@ -216,13 +216,13 @@ export default function TheMachine() {
             </div>
 
             {/* Maintenance log — live telemetry table */}
-            <div className="mt-12 md:mt-16 pt-8 border-t border-white/10">
+            <div className="mt-12 md:mt-16 pt-8 border-t border-line">
               <div className="tm-log-head flex items-center justify-between mb-6">
-                <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-[#FF6600]">
+                <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-machine">
                   // MAINTENANCE LOG
                 </p>
-                <p className="font-mono text-[9px] tracking-[0.25em] uppercase text-white/25">
-                  LAST SYNC : 2026 <span className="term-cursor text-[#FF6600]">█</span>
+                <p className="font-mono text-[9px] tracking-[0.25em] uppercase text-fg-muted">
+                  LAST SYNC : 2026 <span className="term-cursor text-machine">█</span>
                 </p>
               </div>
 
@@ -234,19 +234,19 @@ export default function TheMachine() {
                     onMouseLeave={() => !COARSE && setActiveLog(null)}
                     onClick={() => COARSE && setActiveLog(activeLog === i ? null : i)}
                     aria-current={COARSE && activeLog === i ? 'true' : undefined}
-                    className={`tm-log-row group flex items-center px-5 py-4 transition-colors duration-300 hover:bg-[#FF6600]/[0.04] touch-buffer ${
-                      activeLog === i ? 'bg-[#FF6600]/[0.06]' : ''
+                    className={`tm-log-row group flex items-center px-5 py-4 transition-colors duration-300 hover:bg-machine/[0.04] touch-buffer ${
+                      activeLog === i ? 'bg-machine/[0.06]' : ''
                     } ${i !== LOG.length - 1 ? 'border-b border-white/[0.06]' : ''}`}
                   >
-                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-white/40 w-8 tabular-nums">
+                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-fg-muted w-8 tabular-nums">
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/55 w-[90px] sm:w-[150px] shrink-0">
+                    <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-fg-2 w-[90px] sm:w-[150px] shrink-0">
                       {item.k}
                     </span>
                     {/* dashed leader connecting label → value (fixed key width keeps starts aligned) */}
-                    <span className="hidden sm:flex flex-1 mx-3 border-b border-dashed border-white/20" />
-                    <span className="flex-1 sm:flex-none font-mono text-[10px] sm:text-[11px] font-semibold leading-snug text-right text-white transition-colors duration-300 group-hover:text-[#FF6600]">
+                    <span className="hidden sm:flex flex-1 mx-3 border-b border-dashed border-line-strong" />
+                    <span className="flex-1 sm:flex-none font-mono text-[10px] sm:text-[11px] font-semibold leading-snug text-right text-white transition-colors duration-300 group-hover:text-machine">
                       {item.v}
                     </span>
                   </div>
@@ -256,10 +256,10 @@ export default function TheMachine() {
               {/* Mobile part preview — touch has no cursor popup, so a tapped row
                   reveals its part inline here. */}
               {COARSE && activeLog !== null && (
-                <div key={activeLog} className="mt-5 relative w-full aspect-video bg-[#0b0b0b] border border-[#FF6600]/45 overflow-hidden">
+                <div key={activeLog} className="mt-5 relative w-full aspect-video bg-canvas border border-machine/45 overflow-hidden">
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-                    <span className="font-mono text-[8px] tracking-[0.35em] text-white/25">IMG // STANDBY</span>
-                    <span className="font-mono text-[9px] tracking-[0.2em] text-[#FF6600]/80">{LOG[activeLog].k}</span>
+                    <span className="font-mono text-[8px] tracking-[0.35em] text-fg-muted">IMG // STANDBY</span>
+                    <span className="font-mono text-[9px] tracking-[0.2em] text-machine/80">{LOG[activeLog].k}</span>
                   </div>
                   <img
                     src={LOG[activeLog].img}
@@ -269,12 +269,12 @@ export default function TheMachine() {
                     style={{ filter: 'contrast(1.05) saturate(1.05)' }}
                   />
                   <div className="absolute inset-0 scan-lines pointer-events-none opacity-40" />
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 font-mono text-[7px] tracking-[0.25em] uppercase text-[#FF6600]">
-                    <span className="w-1 h-1 bg-[#FF6600] animate-pulse" />
+                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 font-mono text-[7px] tracking-[0.25em] uppercase text-machine">
+                    <span className="w-1 h-1 bg-machine animate-pulse" />
                     PART_SECURE // OK
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 px-2.5 py-2 bg-gradient-to-t from-black/95 to-transparent">
-                    <span className="font-mono text-[8px] tracking-[0.2em] uppercase text-white/85">{LOG[activeLog].v}</span>
+                    <span className="font-mono text-[8px] tracking-[0.2em] uppercase text-fg">{LOG[activeLog].v}</span>
                   </div>
                   <span className="brk brk--mch tl" /><span className="brk brk--mch tr" />
                   <span className="brk brk--mch bl" /><span className="brk brk--mch br" />

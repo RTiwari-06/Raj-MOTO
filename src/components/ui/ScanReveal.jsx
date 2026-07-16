@@ -100,8 +100,8 @@ export default function ScanReveal({
           style={{
             top: 0,
             height: '2px',
-            background: '#D2FF00',
-            boxShadow: '0 0 8px rgba(210,255,0,0.9), 0 0 24px rgba(210,255,0,0.4)',
+            background: 'var(--color-accent)',
+            boxShadow: '0 0 8px var(--color-accent), 0 0 24px var(--color-accent-soft)',
             zIndex: 100,
             opacity: 0,
           }}

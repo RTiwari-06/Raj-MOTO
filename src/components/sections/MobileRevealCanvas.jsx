@@ -165,7 +165,10 @@ export default function MobileRevealCanvas({ inView }) {
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
       ctx.restore();
 
-      // lime rim — fades out as the scroll reveal takes over
+      // lime rim — fades out as the scroll reveal takes over.
+      // Literal rgba() on purpose: this is a Canvas 2D context, which resolves no
+      // CSS custom properties, and the alpha is computed per-frame rather than
+      // being one of the accent ramp's fixed steps. Not a token bypass.
       const rimAlpha = 0.30 * (1 - sm) * Math.min(1, radius / 40);
       if (rimAlpha > 0.02) {
         ctx.strokeStyle = `rgba(210,255,0,${rimAlpha})`;

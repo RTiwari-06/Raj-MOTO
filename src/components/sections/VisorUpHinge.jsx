@@ -53,7 +53,7 @@ export default function VisorUpHinge() {
 
   return (
     <section ref={sectionRef}
-      className="relative w-full overflow-hidden bg-black py-40 md:py-56 border-t border-white/5">
+      className="relative w-full overflow-hidden bg-black py-40 md:py-56 border-t border-line-subtle">
       <img ref={machineRef} src={MEDIA.hero.reveal} alt="" aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0 [filter:grayscale(1)_contrast(1.1)]" />
       <img ref={humanRef} src={MEDIA.hero.primary} alt="" aria-hidden="true"
@@ -61,17 +61,17 @@ export default function VisorUpHinge() {
       <div className="pointer-events-none absolute inset-0 bg-black/60" />
 
       <div className="relative z-10 mx-auto max-w-screen-xl px-6 md:px-16 text-center">
-        <div ref={tickRef} className="mx-auto mb-8 h-px w-40 bg-[#D2FF00]"
+        <div ref={tickRef} className="mx-auto mb-8 h-px w-40 bg-accent"
           style={{ transformOrigin: 'left center' }} />
         <div ref={labelRef}>
-          <p className="font-mono text-[10px] md:text-[11px] tracking-[0.5em] uppercase text-[#D2FF00] mb-6">
+          <p className="font-mono text-[10px] md:text-[11px] tracking-[0.5em] uppercase text-accent mb-6">
             VISOR UP
           </p>
           <h2 className="font-serif font-black uppercase text-white leading-none"
             style={{ fontSize: 'clamp(2.4rem, 8vw, 6.5rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}>
             OFF TRACK
           </h2>
-          <p className="font-mono text-[10px] tracking-[0.4em] uppercase text-white/40 mt-8">
+          <p className="font-mono text-[10px] tracking-[0.4em] uppercase text-fg-muted mt-8">
             THE PERSON BEHIND THE MACHINE
           </p>
         </div>

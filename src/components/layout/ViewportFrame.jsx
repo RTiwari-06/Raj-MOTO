@@ -8,28 +8,28 @@ export default function ViewportFrame() {
       aria-hidden="true"
     >
       {/* Hairline perimeter border */}
-      <div className="absolute inset-3 border border-[rgba(210,255,0,0.07)]" />
+      <div className="absolute inset-3 border border-[var(--color-accent-wash)]" />
 
       {/* ── CORNER CROSSHAIRS ──────────────────────────────────────────────── */}
       {/* Top-left */}
       <div className="absolute top-3 left-3 w-5 h-5">
-        <div className="absolute top-0 left-0 w-full h-px bg-[#D2FF00]/25" />
-        <div className="absolute top-0 left-0 w-px h-full bg-[#D2FF00]/25" />
+        <div className="absolute top-0 left-0 w-full h-px bg-accent-soft" />
+        <div className="absolute top-0 left-0 w-px h-full bg-accent-soft" />
       </div>
       {/* Top-right */}
       <div className="absolute top-3 right-3 w-5 h-5">
-        <div className="absolute top-0 right-0 w-full h-px bg-[#D2FF00]/25" />
-        <div className="absolute top-0 right-0 w-px h-full bg-[#D2FF00]/25" />
+        <div className="absolute top-0 right-0 w-full h-px bg-accent-soft" />
+        <div className="absolute top-0 right-0 w-px h-full bg-accent-soft" />
       </div>
       {/* Bottom-left */}
       <div className="absolute bottom-3 left-3 w-5 h-5">
-        <div className="absolute bottom-0 left-0 w-full h-px bg-[#D2FF00]/25" />
-        <div className="absolute bottom-0 left-0 w-px h-full bg-[#D2FF00]/25" />
+        <div className="absolute bottom-0 left-0 w-full h-px bg-accent-soft" />
+        <div className="absolute bottom-0 left-0 w-px h-full bg-accent-soft" />
       </div>
       {/* Bottom-right */}
       <div className="absolute bottom-3 right-3 w-5 h-5">
-        <div className="absolute bottom-0 right-0 w-full h-px bg-[#D2FF00]/25" />
-        <div className="absolute bottom-0 right-0 w-px h-full bg-[#D2FF00]/25" />
+        <div className="absolute bottom-0 right-0 w-full h-px bg-accent-soft" />
+        <div className="absolute bottom-0 right-0 w-px h-full bg-accent-soft" />
       </div>
     </div>
   );

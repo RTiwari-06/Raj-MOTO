@@ -250,7 +250,7 @@ const Navbar = () => {
         ref={navRef}
         className={`fixed top-0 left-0 w-full z-50 border-b transition-[background-color,border-color] duration-500 nav-solid-mobile ${
           scrolled
-            ? 'bg-black/90 md:bg-black/80 md:backdrop-blur-md border-white/10'
+            ? 'bg-black/90 md:bg-black/80 md:backdrop-blur-md border-line'
             : 'bg-transparent border-transparent'
         }`}
         style={{ opacity: 0 }}
@@ -277,7 +277,7 @@ const Navbar = () => {
             onMouseLeave={() => setHovering(false)}
           >
             {/* Ignition tick — grows on hover */}
-            <span className="block w-[3px] h-7 bg-[#D2FF00] origin-center transition-transform duration-300 group-hover:scale-y-125" />
+            <span className="block w-[3px] h-7 bg-accent origin-center transition-transform duration-300 group-hover:scale-y-125" />
             <img
               src="/media/svgs/brand_logo.webp"
               alt="RT•MOTO"
@@ -308,12 +308,12 @@ const Navbar = () => {
                     onMouseLeave={() => setHovering(false)}
                   >
                     <span className={`font-mono text-[8px] tracking-[0.15em] transition-colors duration-200 ${
-                      isActive ? 'text-[#D2FF00]' : 'text-white/25 group-hover:text-[#D2FF00]/70'
+                      isActive ? 'text-accent' : 'text-fg-muted group-hover:text-accent-mid'
                     }`}>
                       {idx}
                     </span>
                     <span className={`font-serif text-[11px] tracking-[0.16em] uppercase whitespace-nowrap transition-colors duration-200 ${
-                      isActive ? 'text-white' : 'text-white/45 group-hover:text-white'
+                      isActive ? 'text-white' : 'text-fg-2 group-hover:text-white'
                     }`}>
                       {label}
                     </span>
@@ -326,8 +326,8 @@ const Navbar = () => {
             <span
               ref={indicatorRef}
               aria-hidden="true"
-              className="absolute -bottom-1 left-0 h-[2px] bg-[#D2FF00] pointer-events-none"
-              style={{ width: 0, boxShadow: '0 0 12px rgba(210,255,0,0.95), 0 0 4px rgba(210,255,0,1)' }}
+              className="absolute -bottom-1 left-0 h-[2px] bg-accent pointer-events-none"
+              style={{ width: 0, boxShadow: '0 0 12px var(--color-accent), 0 0 4px var(--color-accent)' }}
             />
           </ul>
 
@@ -343,15 +343,15 @@ const Navbar = () => {
                 className="flex items-center gap-1.5 transition-opacity duration-500"
                 style={{ opacity: scrolled ? 1 : 0 }}
               >
-                <span className="text-white/25">Scroll</span>
-                <span ref={readoutRef} className="text-[#D2FF00]">000</span>
-                <span className="text-white/25">%</span>
+                <span className="text-fg-muted">Scroll</span>
+                <span ref={readoutRef} className="text-accent">000</span>
+                <span className="text-fg-muted">%</span>
               </span>
             </div>
 
             <span
               data-nav-item
-              className="hidden lg:block w-px h-4 bg-white/10 transition-opacity duration-500"
+              className="hidden lg:block w-px h-4 bg-surface-raised transition-opacity duration-500"
               style={{ opacity: scrolled ? 1 : 0 }}
             />
 
@@ -362,13 +362,13 @@ const Navbar = () => {
               data-nav-item
               aria-pressed={motionEnabled}
               aria-label={motionEnabled ? 'Motion on — click to reduce motion' : 'Motion paused — click to enable'}
-              className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/25 hover:text-[#D2FF00] transition-colors duration-200 touch-buffer"
+              className="hidden md:flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-fg-muted hover:text-accent transition-colors duration-200 touch-buffer"
               onMouseEnter={() => setHovering(true)}
               onMouseLeave={() => setHovering(false)}
             >
               <span
                 className="w-[5px] h-[5px] rounded-full transition-colors duration-200"
-                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px rgba(210,255,0,0.95), 0 0 2px rgba(210,255,0,1)' : 'none' }}
+                style={{ backgroundColor: motionEnabled ? 'var(--color-accent)' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px var(--color-accent), 0 0 2px var(--color-accent)' : 'none' }}
               />
               {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
             </button>
@@ -383,11 +383,11 @@ const Navbar = () => {
               className="md:hidden relative w-8 h-8 flex flex-col items-center justify-center gap-[5px] touch-buffer"
             >
               <span
-                className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
+                className="block w-5 h-[1.5px] bg-accent transition-transform duration-300"
                 style={{ transform: menuOpen ? 'translateY(3.25px) rotate(45deg)' : 'none' }}
               />
               <span
-                className="block w-5 h-[1.5px] bg-[#D2FF00] transition-transform duration-300"
+                className="block w-5 h-[1.5px] bg-accent transition-transform duration-300"
                 style={{ transform: menuOpen ? 'translateY(-3.25px) rotate(-45deg)' : 'none' }}
               />
             </button>
@@ -398,8 +398,8 @@ const Navbar = () => {
         <div className="absolute bottom-0 left-0 w-full h-px bg-white/[0.06] overflow-hidden">
           <div
             ref={progressRef}
-            className="h-full bg-[#D2FF00] origin-left"
-            style={{ transform: 'scaleX(0)', boxShadow: '0 0 8px rgba(210,255,0,0.5)' }}
+            className="h-full bg-accent origin-left"
+            style={{ transform: 'scaleX(0)', boxShadow: '0 0 8px var(--color-accent-mid)' }}
           />
         </div>
       </nav>
@@ -415,7 +415,7 @@ const Navbar = () => {
         <div className="absolute inset-0 hairline-grid opacity-60" />
 
         <div className="relative h-full flex flex-col justify-center px-8 pt-24 pb-12">
-          <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-[#D2FF00]/40 mb-8">
+          <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-accent-soft mb-8">
             // Navigation
           </span>
 
@@ -430,12 +430,12 @@ const Navbar = () => {
                     className="group flex items-baseline gap-4 py-2"
                   >
                   <span className={`font-mono text-[11px] tracking-[0.1em] ${
-                    i === active ? 'text-[#D2FF00]' : 'text-white/30'
+                    i === active ? 'text-accent' : 'text-fg-muted'
                   }`}>
                     {idx}
                   </span>
                   <span className={`font-serif text-[12vw] leading-[0.95] uppercase transition-colors duration-200 ${
-                    i === active ? 'text-[#D2FF00]' : 'text-white group-active:text-[#D2FF00]'
+                    i === active ? 'text-accent' : 'text-white group-active:text-accent'
                   }`}>
                     {label}
                   </span>
@@ -446,18 +446,18 @@ const Navbar = () => {
           </ul>
 
           {/* Telemetry footer */}
-          <div className="mt-auto pt-10 flex items-center justify-between border-t border-white/10">
-            <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-white/30">
+          <div className="mt-auto pt-10 flex items-center justify-between border-t border-line">
+            <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-fg-muted">
               Bengaluru · IND
             </span>
             <button
               onClick={toggleMotion}
               aria-pressed={motionEnabled}
-              className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30"
+              className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-fg-muted"
             >
               <span
                 className="w-[5px] h-[5px] rounded-full"
-                style={{ backgroundColor: motionEnabled ? '#D2FF00' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px rgba(210,255,0,0.95), 0 0 2px rgba(210,255,0,1)' : 'none' }}
+                style={{ backgroundColor: motionEnabled ? 'var(--color-accent)' : 'rgba(255,255,255,0.2)', boxShadow: motionEnabled ? '0 0 8px var(--color-accent), 0 0 2px var(--color-accent)' : 'none' }}
               />
               {motionEnabled ? '[SYS.ONLINE]' : '[SYS.PAUSED]'}
             </button>

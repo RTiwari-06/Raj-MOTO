@@ -39,7 +39,7 @@ const RollingOdometer = forwardRef(function RollingOdometer(
       {Array.from({ length: digits }).map((_, i) => (
         <span key={i} className="flex items-end">
           {i === comma && (
-            <span className="font-black leading-none text-white/40 mx-[0.02em]">,</span>
+            <span className="font-black leading-none text-fg-muted mx-[0.02em]">,</span>
           )}
           <span
             className="relative overflow-hidden"
@@ -64,7 +64,7 @@ const RollingOdometer = forwardRef(function RollingOdometer(
         </span>
       ))}
       <span
-        className="font-mono font-black uppercase tracking-[0.18em] text-[#D2FF00] ml-[0.16em] mb-[0.16em]"
+        className="font-mono font-black uppercase tracking-[0.18em] text-accent ml-[0.16em] mb-[0.16em]"
         style={{ fontSize: '0.1em' }}
       >
         {unit}

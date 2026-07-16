@@ -128,7 +128,7 @@ export default function StorySection() {
       ref={sectionRef}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
-      className="relative w-full bg-darker py-32 md:py-40 px-6 md:px-16 overflow-hidden border-t border-white/5"
+      className="relative w-full bg-canvas-raised py-32 md:py-40 px-6 md:px-16 overflow-hidden border-t border-line-subtle"
     >
 
       {/* ── Background field footage — muted GoPro loop. Dim by default; the cursor
@@ -200,7 +200,7 @@ export default function StorySection() {
               path={ACCENT_SLASH} 
               viewBox="0 0 200 100" 
               className="absolute -top-12 -left-8 w-32 h-16 opacity-20 pointer-events-none"
-              color="#D2FF00"
+              color="var(--color-accent)"
               strokeWidth={1}
             />
 
@@ -211,7 +211,7 @@ export default function StorySection() {
               </p>
             </div>
             <h2 className="font-serif font-black uppercase leading-none relative" style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)', letterSpacing: '-0.03em', lineHeight: '0.9' }}>
-              <span className="block" style={{ color: '#D2FF00' }}>THE</span>
+              <span className="block" style={{ color: 'var(--color-accent)' }}>THE</span>
               <span className="block text-white">PATH.</span>
 
               {/* Subtle Signature under "PATH" */}
@@ -219,7 +219,7 @@ export default function StorySection() {
                 path={RT_SIGNATURE} 
                 viewBox="0 0 200 100" 
                 className="absolute -bottom-4 -right-4 w-24 h-12 opacity-40 pointer-events-none"
-                color="#D2FF00"
+                color="var(--color-accent)"
                 strokeWidth={1.5}
                 delay={0.5}
               />
@@ -237,9 +237,9 @@ export default function StorySection() {
             <div
               key={item.year}
               ref={(el) => (cardRefs.current[i] = el)}
-              className="group opacity-0 relative p-6 border border-white/5 bg-black/20 hover:bg-black/40 transition-colors duration-300 flex flex-col"
+              className="group opacity-0 relative p-6 border border-line-subtle bg-black/20 hover:bg-black/40 transition-colors duration-300 flex flex-col"
             >
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-white/5 group-hover:bg-accent/50 transition-colors duration-300" />
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-line-subtle group-hover:bg-accent/50 transition-colors duration-300" />
 
               <p className="text-[9px] tracking-[0.35em] uppercase font-black text-accent mb-6">
                 // {item.year}
@@ -249,7 +249,7 @@ export default function StorySection() {
                 <h3 className="text-xl font-black tracking-tight text-light uppercase mb-2">
                   {item.title}
                 </h3>
-                <p className="text-[10px] label-spaced text-white/50 mb-4">
+                <p className="text-[10px] label-spaced text-fg-2 mb-4">
                   {item.machine}
                 </p>
                 <p className="text-sm text-light/40 leading-relaxed">
@@ -259,7 +259,7 @@ export default function StorySection() {
 
               <div className="mt-auto flex items-center justify-between">
                 <div className="w-1.5 h-1.5 rounded-full bg-accent/20 group-hover:bg-accent transition-colors duration-300" />
-                <span className="text-[8px] font-black text-white/10 group-hover:text-accent/40 transition-colors duration-300">[ + ]</span>
+                <span className="text-[8px] font-black text-fg-faint group-hover:text-accent/40 transition-colors duration-300">[ + ]</span>
               </div>
             </div>
           ))}

@@ -209,9 +209,9 @@ const Hero = ({ isLoaded = true }) => {
               const lenis = window.__lenis;
               lenis ? lenis.scrollTo(el) : el.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="btn-rt inline-flex items-center gap-3 px-6 py-3 border border-white/20 text-white uppercase tracking-wider"
+            className="btn-rt inline-flex items-center gap-3 px-6 py-3 border border-line-strong text-white uppercase tracking-wider"
           >
-            <span className="loader w-3 h-3 rounded-full bg-white/80 animate-pulse" />
+            <span className="loader w-3 h-3 rounded-full bg-fg animate-pulse" />
             <span>Engage</span>
           </button>
         </div>
@@ -222,10 +222,10 @@ const Hero = ({ isLoaded = true }) => {
           aria-label="Scroll to explore"
           className="group pointer-events-auto flex flex-col items-center gap-2"
         >
-          <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-white/18 transition-colors duration-300 group-hover:text-white/55">
+          <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-fg-faint transition-colors duration-300 group-hover:text-fg-2">
             explore
           </span>
-          <span className="block w-px h-9 bg-gradient-to-b from-white/18 to-transparent" />
+          <span className="block w-px h-9 bg-gradient-to-b from-line-strong to-transparent" />
         </a>
       </div>
     </section>

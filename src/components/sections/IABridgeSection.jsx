@@ -75,7 +75,7 @@ export default function IABridgeSection() {
     <section
       ref={sectionRef}
       id="thesis"
-      className="relative w-full bg-black border-t border-white/5 px-6 md:px-16 py-36 md:py-48 overflow-hidden"
+      className="relative w-full bg-black border-t border-line-subtle px-6 md:px-16 py-36 md:py-48 overflow-hidden"
     >
       {/* Hairline grid */}
       <div className="absolute inset-0 pointer-events-none hairline-grid opacity-50" />
@@ -85,12 +85,12 @@ export default function IABridgeSection() {
         {/* Accent bar */}
         <div
           ref={lineRef}
-          className="w-[60px] h-[2px] bg-[#D2FF00] mb-10"
+          className="w-[60px] h-[2px] bg-accent mb-10"
           style={{ transformOrigin: 'left center' }}
         />
 
         {/* Section tag */}
-        <p className="font-mono text-[9px] font-black uppercase tracking-[0.45em] text-white/15 mb-10">
+        <p className="font-mono text-[9px] font-black uppercase tracking-[0.45em] text-fg-faint mb-10">
           ON TRACK &nbsp;//&nbsp; THE THESIS
         </p>
 
@@ -107,40 +107,40 @@ export default function IABridgeSection() {
           >
             MECHANICAL PERFORMANCE
             <br />
-            <span style={{ color: '#D2FF00' }}>EXTENDS TO THE BROWSER.</span>
+            <span style={{ color: 'var(--color-accent)' }}>EXTENDS TO THE BROWSER.</span>
           </h2>
         </div>
 
         {/* Divider */}
         <div className="flex items-center gap-6 mb-10">
-          <div className="h-px w-16 bg-white/10" />
-          <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-white/20">
+          <div className="h-px w-16 bg-surface-raised" />
+          <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-fg-faint">
             SYSTEM LOG
           </span>
-          <div className="h-px flex-1 bg-white/5 max-w-[160px]" />
+          <div className="h-px flex-1 bg-line-subtle max-w-[160px]" />
         </div>
 
         {/* Body copy */}
         <p
           ref={bodyRef}
-          className="font-mono font-normal text-white/50 max-w-2xl leading-relaxed"
+          className="font-mono font-normal text-fg-2 max-w-2xl leading-relaxed"
           style={{ fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)', letterSpacing: '0.02em' }}
         >
-          <span className="text-[#D2FF00]/60 mr-2">&gt;_</span>
+          <span className="text-accent-mid mr-2">&gt;_</span>
           {BODY_COPY}
         </p>
 
         {/* Bottom telemetry */}
-        <div className="flex items-center gap-6 mt-20 pt-8 border-t border-white/5">
-          <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-white/15">
+        <div className="flex items-center gap-6 mt-20 pt-8 border-t border-line-subtle">
+          <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-fg-faint">
             KTM DUKE 250 BS6
           </span>
-          <div className="h-px w-8 bg-white/10" />
-          <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-white/15">
+          <div className="h-px w-8 bg-surface-raised" />
+          <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-fg-faint">
             REACT · GSAP · R3F · VITE
           </span>
-          <div className="h-px flex-1 bg-white/5 max-w-[120px]" />
-          <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-white/15">
+          <div className="h-px flex-1 bg-line-subtle max-w-[120px]" />
+          <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-fg-faint">
             BENGALURU // 2026
           </span>
         </div>
