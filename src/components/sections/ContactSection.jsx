@@ -120,13 +120,48 @@ export default function ContactSection() {
         ref={riderRef}
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40vw] min-w-[320px] h-[85vh] z-20 pointer-events-none flex flex-col items-center justify-end"
       >
+        {/* ⚠ /bike-2-cutout.webp is NOT a cutout. Despite the name it is the full
+            rectangular photo — sunset sky, road, bystanders — with no alpha
+            (simple lossy VP8, which cannot carry an alpha channel at all; the
+            bike-2.png source has an alpha channel but zero non-opaque pixels).
+            Nobody ever removed the background.
+
+            So the "Rider Cutout" above was rendering as an opaque rectangle
+            parked over LAYER 2's ghost headline, bisecting it into
+            "ALWAY[block]NGING / TH[block]HT." — unreadable, and reading as a
+            pasted-in accident rather than a composition.
+
+            The edge dissolve this layer's heading has always promised is done
+            here, in CSS: fade the top (kills the hard sky edge) and both sides,
+            leaving the bottom to the existing scrim. That turns the rectangle
+            into a vignette that melts into the canvas and lets the ghost type
+            read at the periphery.
+
+            This is a mitigation, not the fix. The real fix is a genuine alpha
+            cutout asset; when one exists, drop the mask. */}
         <img
           src="/bike-2-cutout.webp"
           alt="Rider Setup"
           loading="lazy"
           decoding="async"
           className="w-full h-full object-contain object-bottom drop-shadow-2xl"
-          style={{ filter: 'contrast(1.15) saturate(1.1)' }}
+          style={{
+            filter: 'contrast(1.15) saturate(1.1)',
+            // The side stops start at 26%/74% rather than at the edges because
+            // object-contain LETTERBOXES: the box is 40vw (~576px) but the photo
+            // renders ~433px wide, centred. A mask is box-relative, so edge-anchored
+            // stops fall on empty letterbox and never touch the image — which is
+            // exactly what happened at 14%/86%: the top faded, the sides stayed hard.
+            // 26%/74% clears the widest letterbox (~16% per side at 1920x1080) and
+            // still bites into the photo at narrow widths, where it fits by width
+            // and there is no horizontal letterbox at all.
+            WebkitMaskImage:
+              'linear-gradient(to bottom, transparent 0%, #000 34%), linear-gradient(to right, transparent 18%, #000 30%, #000 70%, transparent 82%)',
+            maskImage:
+              'linear-gradient(to bottom, transparent 0%, #000 34%), linear-gradient(to right, transparent 18%, #000 30%, #000 70%, transparent 82%)',
+            WebkitMaskComposite: 'source-in',
+            maskComposite: 'intersect',
+          }}
         />
         
         {/* Bottom scrim — grounds the wheels; taller on phones where the link
