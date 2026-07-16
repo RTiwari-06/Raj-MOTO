@@ -1,8 +1,50 @@
 # Token Truth — Design Spec
 
 **Date:** 2026-07-16
-**Status:** Approved, pending implementation plan
+**Status:** IMPLEMENTED (`ef4d4a7`, `b06a8e0`) — see "As-built corrections" below
 **Scope:** Sub-project A of a 3-part visual-system overhaul
+
+---
+
+## As-built corrections
+
+Implementation disproved four things this spec asserted. Recorded here rather
+than quietly edited above, because the errors are instructive.
+
+**1. The audit under-counted the accent ramp.** "17 alpha variants" counted only
+`rgba(210,255,0,·)` forms and missed the Tailwind alpha-modifier forms entirely
+(`bg-[#D2FF00]/25`, `text-[#D2FF00]/70`, …), which added 12 more steps —
+`/0 /5 /10 /15 /25 /28 /30 /40 /50 /60 /70 /80`. The real figure was ~29 → 5.
+
+**2. The audit missed JSX inline styles.** It counted Tailwind `white/N`
+utilities (174) but not `rgba(255,255,255,·)` inside `style={{…}}`, so several
+components held private white literals the first migration pass walked straight
+past.
+
+**3. `index.css` kept its own ladder.** ~10 raw white literals (`.022 .06 .12
+.16 .18`) still bypassed the tokens after the first pass — the exact two-ladder
+disease this spec exists to cure, still live in CSS.
+
+**4. Nine tokens became eleven.** `bg-white/5` and `/6` turned out to be `h-px`
+hairlines, not surfaces — same role as `border-white/5`, different mechanism —
+so they unified onto the line tokens. That required a `--color-surface` for the
+one true wash (`hover:bg-white/2`), and `--color-ink` was promoted from `:root`
+into `@theme` so a `text-ink` utility exists for type-on-lime (previously the
+green-tinted one-off `text-[#141913]`).
+
+**Also found, not predicted:**
+- Tailwind 4 auto-scanning `docs/**.md` emitted phantom utilities (`text-white/45`,
+  `/55`) from JSX samples in old plan documents. Fixed with `@source not "../docs"`.
+- `--color-black: #111112` **overrides Tailwind's built-in `black`**, so all 34
+  `bg-black` sites render *lighter* than the `#0a0a0a` canvas. Flagged, not fixed.
+- `#FFA500` / `#FF4444` in `Loader` are undocumented status colours no token covers.
+- `#FFD9B0` (Doctrine's GPS-dot core) was a warm peach chosen to pair with orange;
+  against lime it read as cream-in-green. Changed to white.
+
+**Measured result:** compiled CSS went 97 → 75 distinct colours, 22 → 10 white
+alphas, zero `white/N` utilities generated, build green, lint clean, dev 200.
+
+**NOT done: the screenshot diff.** See Verification below.
 
 ---
 
@@ -215,16 +257,34 @@ stay untouched. Not applicable to A.)
 
 ## Verification
 
-1. Screenshot every section **before** migration.
-2. Migrate.
-3. Screenshot **after**; diff.
+**Status: static verification done; visual verification NOT done.**
 
-**Pass criteria:**
-- `--text-muted`'s 68 sites move by at most 5 alpha points — imperceptible.
-- The only intentionally visible diffs are: Doctrine orange → lime; the ~10
-  `--surface-*` CSS call sites; the green/blue tint removal.
+Done:
+- `npm run build` green, `eslint` clean, dev server 200.
+- Every token utility used in JSX confirmed present in the compiled CSS and
+  resolving to its `var()` — a missing utility would silently drop colour while
+  the build still passed.
+- Compiled-CSS colour diff against the baseline commit (`272263d`): 97 → 75
+  distinct colours, 22 → 10 white alphas. Every newly-introduced value was traced
+  and explained; nothing unaccounted for.
+
+NOT done — **the screenshot diff this spec called for.** The repo has no browser
+automation (no Playwright/Puppeteer, no test runner), so before/after screenshots
+were never captured. Static evidence is strong but is *not* the same claim.
+
+This matters more than it looks. During implementation a `sed` produced
+`const DOT_IDLE = DOT_IDLE;` — a temporal-dead-zone reference that would crash
+RidesSection at module evaluation — and **both `npm run build` and `eslint`
+passed it.** The same class of error also produced a circular
+`--color-accent-soft: var(--color-accent-soft)`. Static checks demonstrably do
+not catch this category; only running the page does.
+
+**Pass criteria, still outstanding:**
+- `--color-fg-muted`'s 68 sites move by at most 5 alpha points — imperceptible.
+- The only intentionally visible diffs are: Doctrine orange → lime (+ its white
+  GPS-dot core); the ~10 re-valued `--surface-*` CSS call sites; the green/blue
+  tint removal (Doctrine + Story section backgrounds, `bg-darker` → `bg-canvas-raised`).
 - Anything else that moves visibly is a **bug**.
-- `npm run build` green; dev server boots 200.
 
 ---
 
