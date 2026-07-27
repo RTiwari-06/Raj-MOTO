@@ -60,7 +60,9 @@
       "PowerShell(git *)",
       "PowerShell(git commit *)",
       "PowerShell(\"=== UNSTAGED stat ===\"; git diff --stat; \"=== STAGED stat ===\"; git diff --cached --stat; \"=== settings.local.json diff ===\"; git diff .claude/settings.local.json)",
-      "PowerShell(\"=== DoctrineSection \\(unstaged\\) ===\"; git diff src/components/sections/DoctrineSection.jsx; \"=== media.js \\(unstaged\\) ===\"; git diff src/data/media.js; \"=== Home.jsx \\(unstaged\\) ===\"; git diff src/pages/Home.jsx; \"=== TheMachine \\(unstaged\\) ===\"; git diff src/components/sections/TheMachine.jsx)"
+      "PowerShell(\"=== DoctrineSection \\(unstaged\\) ===\"; git diff src/components/sections/DoctrineSection.jsx; \"=== media.js \\(unstaged\\) ===\"; git diff src/data/media.js; \"=== Home.jsx \\(unstaged\\) ===\"; git diff src/pages/Home.jsx; \"=== TheMachine \\(unstaged\\) ===\"; git diff src/components/sections/TheMachine.jsx)",
+      "Bash(sed 's/.*\\\\.//')",
+      "Bash(grep -vE \"node_modules|^\\\\.$|^\\\\.\\\\.$\")"
     ]
   },
   "enabledPlugins": {

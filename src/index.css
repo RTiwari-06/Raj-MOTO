@@ -1091,6 +1091,16 @@ html.lenis { height: auto; }
   }
 }
 
+/* — Archive tiles: images rest desaturated and resolve to full colour on hover.
+   Tailwind compiles `hover:` to @media (hover: hover), so a touch device would
+   otherwise be stuck looking at a permanently grey photo archive. Coarse
+   pointers get the resolved state as their baseline. */
+@media (pointer: coarse) {
+  .archive-img {
+    filter: none;
+  }
+}
+
 /* — Helmet cinematic post-FX: disable the moving/flashing layers when motion is
    reduced (scanline sweep, ignition bloom, scan reticle). The 3D + HUD remain. */
 .motion-off .hfx { display: none; }

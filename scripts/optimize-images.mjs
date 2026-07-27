@@ -54,6 +54,11 @@ async function run() {
     const outPath = path.join(PUBLIC, out);
     if (!existsSync(srcPath)) { console.warn(`SKIP (missing): ${src}`); continue; }
     await sharp(srcPath)
+      // Apply EXIF orientation before resizing. Without this, phone shots taken
+      // in portrait (orientation 6) are written as landscape WebPs with the
+      // content lying on its side — IMG_20230903_150642 and IMG_20240831_195216304
+      // both shipped that way and render rotated 90° in the archive grid.
+      .rotate()
       .resize({ width, withoutEnlargement: true })
       .webp({ quality })
       .toFile(outPath);
