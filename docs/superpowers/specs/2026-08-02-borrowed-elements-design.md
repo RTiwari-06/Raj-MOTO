@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-02
 **Status:** APPROVED — not yet implemented
-**Scope:** Four elements lifted from three external Figma references, re-rendered
+**Scope:** Three elements lifted from three external Figma references, re-rendered
 in RT•MOTO's existing language (black canvas, `--color-accent` lime, Playfair
 display + mono utility).
 
@@ -12,7 +12,7 @@ display + mono utility).
 
 Three Community files were supplied as references. None of them is an RT•MOTO
 design, and all three are mutually incompatible visual systems — one is a *white*
-portfolio. They were explicitly **not** adopted wholesale. Four elements were
+portfolio. They were explicitly **not** adopted wholesale. Three elements were
 selected; everything else (palettes, typefaces, corner radii, copy, gradient
 orbs, glassmorphic cards) was rejected.
 
@@ -20,7 +20,7 @@ orbs, glassmorphic cards) was rejected.
 |---|---|---|---|
 | 1 | `lgDuaCawoBXyFLrFVmkdJY` — *Infinite Scroll / The loop* | logo strip metrics | acid-lime SaaS palette, geometric sans, blurred orb, glass card, placeholder copy |
 | 2 | `tK1HadduuVHBU9naGsLXdI` — *Portfolio 2 / ANONYMS* | the ring | crimson neon, duplicated vertical nav, one-frame-only scope |
-| 3 | `OWsYznYwL0705rdyL1XtJS` — *Portfoloio / Ashwin* | bleeding headline, footer wordmark | white canvas, blue accent, grotesque type, rounded cards |
+| 3 | `OWsYznYwL0705rdyL1XtJS` — *Portfoloio / Ashwin* | bleeding headline | white canvas, blue accent, grotesque type, rounded cards |
 
 Ref 1's loop *mechanic* was also rejected: it fakes a loop with two hardcoded
 frames and a variant swap. `useMarquee.js:44-82` already does it properly, with
@@ -114,35 +114,7 @@ portrait). It transfers because the crop is meaningful here, not just stylish.
 
 ---
 
-## 3 · The wordmark → `Footer`
-
-Oversized **`RAJ TIWARI`**, bleeding across the footer's base, below the existing
-`DROP A PIN // CONTACT` CTA (`Footer.jsx:17-28`).
-
-### Why the name, not "RT•MOTO"
-
-`ViewportFrame.jsx:3` records that a previous oversized `RT•MOTO` wordmark was
-**removed** because it "doubled the real navbar logo and read as a glitch on
-every page." Repeating that string at display size would repeat the mistake.
-
-Ref 3's footer wordmark is the author's own name (`Ashhhhhhhh`), so the faithful
-translation is `RAJ TIWARI` — not the brand. It also finally renders the string
-sitting unused in `media.js`, and gives the person's name one place on the site
-where it is the largest thing on screen.
-
-### Constraints
-
-- Type clamps so it bleeds slightly at **every** width. The crop is the point; it
-  must never sit comfortably inside the viewport.
-- Sits below the existing divider and sign-off row — it terminates the page, it
-  does not replace the CTA.
-- `aria-hidden` — the name is already available to assistive tech in the sign-off
-  line. A giant duplicate adds noise, not information.
-- Static. No scroll animation; the footer is the one place the page stops moving.
-
----
-
-## 4 · Marquee metrics → `LogoMarquee`
+## 3 · Marquee metrics → `LogoMarquee`
 
 Ref 1's strip is better proportioned than the current implementation. Three
 measured values transfer:
@@ -185,7 +157,7 @@ nothing here.
 ## Out of scope
 
 **`RidesSection` alignment.** The work began as a request to refine the
-scroll-to-slide gallery's alignment, but none of the four selected elements
+scroll-to-slide gallery's alignment, but none of the three selected elements
 targets it, and the finite-vs-infinite question was never resolved. The pinned
 scrub is therefore left untouched rather than changed on a guess. If it is
 wanted, it is its own pass with its own spec.
