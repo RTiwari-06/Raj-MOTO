@@ -178,6 +178,7 @@ export default function HelmetSection() {
   const reticleRef = useRef(null);
   const scanlineRef = useRef(null);
   const bloomRef = useRef(null);
+  const ringRef   = useRef(null);
 
   const [inView, setInView] = useState(false);
   // `near` (mount the GL context) uses a wide margin so the canvas is ready
@@ -242,6 +243,7 @@ export default function HelmetSection() {
       tl.to(calibRef.current, { opacity: 0, x: -60, duration: 0.05, ease: EASE.exit }, 0.63);
       tl.to(reticleRef.current, { opacity: 0, scale: 0.7, duration: 0.05, ease: EASE.exit }, 0.63);
       tl.fromTo(bloomRef.current, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: EASE.momentum }, 0.66);
+      tl.fromTo(ringRef.current, { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.16, ease: EASE.momentum }, 0.66);
       tl.fromTo(philoRef.current, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.07, ease: EASE.precision }, 0.69);
       tl.to(philoRef.current, { opacity: 0, y: -26, duration: 0.05, ease: EASE.exit }, 0.83);
       tl.fromTo(finaleRef.current, { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.1, ease: EASE.precision }, 0.87);
@@ -297,6 +299,23 @@ export default function HelmetSection() {
       <div className="grain-layer z-20" />
       <div ref={scanlineRef} className="hfx absolute left-0 right-0 z-30 pointer-events-none" style={{ top: '16%', height: '2px', opacity: 0, background: 'linear-gradient(90deg, transparent, var(--color-accent) 50%, transparent)', boxShadow: '0 0 16px var(--color-accent-mid)' }} />
       <div ref={bloomRef} className="hfx absolute inset-0 z-20 pointer-events-none" style={{ opacity: 0, background: 'radial-gradient(ellipse at center, var(--color-accent-dim) 0%, var(--color-accent-wash) 40%, transparent 72%)' }} />
+
+      {/* Ignition ring — the headlight the reticle hands off to. Glow is a
+          box-shadow, never filter: blur(), so it composites instead of
+          repainting. `hfx` gives reduced-motion handling for free
+          (index.css:1106-1109 hides .hfx under motion-off and
+          prefers-reduced-motion). */}
+      <div
+        ref={ringRef}
+        className="hfx absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+        style={{
+          opacity: 0,
+          width:  'min(52vh, 52vw)',
+          height: 'min(52vh, 52vw)',
+          border: '3px solid var(--color-accent)',
+          boxShadow: '0 0 70px 8px var(--color-accent-soft), inset 0 0 50px 4px var(--color-accent-dim)',
+        }}
+      />
 
       <div ref={reticleRef} className="hfx absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none" style={{ opacity: 0, width: 'min(60vh, 60vw)', height: 'min(60vh, 60vw)' }}>
         <div className="absolute inset-0 border border-accent-dim rounded-full" />
