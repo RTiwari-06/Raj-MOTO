@@ -28,6 +28,7 @@ export default function LogoMarquee({
   logos,
   speed = 42,
   ariaLabel = 'Logos',
+  heading,
   className = '',
 }) {
   const { wrapRef, trackRef } = useMarquee({ speed });
@@ -59,7 +60,7 @@ export default function LogoMarquee({
     logos.map((logo, i) => (
       <div
         key={`${r}-${i}`}
-        className="group flex flex-shrink-0 items-center justify-center px-5 md:px-10"
+        className="group flex flex-shrink-0 items-center justify-center px-6 md:px-12"
       >
         <img
           src={logo.src}
@@ -67,7 +68,7 @@ export default function LogoMarquee({
           loading="lazy"
           draggable={false}
           style={logo.scale ? { transform: `scale(${logo.scale})` } : undefined}
-          className="logo-mark h-[26px] w-auto max-w-[94px] object-contain md:h-[31px] md:max-w-[146px]"
+          className="logo-mark h-[30px] w-auto max-w-[120px] object-contain md:h-[40px] md:max-w-[188px]"
         />
       </div>
     ))
@@ -79,6 +80,12 @@ export default function LogoMarquee({
       className={`relative z-30 w-full select-none overflow-hidden py-2.5 md:py-3.5 ${className}`}
       style={{ backgroundColor: BAND_BG }}
     >
+      {heading && (
+        <p className="mb-4 text-center font-mono text-[9px] uppercase tracking-[0.35em] text-fg-muted md:mb-5">
+          {heading}
+        </p>
+      )}
+
       <div
         ref={wrapRef}
         className="relative overflow-hidden"

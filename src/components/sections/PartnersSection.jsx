@@ -17,5 +17,12 @@ const PARTNERS = [
 ];
 
 export default function PartnersSection() {
-  return <LogoMarquee logos={PARTNERS} speed={45} ariaLabel="Tech and culture" />;
+  return (
+    <LogoMarquee
+      logos={PARTNERS}
+      speed={45}
+      ariaLabel="Tech and culture"
+      heading="Off track // the daily stack"
+    />
+  );
 }
