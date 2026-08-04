@@ -80,7 +80,7 @@ skipped entirely and a crisp still photograph is served instead.
 - **Gear Check — 3D Helmet Telemetry** — a pinned, scroll-scrubbed camera choreography around a
   `DamagedHelmet` GLB (boot → scan → calibrate → ignite → lock) with a booting HUD; R3F reads a plain scroll
   state object, so it animates with **zero React re-renders**.
-- **Grid Archive** — a dedicated route with a masonry-style log grid, scramble-text labels, deep parallax, and
+- **Grid Archive** — a dedicated route with a mirrored 844/480 pinwheel grid, deep parallax, and
   a keyboard-navigable lightbox.
 - **Editorial Atmosphere** — film-grain overlays, marquee tickers, and scan reveals across the lower sections
   give it the feel of a premium print publication.
@@ -113,7 +113,7 @@ src/
 ├── components/
 │   ├── layout/     # Persistent shell — Navbar, Footer, Loader (tachometer boot)
 │   ├── sections/   # Narrative modules — Hero, TheMachine, Helmet, Doctrine, StatReveal, Story…
-│   ├── ui/         # Reusable primitives — Marquee, ScanReveal, ScopeReveal, scramble text
+│   ├── ui/         # Reusable primitives — Marquee, ScanReveal, ScopeReveal, SectionHeader
 │   └── webgl/      # R3F layers — HeroShaderMesh (the reveal), FluidBackground, BackgroundOrb
 ├── shaders/        # GLSL — heroFragment / heroVertex (reveal) · fluidFragment (background)
 ├── motion/         # system.js — the single source of eases, durations, staggers, scroll weights
@@ -121,7 +121,7 @@ src/
 ├── hooks/          # Reusable logic — useParallax, interaction observers
 ├── pages/          # Routed views — Home, Archive (React Router)
 ├── data/           # media.js — one content source for the whole site
-└── utils/          # Integrations — Lenis (smooth scroll), scramble engine
+└── utils/          # Integrations — Lenis (smooth scroll)
 ```
 
 ---
