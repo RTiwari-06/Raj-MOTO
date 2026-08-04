@@ -1,9 +1,28 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { EASE, DUR, ST } from '@/motion/system';
+import { EASE, DUR, ST, STAGGER } from '@/motion/system';
+import { MEDIA } from '@/data/media';
 import RollingOdometer from '@/components/ui/RollingOdometer';
 import OdometerBackground from '@/components/ui/OdometerBackground';
+
+// Gauge positions for the riding-state ladder documented in media.js.
+// ⚠ 'MID-CORNER' (PostgreSQL, MongoDB) is NOT in that documented ladder, and
+// the legend above the panel does not decode it either. Slotted mid-way on its
+// plain meaning; the real fix is reconciling the data with the legend.
+const LEVELS = {
+  'REDLINE':       100,
+  'FULL THROTTLE':  88,
+  'HIGH GEAR':      76,
+  'DAILY RIDER':    64,
+  'MID-CORNER':     52,
+  'ON THE GAS':     44,
+  'WARMING UP':     30,
+  'BREAK-IN':       16,
+};
+const levelOf = (l) => LEVELS[l] ?? 50;
+
+const BAY_COUNT = MEDIA.technical.reduce((n, c) => n + c.skills.length, 0);
 
 const prefersReduced = () =>
   typeof window !== 'undefined' &&
@@ -17,6 +36,62 @@ export default function StatRevealSection() {
   const counterRef   = useRef({ value: 0 });
   const odometerRef  = useRef(null);
   const gaugeRef     = useRef(null);
+
+  // ── Pit garage shutter ─────────────────────────────────────────────────────
+  const [garageOpen, setGarageOpen] = useState(false);
+  const panelRef   = useRef(null);   // the height-animated wrapper
+  const shutterRef = useRef(null);   // the roller door travelling over it
+  const bodyRef    = useRef(null);   // bays + gauges inside
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    const shutter = shutterRef.current;
+    if (!panel || !shutter) return;
+
+    const reduced = prefersReduced();
+
+    // Height must tween to a real value for the page below to reflow, so this
+    // is the one place in the section that animates layout rather than pure
+    // transform. It is a one-shot, user-initiated ~0.6s tween, not a loop —
+    // the slats and gauges on top of it stay transform/opacity only.
+    //
+    // Deliberately NOT gsap.context/revert. revert() restores the inline styles
+    // captured when the context was made, so closing would first snap height
+    // back to 0 and the closing tween would then animate from 0 to 0 — the
+    // door would vanish instead of rolling down. kill() leaves the DOM where
+    // the previous tween left it, which is what a toggle needs.
+    const bays = panel.querySelectorAll('.pg-bay');
+    const fills = panel.querySelectorAll('.pg-fill');
+
+    if (reduced) {
+      gsap.set(panel, { height: garageOpen ? 'auto' : 0 });
+      gsap.set(shutter, { yPercent: garageOpen ? -100 : 0 });
+      gsap.set(bays, { opacity: 1, y: 0 });
+      gsap.set(fills, { scaleX: 1 });
+      return;
+    }
+
+    const tl = gsap.timeline();
+
+    if (garageOpen) {
+      tl.set(bays, { opacity: 0, y: 14 })
+        .set(fills, { scaleX: 0 })
+        .to(panel, { height: 'auto', duration: DUR.standard, ease: EASE.precision }, 0)
+        // The door rides up over the opening gap at the same rate.
+        .to(shutter, { yPercent: -100, duration: DUR.standard, ease: EASE.precision }, 0)
+        .to(bays, { opacity: 1, y: 0, duration: DUR.fast, ease: EASE.precision, stagger: STAGGER.tight }, 0.3)
+        .to(fills, { scaleX: 1, duration: DUR.considered, ease: EASE.precision, stagger: 0.03 }, 0.4);
+    } else {
+      tl.to(shutter, { yPercent: 0, duration: DUR.fast, ease: EASE.exit }, 0)
+        .to(panel, { height: 0, duration: DUR.fast, ease: EASE.exit }, 0.05);
+    }
+
+    // Opening/closing changes document height, so pinned triggers below this
+    // section must re-measure or their start/end distances go stale.
+    tl.eventCallback('onComplete', () => ScrollTrigger.refresh());
+
+    return () => tl.kill();
+  }, [garageOpen]);
 
   useEffect(() => {
     if (prefersReduced()) {
@@ -78,7 +153,7 @@ export default function StatRevealSection() {
               className="font-serif font-black uppercase leading-none"
               style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em', color: 'var(--color-accent)' }}
             >
-              RT-MOTO //
+              RT•MOTO //
             </p>
             <p
               className="font-serif font-black uppercase text-white leading-none"
@@ -99,7 +174,7 @@ export default function StatRevealSection() {
 
           {/* The massive stat — mechanical odometer reels */}
           <div className="overflow-hidden">
-            <RollingOdometer ref={odometerRef} digits={5} comma={2} unit="KM" ariaValue="20,000 kilometers clocked" />
+            <RollingOdometer ref={odometerRef} digits={5} comma={2} unit="KM" ariaValue="20,000 kilometres clocked" />
           </div>
 
           {/* Counter label */}
@@ -109,7 +184,7 @@ export default function StatRevealSection() {
               className="label-extreme text-[10px] md:text-[13px] font-black uppercase opacity-0"
               style={{ color: 'var(--color-accent)', letterSpacing: '0.3em' }}
             >
-              K I L O M E T E R S &nbsp; C L O C K E D
+              K I L O M E T R E S &nbsp; C L O C K E D
             </p>
           </div>
 
@@ -157,13 +232,101 @@ export default function StatRevealSection() {
           </p>
         </div>
 
-        {/* Developer stack is intentionally hidden — discover it in THE PIT GARAGE (inline under THE MACHINE). */}
-        <div className="mb-12 py-12 rounded-md bg-canvas-deep border border-white/[0.04] text-center">
-          <p className="font-serif font-black uppercase text-white" style={{ fontSize: 'clamp(1.25rem, 3vw, 1.6rem)' }}>
-            ENGINE MAPPING // DIGITAL TELEMETRY
-          </p>
-          <p className="text-[12px] mt-4 text-fg-muted max-w-xl mx-auto">The technical stack and telemetry tools are tucked away in <strong className="text-accent">THE PIT GARAGE</strong> — the engine running the site, intentionally obscured from the main editorial spread.</p>
-          <a href="#machine" className="inline-block mt-6 px-5 py-3 border border-line-subtle text-accent font-mono uppercase tracking-[0.2em] hover:bg-surface transition-colors">OPEN THE PIT GARAGE</a>
+        {/* ── THE PIT GARAGE ───────────────────────────────────────────────
+            Was a card advertising a section that did not exist, with a link to
+            #machine that dropped you at the top of an unrelated section. The
+            stack now lives here, behind the door, and the button opens it in
+            place instead of navigating away.
+
+            Lime, not the KTM orange this block briefly wore inside #machine:
+            --color-machine is fenced to that section, and carrying it out here
+            would leak the machine palette into the rest of the page. */}
+        <div id="pit-garage" className="mb-12 scroll-mt-24">
+
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
+            <div>
+              <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-accent mb-2">
+                // THE PIT GARAGE
+              </p>
+              <p className="font-mono text-[11px] text-fg-muted max-w-md leading-relaxed">
+                The stack that builds and services this site — {BAY_COUNT} entries across four bays.
+              </p>
+            </div>
+
+            {/* The door control. No chevron: the shutter itself reports state,
+                and the lamp says which way the door is. */}
+            <button
+              type="button"
+              onClick={() => setGarageOpen((v) => !v)}
+              data-magnetic="cta"
+              aria-expanded={garageOpen}
+              aria-controls="pit-garage-panel"
+              className="group inline-flex items-center gap-3 px-5 py-3 border border-line-strong font-mono text-[10px] uppercase tracking-[0.2em] text-accent transition-colors duration-300 hover:bg-accent hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <span
+                aria-hidden="true"
+                className="w-[6px] h-[6px] rounded-full transition-all duration-300"
+                style={{
+                  backgroundColor: garageOpen ? 'var(--color-accent)' : 'var(--color-line-strong)',
+                  boxShadow: garageOpen ? '0 0 8px var(--color-accent)' : 'none',
+                }}
+              />
+              {garageOpen ? 'Close the pit garage' : 'Open the pit garage'}
+            </button>
+          </div>
+
+          {/* Height wrapper — overflow-hidden so the door can sit inside it */}
+          <div
+            id="pit-garage-panel"
+            ref={panelRef}
+            className="relative overflow-hidden"
+            style={{ height: 0 }}
+            aria-hidden={!garageOpen}
+          >
+            {/* The roller door, covering the opening until it rides up */}
+            <div
+              ref={shutterRef}
+              aria-hidden="true"
+              className="pg-shutter absolute inset-0 z-10 pointer-events-none"
+            />
+
+            <div ref={bodyRef} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-10 pt-8">
+              {MEDIA.technical.map((group) => (
+                <div key={group.category} className="pg-bay">
+                  {/* Hairline only — no card. These read as bays taped out on a
+                      workshop floor, not as four product tiers. */}
+                  <p className="font-mono text-[9px] tracking-[0.25em] uppercase text-fg-2 pb-3 mb-4 border-b border-white/[0.08]">
+                    {group.category}
+                  </p>
+
+                  <ul className="space-y-3.5">
+                    {group.skills.map((s) => (
+                      <li key={s.name}>
+                        <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                          <span className="font-mono text-[11px] tracking-wider text-white truncate">
+                            {s.name}
+                          </span>
+                          <span className="font-mono text-[8px] tracking-[0.2em] uppercase text-accent-mid whitespace-nowrap">
+                            {s.level}
+                          </span>
+                        </div>
+                        <div
+                          className="relative h-[3px] w-full bg-white/[0.07] overflow-hidden"
+                          role="img"
+                          aria-label={`${s.name}: ${s.level}`}
+                        >
+                          <span
+                            className="pg-fill absolute inset-y-0 left-0 origin-left bg-gradient-to-r from-accent-soft to-accent"
+                            style={{ width: `${levelOf(s.level)}%` }}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Bottom footnote */}

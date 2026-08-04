@@ -191,9 +191,9 @@ export default function TheMachine() {
 
             {/* Sub-portrait readout */}
             <div className="mt-4 flex items-center gap-3 font-mono text-[9px] tracking-[0.25em] uppercase text-fg-muted">
-              <span className="text-machine/80">NUMBER SERIAL</span>
+              <span className="text-machine/80">SERIAL NUMBER</span>
               <span className="flex-1 border-b border-dashed border-line-strong" />
-              <span className="text-fg-2">BR01FZ1138 </span>
+              <span className="text-fg-2">BR01FZ1138</span>
             </div>
           </div>
 
@@ -283,6 +283,7 @@ export default function TheMachine() {
             </div>
           </div>
         </div>
+
       </div>
     </section>
   );

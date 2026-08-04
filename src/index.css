@@ -898,6 +898,32 @@ html.lenis { height: auto; }
   background: var(--surface-2);
 }
 
+/* ── Pit Garage shutter ─────────────────────────────────────────────────────
+   The roller door over the stack panel. Slats are a repeating gradient on one
+   element, so the whole door is a single composited layer that GSAP moves with
+   translateY — no per-slat DOM, no repaint. The lip is the bright underside of
+   a rising door catching light. */
+.pg-shutter {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.045) 0px,
+      rgba(255, 255, 255, 0.045) 1px,
+      transparent 1px,
+      transparent 9px
+    ),
+    var(--color-canvas-deep);
+}
+.pg-shutter::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-accent);
+  box-shadow: 0 0 18px 2px var(--color-accent-soft);
+}
+
 /* ── Contact Finale ─────────────────────────────────────────────────────────── */
 
 /* Underline wipes in from the link's leading edge. scaleX on a pseudo-element,
