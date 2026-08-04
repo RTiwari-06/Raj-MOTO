@@ -343,7 +343,13 @@ export default function HelmetSection() {
 
       <div ref={bootRef} className="absolute z-30 pointer-events-none left-8 md:left-16 top-1/2 -translate-y-1/2" style={{ opacity: 0 }}>
         <div className="flex items-center gap-3 mb-3"><div className="w-2 h-2 bg-accent animate-pulse" /><span className="text-[9px] font-black tracking-[0.4em] uppercase text-accent-mid">SYS // POWER ON</span></div>
-        <h3 className="font-serif font-black uppercase text-white leading-none" style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)', letterSpacing: '-0.04em' }}>GEAR CHECK</h3>
+        {/* text-shadow, not a z-index change: this h3 is already z-30 over the
+            z-10 canvas so the helmet cannot occlude it. What it can do is sit
+            behind the type as a bright, moving backdrop at narrow widths, where
+            6vw pulls the heading toward the centred model. The shadow keeps the
+            letterforms readable against any helmet brightness without touching
+            the pinned timeline's geometry. */}
+        <h3 className="font-serif font-black uppercase text-white leading-none" style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)', letterSpacing: '-0.04em', textShadow: '0 2px 24px rgba(0,0,0,0.85)' }}>GEAR CHECK</h3>
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-fg-muted mt-3">Initialising inspection sequence…</p>
       </div>
 

@@ -138,7 +138,7 @@ export default function StorySection() {
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
-            opacity:    showFootage ? 0.92 : 0.2,
+            opacity:    showFootage ? 0.92 : 0.32,
             transform:  showFootage ? 'scale(1.04)' : 'scale(1)',
             transition: 'opacity 700ms ease, transform 1200ms cubic-bezier(0.16,1,0.3,1)',
           }}
@@ -156,7 +156,7 @@ export default function StorySection() {
           className="absolute inset-0"
           style={{
             backgroundColor: 'rgba(8,8,8,1)',
-            opacity:    showFootage ? 0.28 : 0.62,
+            opacity:    showFootage ? 0.28 : 0.55,
             transition: 'opacity 700ms ease',
           }}
         />
@@ -178,7 +178,7 @@ export default function StorySection() {
           style={{ opacity: active ? 0 : 1, transition: 'opacity 400ms ease' }}
         >
           <span className="inline-block w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-accent/60" />
-          HOVER TO PLAY
+          HOVER TO REVEAL
         </span>
       )}
 

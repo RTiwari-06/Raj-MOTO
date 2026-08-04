@@ -19,5 +19,17 @@ const LOGOS = [
 ];
 
 export default function TextMarquee() {
-  return <LogoMarquee logos={LOGOS} speed={38} ariaLabel="Racing partners" />;
+  // NOT a sponsor row, and it must not read as one. These are marks on gear and
+  // fluids actually used on the bike — there is no partnership with any of them.
+  // The old ariaLabel ("Racing partners") announced twelve trademarks as
+  // partners to every screen reader, which is the claim this heading exists to
+  // retract. Keep both strings honest if either is ever edited.
+  return (
+    <LogoMarquee
+      logos={LOGOS}
+      speed={38}
+      ariaLabel="Gear, fluids and parts used on the bike"
+      heading="On track // what I actually run"
+    />
+  );
 }
