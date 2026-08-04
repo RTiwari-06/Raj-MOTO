@@ -1,45 +1,99 @@
 // DOCTRINE (05) — route-map telemetry dashboard (F1-inspired).
 // The Canvas (left): a living map — a faint ghost network of every route, the
 // active one traced bright, a live GPS dot running it, origin + completion
-// nodes, and glitch-fetch DIST/TIME readouts.
-// The Schedule (right): hover/auto-cycled route list + live elevation profile
-// and surface/bearing/climb telemetry.
+// nodes, and counting DIST/TIME readouts.
+// The Schedule (right): hover/auto-cycled route list, a terrain-typed elevation
+// profile, surface/bearing telemetry, and the route's doctrine line —
+// the thing the section is named after: each ride mapped to an engineering
+// principle, in the same lowercase terminal voice as THE THESIS (System Log).
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { runScramble } from '@/utils/scramble';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { EASE } from '@/motion/system';
 
+// ── Elevation profiles, keyed by terrain type ───────────────────────────────
+// The chart used to read from a hand-typed `elev` array per route, which made
+// every profile an accident: route 02's [16,18,15,20,17,19,16,18] was noise
+// around a flat line and read as broken data rather than as "no gradient".
+// Terrain is now a type, and each type owns one deliberate signature:
+//
+//   FLAT    — a perfectly level band. Uniform ON PURPOSE, which only reads as
+//             intentional because the mean rule sits exactly on top of it and
+//             the caption states the net gain. Fake jitter is what looked buggy.
+//   ROLLING — a repeating sawtooth: crest, dip, crest. Rhythm you can count.
+//   CLIMB   — a monotonic ramp to the summit at 100. Never dips.
+//
+// `bars` are percentages of the chart box; `mean` positions the dashed average
+// rule. profileOf() falls back to FLAT, so a route with a missing or malformed
+// terrain key still renders a valid chart instead of an empty track.
+//
+// `name` + `note` describe the SHAPE and belong to the terrain type. The
+// measured figure lives on the route as `gain`, because only the route knows
+// it. That split is why the old `climb` field is gone: it carried 'FLAT' and
+// 'ROLLING' (shape — already stated by the profile) for two routes and
+// '+1478 m' (a measurement — stated nowhere else) for the third, so it was
+// duplicating one axis and load-bearing on another.
+const PROFILES = {
+  FLAT: {
+    name: 'FLAT',
+    note: 'ZERO GRADIENT HELD',
+    mean: 34,
+    bars: [34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34],
+  },
+  ROLLING: {
+    name: 'ROLLING',
+    note: 'CREST · DIP · REPEAT',
+    mean: 48,
+    bars: [30, 62, 34, 70, 38, 66, 30, 72, 36, 64, 32, 58],
+  },
+  CLIMB: {
+    name: 'CLIMB',
+    note: 'SUSTAINED TO SUMMIT',
+    mean: 53,
+    bars: [10, 16, 24, 30, 39, 47, 56, 66, 74, 83, 91, 100],
+  },
+};
+
+const profileOf = (terrain) => PROFILES[terrain] || PROFILES.FLAT;
+
 // Hand-authored route maps within a 0 0 400 250 viewBox.
+// `distKm` / `timeSec` are numeric so the readouts can COUNT between routes
+// (see the count-up effect below) rather than scramble through junk glyphs.
 const ROUTES = [
   {
     id: '01', name: 'Hebbal Midnight Runs', meta: 'CITY LOOP // 00:30',
-    dist: '42 KM', time: '00:38:24',
+    distKm: 42, timeSec: 2304,
     path: 'M40,210 C70,140 120,150 150,110 S210,40 250,95 S320,170 360,118',
     detail: 'Empty flyovers, sodium lights, throttle wide. After midnight the city belongs to the riders.',
-    surface: 'CITY TARMAC', bearing: '012°', climb: 'ROLLING',
-    elev: [22, 40, 28, 46, 30, 52, 38, 30],
+    doctrine: ['empty road, empty head.', 'strip the variables and the fault has nowhere to hide.'],
+    surface: 'CITY TARMAC', bearing: '012°', terrain: 'ROLLING', gain: '±40 M SWING',
   },
   {
     id: '02', name: 'Highway Sprints', meta: 'NH-44 // PRE-DAWN',
-    dist: '180 KM', time: '02:18:05',
+    distKm: 180, timeSec: 8285,
     path: 'M28,135 C120,128 160,128 220,130 S330,120 384,116',
     detail: 'Long straights, zero traffic, sustained high-rev cruising. Pure two-wheeled meditation.',
-    surface: 'OPEN TARMAC', bearing: '348°', climb: 'FLAT',
-    elev: [16, 18, 15, 20, 17, 19, 16, 18],
+    doctrine: ['one gear, one heading, two hours.', 'flow is just throttle held open.'],
+    surface: 'OPEN TARMAC', bearing: '348°', terrain: 'FLAT', gain: '0 M NET',
   },
   {
     id: '03', name: 'Nandi Dawn Patrol', meta: 'HILL CLIMB // 04:00',
-    dist: '62 KM', time: '01:05:12',
+    distKm: 62, timeSec: 3912,
     path: 'M40,228 C90,206 70,164 120,164 S150,108 200,120 S210,58 262,70 S304,30 368,46',
     detail: '47 hairpins to the summit for sunrise. Cold air, hot tyres, a clear head.',
-    surface: 'HILL TARMAC', bearing: '034°', climb: '+1478 m',
-    elev: [12, 24, 30, 48, 58, 74, 86, 96],
+    doctrine: ['forty-seven corners to the summit.', 'nobody ships the hard thing in one commit.'],
+    surface: 'HILL TARMAC', bearing: '034°', terrain: 'CLIMB', gain: '+1478 M NET',
   },
 ];
 
 const CYCLE = 6; // seconds the dashboard dwells on a route before auto-advancing
+
+const fmtDist = (km) => `${Math.round(km)} KM`;
+const fmtTime = (s) =>
+  [Math.floor(s / 3600), Math.floor((s % 3600) / 60), Math.floor(s % 60)]
+    .map((n) => String(n).padStart(2, '0'))
+    .join(':');
 
 const prefersReduced = () =>
   typeof window !== 'undefined' &&
@@ -66,7 +120,10 @@ export default function DoctrineSection() {
   const originRef = useRef(null);     // origin node at the route start
   const dotRef = useRef(null);        // live GPS dot travelling the route
   const progressRef = useRef(null);   // auto-cycle progress bar
-  const cancels = useRef([]);
+  const doctrineRef = useRef(null);   // doctrine line (crossfades per route)
+  // Live numeric state behind the DIST/TIME readouts — GSAP tweens this object
+  // and writes the formatted result to the DOM, so no re-render per frame.
+  const readout = useRef({ dist: ROUTES[0].distKm, time: ROUTES[0].timeSec });
 
   // Auto-cycle plumbing
   const cycleTween = useRef(null);
@@ -90,6 +147,7 @@ export default function DoctrineSection() {
       gsap.set([wpRevealRef.current, originRef.current], { scale: 1, opacity: 1 });
       gsap.set(dotRef.current, { opacity: 0 });
       gsap.set('.dx-bar', { scaleY: 1 });
+      gsap.set(doctrineRef.current, { opacity: 1, y: 0 });
       return;
     }
 
@@ -119,26 +177,52 @@ export default function DoctrineSection() {
         },
       });
 
-      // Elevation bars grow in.
+      // Elevation bars grow in, left to right, so the profile reads as it draws.
       gsap.fromTo('.dx-bar', { scaleY: 0 },
-        { scaleY: 1, transformOrigin: 'bottom', duration: 0.5, ease: 'power2.out', stagger: 0.05, delay: 0.25 });
+        { scaleY: 1, transformOrigin: 'bottom', duration: 0.5, ease: 'power2.out', stagger: 0.035, delay: 0.25 });
+
+      // The doctrine line crossfades rather than cutting — it is prose, and a
+      // hard swap mid-sentence is the one thing that would read as a glitch.
+      gsap.fromTo(doctrineRef.current, { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.55, ease: EASE.precision, delay: 0.15 });
     }, sectionRef);
     return () => ctx.revert();
   }, [active]);
 
-  // Data-glitch: scramble DIST + TIME like a terminal fetching coordinates.
+  // DIST + TIME count between routes. This replaced a character-scramble that
+  // ran junk glyphs through both readouts on every switch — including the
+  // 6-second auto-cycle, so the dashboard spent a chunk of its life looking
+  // like corrupted data. Counting reads as an instrument settling instead:
+  // the digits are legible the whole way, and TIME counts in real seconds and
+  // re-formats to HH:MM:SS each frame rather than tweening a string.
   useEffect(() => {
     const r = ROUTES[active];
-    cancels.current.forEach((c) => c && c());
-    cancels.current = [];
+    const write = () => {
+      if (distRef.current) distRef.current.textContent = fmtDist(readout.current.dist);
+      if (timeRef.current) timeRef.current.textContent = fmtTime(readout.current.time);
+    };
+
     if (prefersReduced()) {
-      if (distRef.current) distRef.current.textContent = r.dist;
-      if (timeRef.current) timeRef.current.textContent = r.time;
+      readout.current.dist = r.distKm;
+      readout.current.time = r.timeSec;
+      write();
       return;
     }
-    if (distRef.current) cancels.current.push(runScramble(distRef.current, r.dist, 0.4));
-    if (timeRef.current) cancels.current.push(runScramble(timeRef.current, r.time, 0.4));
-    return () => cancels.current.forEach((c) => c && c());
+
+    const tl = gsap.timeline();
+    tl.to(readout.current, {
+      dist: r.distKm,
+      time: r.timeSec,
+      duration: 0.75,
+      ease: EASE.precision,
+      onUpdate: write,
+    }, 0);
+    // A short lift on the stat block so the count reads as a deliberate
+    // hand-off rather than digits twitching on their own.
+    tl.fromTo([distRef.current, timeRef.current],
+      { opacity: 0.45 }, { opacity: 1, duration: 0.45, ease: EASE.precision }, 0);
+
+    return () => tl.kill();
   }, [active]);
 
   // Ambient auto-cycle: a progress bar fills over CYCLE seconds, then advances
@@ -209,6 +293,7 @@ export default function DoctrineSection() {
   };
 
   const route = ROUTES[active];
+  const profile = profileOf(route.terrain);
 
   return (
     <section
@@ -217,17 +302,27 @@ export default function DoctrineSection() {
     >
       <div className="grain-layer" />
 
-      <div className="relative z-10 max-w-screen-2xl mx-auto w-full">
-        <SectionHeader index="05" total="11" kicker="ROUTE DOCTRINE" readout="ON TRACK // TURF · BENGALURU" panning className="mb-10 md:mb-14" />
+      {/* Pause-on-hover lives here, not on the dashboard grid. The doctrine
+          band sits outside that grid now, and it is the longest thing to read
+          in the section — leaving it uncovered meant the sentence could swap
+          mid-read on the 6-second cycle. */}
+      <div
+        onMouseEnter={hold}
+        onMouseLeave={release}
+        className="relative z-10 max-w-screen-2xl mx-auto w-full"
+      >
+        <SectionHeader index="05" total="11" kicker="ROUTE DOCTRINE" readout="ON TRACK // 03 ROUTES · BENGALURU" panning className="mb-10 md:mb-14" />
 
-        <div
-          onMouseEnter={hold}
-          onMouseLeave={release}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
 
           {/* ── THE CANVAS ─────────────────────────────────────────────── */}
-          <div className="lg:col-span-8 relative aspect-[16/10] bg-canvas-deep border border-line overflow-hidden">
+          {/* self-start + w-full are load-bearing. The grid is items-stretch, so
+              without them this panel's height is set by the taller schedule
+              column and `aspect-[16/10]` then derives WIDTH from that height
+              (833px from 521px at 1280) — overflowing the 8-col track and
+              clipping the schedule column's left edge. Pinning the width makes
+              the aspect ratio drive height instead, which is the intent. */}
+          <div className="lg:col-span-8 relative w-full min-w-0 self-start aspect-[16/10] bg-canvas-deep border border-line overflow-hidden">
             <div className="absolute inset-0 hairline-grid opacity-40 pointer-events-none" />
             <div className="absolute inset-0 scan-lines opacity-40 pointer-events-none" />
 
@@ -304,13 +399,15 @@ export default function DoctrineSection() {
             <div className="absolute bottom-4 left-5">
               <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">Distance</p>
               <p ref={distRef} className="font-mono text-[15px] md:text-[18px] font-bold text-white tabular-nums tracking-wider">
-                {route.dist}
+                {fmtDist(route.distKm)}
               </p>
             </div>
             <div className="absolute bottom-4 right-5 text-right">
-              <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">Est. Time</p>
+              {/* "Est. Time" was wrong — these are logged rides, not planned
+                  ones. The number is what the ride actually took. */}
+              <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">Elapsed</p>
               <p ref={timeRef} className="font-mono text-[15px] md:text-[18px] font-bold text-accent tabular-nums tracking-wider">
-                {route.time}
+                {fmtTime(route.timeSec)}
               </p>
             </div>
           </div>
@@ -326,30 +423,63 @@ export default function DoctrineSection() {
               {ROUTES.map((r, i) => {
                 const isActive = i === active;
                 return (
-                  <li
-                    key={r.id}
-                    data-magnetic
-                    onMouseEnter={() => select(i)}
-                    onClick={() => select(i)}
-                    className="group relative cursor-pointer border-b border-line py-5 pl-4 flex items-baseline gap-4"
-                  >
-                    {/* Active left accent bar */}
-                    <span
-                      className="absolute left-0 top-0 bottom-0 w-[2px] bg-accent origin-center transition-transform duration-300"
-                      style={{ transform: isActive ? 'scaleY(1)' : 'scaleY(0)', boxShadow: isActive ? '0 0 10px var(--color-accent-mid)' : 'none' }}
-                    />
-                    <span className={`font-mono text-[11px] tabular-nums transition-colors duration-300 ${isActive ? 'text-accent' : 'text-fg-muted'}`}>
-                      [{r.id}]
-                    </span>
-                    <span
-                      className={`flex-1 font-sans font-light uppercase text-[13px] md:text-[15px] transition-all duration-300 ${isActive ? 'text-white' : 'text-fg-2'}`}
-                      style={{ letterSpacing: '0.18em', transform: isActive ? 'translateX(4px)' : 'translateX(0)' }}
+                  <li key={r.id} className="border-b border-line">
+                    {/* A real <button>: these were <li onClick>, which meant the
+                        only way to change route was a mouse. Now they tab, take
+                        Enter/Space, and announce their selected state. */}
+                    <button
+                      type="button"
+                      data-magnetic
+                      aria-pressed={isActive}
+                      onMouseEnter={() => select(i)}
+                      onFocus={() => select(i)}
+                      onClick={() => select(i)}
+                      className={`dx-route group relative w-full cursor-pointer py-5 pl-5 pr-1 flex items-baseline gap-4 text-left
+                        transition-colors duration-300
+                        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
+                        ${isActive ? 'bg-accent/[0.07]' : 'hover:bg-accent/[0.035]'}`}
                     >
-                      {r.name}
-                    </span>
-                    <span className={`font-mono text-[11px] tracking-wider whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-accent' : 'text-fg-muted'}`}>
-                      — {r.dist}
-                    </span>
+                      {/* Active rail — thicker and lit when selected, and a dim
+                          stub on hover so an unselected row still shows it is a
+                          control rather than a caption. */}
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-0 bottom-0 origin-center transition-all duration-300"
+                        style={{
+                          width: isActive ? '3px' : '2px',
+                          backgroundColor: 'var(--color-accent)',
+                          transform: isActive ? 'scaleY(1)' : 'scaleY(0)',
+                          boxShadow: isActive ? '0 0 12px var(--color-accent-mid)' : 'none',
+                        }}
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 bg-accent-soft opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                        style={{ opacity: isActive ? 0 : undefined }}
+                      />
+
+                      <span className={`font-mono text-[11px] tabular-nums transition-colors duration-300 ${
+                        isActive ? 'text-accent' : 'text-fg-muted group-hover:text-accent-mid'
+                      }`}>
+                        [{r.id}]
+                      </span>
+                      <span
+                        className={`flex-1 font-sans font-light uppercase text-[13px] md:text-[15px] transition-all duration-300 ${
+                          isActive ? 'text-white' : 'text-fg-2 group-hover:text-white'
+                        }`}
+                        style={{ letterSpacing: '0.18em', transform: isActive ? 'translateX(4px)' : 'translateX(0)' }}
+                      >
+                        {r.name}
+                      </span>
+                      {/* The lit rail, the background wash and the accent type
+                          already say "selected" three times over; a fourth
+                          `◂ LIVE` token was noise, so it is gone. */}
+                      <span className={`font-mono text-[11px] tracking-wider whitespace-nowrap transition-colors duration-300 ${
+                        isActive ? 'text-accent' : 'text-fg-muted'
+                      }`}>
+                        — {fmtDist(r.distKm)}
+                      </span>
+                    </button>
                   </li>
                 );
               })}
@@ -371,29 +501,54 @@ export default function DoctrineSection() {
               </span>
             </div>
 
-            {/* Live elevation profile */}
+            {/* Live elevation profile — shape comes from the terrain TYPE, so
+                every route gets a signature the eye can name at a glance. The
+                dashed mean rule is what makes FLAT legible: without a reference
+                line, a level band is indistinguishable from a chart that failed
+                to load, which is exactly how the old jittered version read. */}
             <div className="mt-7">
               <div className="flex items-baseline justify-between mb-2">
                 <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-fg-muted">Elevation profile</p>
-                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-accent-mid">{route.climb}</p>
+                <p className="font-mono text-[8px] tracking-[0.3em] uppercase text-accent-mid">{route.gain}</p>
               </div>
-              <div className="flex h-12 items-end gap-[3px]">
-                {route.elev.map((h, i) => (
+
+              <div className="relative flex h-16 items-end gap-[3px]">
+                {/* Mean rule — same dashed language as the ghost route lines.
+                    z-10 is load-bearing: the bars are `relative`, so without it
+                    they paint over this line. On FLAT the rule lands exactly on
+                    the crest of the band, which is the whole point — the ride
+                    never leaves its own average. */}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 z-10 border-t border-dashed border-line-strong"
+                  style={{ bottom: `${profile.mean}%` }}
+                />
+                {profile.bars.map((h, i) => (
                   <span
                     key={`${route.id}-${i}`}
-                    className="dx-bar flex-1 rounded-sm bg-gradient-to-t from-accent-soft to-accent"
+                    className="dx-bar relative flex-1 rounded-sm bg-gradient-to-t from-accent-soft to-accent"
                     style={{ height: `${h}%` }}
                   />
                 ))}
               </div>
+
+              <div className="mt-2 flex items-baseline justify-between">
+                <p className="font-mono text-[8px] tracking-[0.25em] uppercase text-fg-muted">
+                  {profile.name}
+                </p>
+                <p className="font-mono text-[8px] tracking-[0.25em] uppercase text-fg-faint">
+                  {profile.note}
+                </p>
+              </div>
             </div>
 
-            {/* Surface / bearing telemetry */}
-            <div className="mt-6 grid grid-cols-3 gap-3 border-t border-line pt-4">
+            {/* Surface / bearing telemetry. A third `Routes — 03 LOGGED` cell
+                used to sit here: a constant that never changed with the route
+                and restated the 01/03 counter directly above it. Dropped. */}
+            <div className="mt-6 grid grid-cols-2 gap-3 border-t border-line pt-4">
               {[
                 { label: 'Surface', value: route.surface },
                 { label: 'Bearing', value: route.bearing, accent: true },
-                { label: 'Routes', value: `${String(ROUTES.length).padStart(2, '0')} LOGGED` },
               ].map((s) => (
                 <div key={s.label}>
                   <p className="font-mono text-[8px] tracking-[0.25em] uppercase text-fg-muted mb-1">{s.label}</p>
@@ -408,6 +563,62 @@ export default function DoctrineSection() {
               {route.detail}
             </p>
           </div>
+        </div>
+
+        {/* ── THE DOCTRINE ─────────────────────────────────────────────────
+            The payload the section is named for, and the only place it speaks
+            at display scale. It used to sit at the bottom of the schedule
+            column at 12px mono — the smallest thing in a stack of six
+            identically-weighted mono blocks, which meant the section called
+            ROUTE DOCTRINE buried its doctrine. Full width, below both panels,
+            so the reading order is instrument → telemetry → conclusion.
+
+            Lowercase against an otherwise all-caps section is deliberate: the
+            instruments shout in caps because instruments do, and this is the
+            one human sentence here. The case change marks the speaker change.
+
+            The two clauses are not styled for rhythm — white is the ride, lime
+            is the principle it maps to. The accent performs the translation
+            the section exists to make. */}
+        <div ref={doctrineRef} className="mt-10 md:mt-14 border-t border-line pt-7 md:pt-9">
+          <div className="flex items-baseline gap-4 mb-5 md:mb-6">
+            <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-accent">
+              Doctrine
+            </span>
+            <span className="h-px flex-1 bg-line" />
+            <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-fg-muted tabular-nums">
+              {route.id} / {String(ROUTES.length).padStart(2, '0')}
+            </span>
+          </div>
+
+          {/* Set in JetBrains Mono at display scale — not the `font-serif`
+              display face, deliberately. Two reasons:
+
+              1. `--font-serif` is 'Saira Expanded', which does not exist on
+                 Google Fonts (see index.html) and silently falls back to
+                 Arial Narrow — or plain Arial where that is missing. At 52px
+                 that reads as generic body copy enlarged. A signature element
+                 cannot rest on a font that may never load.
+              2. Mono at this size is the one register the site has never used:
+                 JetBrains Mono appears everywhere here, but only ever at
+                 8–11px as instrument labels. Promoting it to display scale
+                 makes the doctrine unmistakably the same voice as THE THESIS
+                 while giving it the weight the section's name promises.
+
+              Weight 500, not 900: everything else on this site shouts in black
+              caps, and a fourth shouting headline would just be more noise. */}
+          <p
+            className="font-mono lowercase max-w-5xl"
+            style={{
+              fontSize: 'clamp(1.05rem, 2.9vw, 2.35rem)',
+              fontWeight: 500,
+              lineHeight: '1.32',
+              letterSpacing: '-0.015em',
+            }}
+          >
+            <span className="text-fg">{route.doctrine[0]} </span>
+            <span style={{ color: 'var(--color-accent)' }}>{route.doctrine[1]}</span>
+          </p>
         </div>
       </div>
     </section>
