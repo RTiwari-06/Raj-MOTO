@@ -126,7 +126,7 @@ export default function Loader({ onComplete }) {
         {/* Top status row */}
         <div className="flex items-center justify-between">
           <p className="font-mono text-[9px] uppercase tracking-[0.4em] text-fg-muted">
-            RT-MOTO // IGNITION SEQUENCE
+            RT•MOTO // IGNITION SEQUENCE
           </p>
           <p
             ref={statusRef}

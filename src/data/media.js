@@ -73,11 +73,11 @@ export const MEDIA = {
       accent:   '#D2FF00',
       tag:      'Daily Rider',
       tagline:  'Orange frame. Black tarmac. Every ride is a commit.',
-      odometer: '20k kilometre',
+      odometer: '20,000',
       story: [
-        "A raw, single-cylinder heartbeat. Thirty horses pulling you forward. Out here, streetlights are just strobes,",
-        "And every gap in the traffic is a new apex waiting to be clipped. Vision locked. Motion blurred,",
-        "This machine taught me one absolute truth: in this city, precision isn't an option. It’s survival.",
+        "A raw, single-cylinder heartbeat. Thirty horses pulling you forward. Out here, streetlights are just strobes.",
+        "Every gap in the traffic is a new apex waiting to be clipped. Vision locked. Motion blurred.",
+        "This machine taught me one absolute truth: in this city, precision isn't an option. It's survival.",
       ],
       specs: [
         { label: 'Engine',  value: '248.8cc'  },
@@ -119,8 +119,8 @@ export const MEDIA = {
       tagline:  'Wet roads demand more focus. So does production code.',
       odometer: '112',
       story: [
-        "June monsoon. Bangalore rain at its heaviest.",
-        "112km loop. Every corner demanding maximum respect for physics.",
+        "June monsoon. Bengaluru rain at its heaviest.",
+        "112 km loop. Every corner demanding maximum respect for physics.",
         "Same discipline. Different medium.",
       ],
       specs: [
@@ -141,7 +141,7 @@ export const MEDIA = {
       tagline:  'Dawn. Fog. Hairpins. Best debugging session of the year.',
       odometer: '2562',
       story: [
-        "PATNA,BIHAR. 78 metres above sea level. 62km of switchbacks.",
+        "PATNA, BIHAR. 78 metres above sea level. 62 km of switchbacks.",
         "Set out at 4AM. Reached the summit for sunrise.",
         "Some problems are better solved at altitude.",
       ],

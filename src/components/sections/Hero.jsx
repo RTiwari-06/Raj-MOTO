@@ -162,7 +162,7 @@ const Hero = ({ isLoaded = true }) => {
           src={MEDIA.hero.primary}
           srcSet={MEDIA.hero.srcSet}
           sizes="100vw"
-          alt="Raj Tiwari"
+          alt="Rider standing with the helmet off"
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
@@ -199,21 +199,10 @@ const Hero = ({ isLoaded = true }) => {
         data-depth="-0.1"
         className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-end items-center px-8 md:px-16 pb-12 md:pb-16"
       >
-        {/* The hero's only headline. Sits inside uiLayerRef so it inherits the
-            scroll-exit tween at :150 — no new ScrollTrigger. It reads THROUGH
-            the rider on purpose: the section is built on human<->machine
-            duality, and the ampersand — the join — lands on the person. */}
-        <p
-          className="pointer-events-none absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-serif font-black uppercase leading-none"
-          style={{
-            fontSize: 'clamp(4rem, 15vw, 14rem)',
-            letterSpacing: '-0.045em',
-            color: 'var(--color-fg)',
-            opacity: 0.28,
-          }}
-        >
-          Developer <span style={{ color: 'var(--color-accent)' }}>&amp;</span> Rider
-        </p>
+        {/* No headline over the photograph. The oversized DEVELOPER & RIDER
+            wordmark that sat here read as a label pasted over the image; the
+            hero carries its meaning through the photo + reveal alone. The
+            identity copy lives in THE PATH and the © line instead. */}
 
         <div className="pointer-events-auto mb-6">
           <button
