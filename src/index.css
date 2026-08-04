@@ -900,6 +900,40 @@ html.lenis { height: auto; }
 
 /* ── Contact Finale ─────────────────────────────────────────────────────────── */
 
+/* Underline wipes in from the link's leading edge. scaleX on a pseudo-element,
+   not width/background-position, so it composites instead of triggering layout.
+   `--wipe-origin` lets the right-hand social column wipe inward (right→left)
+   so both rails read as travelling toward the centre of the page. */
+.link-wipe {
+  position: relative;
+  --wipe-origin: left center;
+}
+.link-wipe::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.16em;
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: var(--wipe-origin);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.link-wipe:hover::after,
+.link-wipe:focus-visible::after {
+  transform: scaleX(1);
+}
+.link-wipe--from-right {
+  --wipe-origin: right center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-wipe::after {
+    transition: none;
+  }
+}
+
 .contact-statement {
   font-size: var(--text-display-xl);
   font-family: var(--font-serif);
