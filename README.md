@@ -112,7 +112,7 @@ A clean engineering system that separates visual presentation from motion orches
 src/
 ├── components/
 │   ├── layout/     # Persistent shell — Navbar, Footer, Loader (tachometer boot)
-│   ├── sections/   # Narrative modules — Hero, TheMachine, Helmet, Rides, StatReveal, Story…
+│   ├── sections/   # Narrative modules — Hero, TheMachine, Helmet, Doctrine, StatReveal, Story…
 │   ├── ui/         # Reusable primitives — Marquee, ScanReveal, ScopeReveal, scramble text
 │   └── webgl/      # R3F layers — HeroShaderMesh (the reveal), FluidBackground, BackgroundOrb
 ├── shaders/        # GLSL — heroFragment / heroVertex (reveal) · fluidFragment (background)

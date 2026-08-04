@@ -204,10 +204,12 @@ export default function GallerySection() {
             from the retired ActionGallery so the Archive page stays reachable) */}
         <div className="mt-24 md:mt-32">
           <div className="mx-auto w-full max-w-xl border-t border-line">
+            {/* "View Rides" (#rides) went with RidesSection. The ordinal went
+                with it too: one remaining link numbered 01 would announce a
+                sequence that no longer exists. */}
             {[
-              { href: '#rides',   label: 'View Rides',   index: '01', sub: 'Selected machines' },
-              { href: '/archive', label: 'Full Archive', index: '02', sub: 'Every frame' },
-            ].map(({ href, label, index, sub }) => (
+              { href: '/archive', label: 'Full Archive', sub: 'Every frame' },
+            ].map(({ href, label, sub }) => (
               <a
                 key={href}
                 href={href}
@@ -218,9 +220,6 @@ export default function GallerySection() {
                 <span className="absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-accent transition-transform duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
                 <span className="flex items-end justify-between gap-6">
                   <span className="flex items-baseline gap-4 md:gap-6">
-                    <span className="font-mono text-[10px] tracking-[0.25em] text-fg-muted transition-colors duration-300 group-hover:text-white">
-                      {index}
-                    </span>
                     <span className="flex flex-col">
                       <span
                         className="font-serif font-black uppercase leading-none text-white transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1.5"

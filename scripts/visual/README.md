@@ -47,5 +47,5 @@ percentage tells you where to look, not what happened.
 - `DoctrineSection` has **no `id`** (it is wrapped in `<ScanReveal>`), so it is
   targeted via `.dx-bar`. If that class ever moves, the shot silently skips —
   and Doctrine is usually the section you most want to see.
-- Section anchors are `hero thesis machine gear rides story gallery connect`.
+- Section anchors are `hero thesis machine gear story gallery connect`.
   Note it is `#connect`, not `#contact` — the navbar labels it "COORDINATES".

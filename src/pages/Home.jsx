@@ -10,7 +10,6 @@ const TheMachine = lazy(() => import('@/components/sections/TheMachine'));
 const TextMarquee = lazy(() => import('@/components/ui/TextMarquee'));
 const HelmetSection = lazy(() => import('@/components/sections/HelmetSection'));
 const DoctrineSection = lazy(() => import('@/components/sections/DoctrineSection'));
-const RidesSection = lazy(() => import('@/components/sections/RidesSection'));
 const StatRevealSection = lazy(() => import('@/components/sections/StatRevealSection'));
 const VisorUpHinge = lazy(() => import('@/components/sections/VisorUpHinge'));
 const StorySection = lazy(() => import('@/components/sections/StorySection'));
@@ -81,7 +80,6 @@ export function Home() {
           <TextMarquee />
           <HelmetSection />
           <ScanReveal><DoctrineSection /></ScanReveal>
-          <RidesSection />
           <StatRevealSection />
 
           {/* ── VISOR UP ── act break ── */}

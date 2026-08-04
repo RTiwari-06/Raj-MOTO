@@ -16,7 +16,6 @@ const SECTIONS = [
   ['machine', '#machine'],
   ['gear', '#gear'],
   ['doctrine', '.dx-bar'],
-  ['rides', '#rides'],
   ['story', '#story'],
   ['gallery', '#gallery'],
   ['connect', '#connect'],

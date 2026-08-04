@@ -8,15 +8,17 @@ import { EASE, DUR, STAGGER } from '@/motion/system';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 // ── Nav model ─────────────────────────────────────────────────────────────────
+// Renumbered after TARMAC (#rides) was removed with RidesSection — the indices
+// are a contiguous running order, so leaving a 02 gap would have read as a
+// missing section rather than a design.
 const LINKS = [
   { idx: '00', label: 'IGNITION',    href: '/',        id: null,      type: 'route' },
   { idx: '01', label: 'MACHINE',     href: '#machine', id: 'machine', type: 'anchor' },
-  { idx: '02', label: 'TARMAC',      href: '#rides',   id: 'rides',   type: 'anchor' },
-  { idx: '03', label: 'PIT LANE',    href: '#story',   id: 'story',   type: 'anchor' },
+  { idx: '02', label: 'PIT LANE',    href: '#story',   id: 'story',   type: 'anchor' },
   // Clicks through to the full /archive route, but scroll-spy tracks the on-page
   // VISUAL ARCHIVE section (#gallery) so the active highlight advances there.
-  { idx: '04', label: 'ARCHIVE',     href: '/archive', id: 'gallery', type: 'route' },
-  { idx: '05', label: 'COORDINATES', href: '#connect', id: 'connect', type: 'anchor' },
+  { idx: '03', label: 'ARCHIVE',     href: '/archive', id: 'gallery', type: 'route' },
+  { idx: '04', label: 'COORDINATES', href: '#connect', id: 'connect', type: 'anchor' },
 ];
 
 // Offset (px) the fixed nav steals from the top when smooth-scrolling to anchors.
@@ -264,7 +266,12 @@ const Navbar = () => {
           style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.72), transparent)', opacity: scrolled ? 0 : 1 }}
         />
 
-        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-12 lg:px-20 py-4 md:py-5">
+        {/* gap-x is load-bearing, not cosmetic: the centre track is `auto`, so at
+            widths where it grows the 1fr side tracks collapse and the last nav
+            link (COORDINATES) butts straight against the scroll readout with no
+            separation. The readout only fades in past 24px of scroll, which is
+            why the collision looks like a scroll bug rather than a layout one. */}
+        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-x-6 md:gap-x-10 px-6 md:px-12 lg:px-20 py-4 md:py-5">
 
           {/* ── LEFT · race-plate identity ─────────────────────────────────── */}
           <a

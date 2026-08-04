@@ -4,7 +4,6 @@ import { SmoothScroll } from '@/utils/Lenis';
 import { Cursor } from '@/components/layout/Cursor';
 import ViewportFrame from '@/components/layout/ViewportFrame';
 import Loader from '@/components/layout/Loader';
-import ProjectDetail from '@/components/sections/ProjectDetail';
 import { Home } from '@/pages/Home';
 import { useUIStore } from '@/store/useUIStore';
 
@@ -34,8 +33,6 @@ function App() {
           />
         </Routes>
 
-        <ProjectDetail />
-        
       </SmoothScroll>
     </Router>
   );
